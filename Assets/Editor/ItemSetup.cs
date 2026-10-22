@@ -36,8 +36,11 @@ namespace LifeInDowntown.EditorTools
             }
             if (Top(condo.transform, "painted_wooden_nightstand", out var stand, out var standTop))
             {
-                var gun = LifeInDowntown.Items.WeaponHolder.StandIn();
-                foreach (var r in gun.GetComponentsInChildren<Renderer>()) r.sharedMaterial = r.name.StartsWith("Slide") || r.name.StartsWith("Sight") ? slide : frame;
+                // the officer's pistol (PistolImport) if imported, else the box stand-in with saved materials
+                var real = AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
+                var gun = real != null ? (GameObject)PrefabUtility.InstantiatePrefab(real) : LifeInDowntown.Items.WeaponHolder.StandIn();
+                if (real == null)
+                    foreach (var r in gun.GetComponentsInChildren<Renderer>()) r.sharedMaterial = r.name.StartsWith("Slide") || r.name.StartsWith("Sight") ? slide : frame;
                 Pickup(root, "pistol_9mm", 1, "condo_pistol", gun, standTop + Vector3.up * 0.015f, stand.rotation * Quaternion.Euler(0f, 0f, 90f));   // lying on its side
                 Pickup(root, "ammo_9mm", 30, "condo_ammo", Prim(PrimitiveType.Cube, ammoBox, new Vector3(0.12f, 0.04f, 0.08f)),
                        standTop + stand.right * 0.12f + Vector3.up * 0.02f, stand.rotation);

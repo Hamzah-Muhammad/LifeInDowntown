@@ -50,7 +50,10 @@ namespace LifeInDowntown.EditorTools
             }
             var bodycam = GameObject.Find("BodycamCamera");
             if (bodycam != null)   // what the player sees at spawn: chest height, wide lens
+            {
                 poses.Add(("bodycam_spawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));
+                poses.Add(("bodycam_pistol_drawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));   // DESIGN 3M
+            }
 
             AddCrowdPoses(poses, CityGenerator.TryCondoFrame(data, out var cf) ? cf : (CityGenerator.CondoFrame?)null);
             foreach (var (shot, id) in new[] { ("items_nightstand", "condo_pistol"), ("items_coffee_table", "condo_chips") })   // DESIGN 3M
@@ -92,6 +95,17 @@ namespace LifeInDowntown.EditorTools
                     rain.transform.position = new Vector3(pos.x, 0f, pos.z);
                 }
                 var preview = PreviewCrowd(pos);
+                if (name == "bodycam_pistol_drawn")   // the held pistol where WeaponHolder puts it, in camera space
+                {
+                    var holder = Object.FindFirstObjectByType<LifeInDowntown.Items.WeaponHolder>();
+                    if (holder != null && holder.gunModel != null)
+                    {
+                        var held = Object.Instantiate(holder.gunModel, cam.transform, false);
+                        held.transform.localPosition = holder.heldPosition;
+                        held.transform.localRotation = Quaternion.Euler(holder.heldEuler);
+                        preview.Add(held);
+                    }
+                }
                 for (int i = 0; i < WarmupFrames; i++) Render(cam, rt);   // lets auto-exposure and sky settle
                 var prev = RenderTexture.active;
                 RenderTexture.active = rt;
@@ -136,6 +150,8 @@ namespace LifeInDowntown.EditorTools
             if (corner != null) Face("crowd_corner_crew", corner.transform, 6f, 2f);
             if (homeless != null) Face("crowd_homeless", homeless.transform, 3.5f, 1.2f);
             if (sitter != null) Face("crowd_sitter", sitter.transform, 3.2f, -1.2f);
+            var cop = System.Array.Find(crowd.statics, p => p.name.StartsWith("Police_"));
+            if (cop != null) Face("crowd_police", cop.transform, 4f, 1.5f);
             Transform sleeper = null;
             foreach (var t in crowd.GetComponentsInChildren<Transform>()) if (t.name == "SleepingBag") { sleeper = t; break; }
             if (sleeper != null) Face("crowd_sleeper", sleeper.transform.parent, 3.2f, 1.5f);

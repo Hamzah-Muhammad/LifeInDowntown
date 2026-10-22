@@ -7,6 +7,23 @@ namespace LifeInDowntown.EditorTools
     // (bounds, local bounds, root bone), to debug culling/offset problems.
     public static class NpcDiagnostic
     {
+        // -executeMethod ...NpcDiagnostic.ReportModel -model <path.fbx>: every renderer, its slots and bounds
+        public static void ReportModel()
+        {
+            var path = LifeInDowntown.Game.GameFlow.Arg("-model");
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (model == null) { Debug.Log($"NPC_DIAG no model at {path}"); return; }
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(model);
+            foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+            {
+                var mesh = r is SkinnedMeshRenderer smr ? smr.sharedMesh : r.GetComponent<MeshFilter>()?.sharedMesh;
+                Debug.Log($"NPC_DIAG renderer {r.name} ({r.GetType().Name}) mesh={(mesh ? mesh.name : "none")} verts={(mesh ? mesh.vertexCount : 0)} " +
+                          $"sub={(mesh ? mesh.subMeshCount : 0)} bounds c={r.bounds.center} s={r.bounds.size} " +
+                          $"mats={string.Join(",", System.Array.ConvertAll(r.sharedMaterials, m => m ? m.name : "null"))}");
+            }
+            Object.DestroyImmediate(go);
+        }
+
         public static void Run()
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(CharacterImport.Root + "/Prefabs/Female_Adult_09.prefab");

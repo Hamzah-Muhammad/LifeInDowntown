@@ -24,7 +24,7 @@ namespace LifeInDowntown.EditorTools
         class Ctx
         {
             public System.Random rnd;
-            public List<GameObject> male = new List<GameObject>(), female = new List<GameObject>();
+            public List<GameObject> male = new List<GameObject>(), female = new List<GameObject>(), police = new List<GameObject>();
             public List<(Vector2 a, Vector2 b, float halfW, long id)> segs;
             public List<List<Vector2>> footprints;
             public List<Vector3> doors = new List<Vector3>();
@@ -44,7 +44,8 @@ namespace LifeInDowntown.EditorTools
                 foreach (var f in Directory.GetFiles(dir, "*.prefab"))
                 {
                     var go = AssetDatabase.LoadAssetAtPath<GameObject>(f.Replace('\\', '/'));
-                    (Path.GetFileName(f).StartsWith("Female") ? c.female : c.male).Add(go);
+                    string file = Path.GetFileName(f);
+                    (file.StartsWith("Police_") ? c.police : file.StartsWith("Female") ? c.female : c.male).Add(go);
                 }
             if (c.male.Count + c.female.Count == 0) { Debug.Log("NPC_SKIP no prefabs yet (run CharacterImport)"); return; }
 
@@ -71,6 +72,7 @@ namespace LifeInDowntown.EditorTools
             var crowd = c.root.gameObject.AddComponent<CrowdDirector>();
             var all = new List<GameObject>(c.male); all.AddRange(c.female);
             crowd.walkerPrefabs = all.ToArray();
+            crowd.policePrefabs = c.police.ToArray();
             var pts = new List<Vector3>(); var starts = new List<int>();
             foreach (var l in lines) { starts.Add(pts.Count); foreach (var p in l) pts.Add(p + Vector3.up * SlabTop); }
             crowd.points = pts.ToArray(); crowd.lineStart = starts.ToArray(); crowd.lineWeight = weights.ToArray();
@@ -78,12 +80,30 @@ namespace LifeInDowntown.EditorTools
             var junctions = CityGenerator.FindJunctions(data);
             junctions.Sort((a, b) => a.p.x != b.p.x ? a.p.x.CompareTo(b.p.x) : a.p.y.CompareTo(b.p.y));
             Shuffle(junctions, c.rnd);
+            int police = PlacePolice(c, junctions);
             int groups = PlaceCorners(c, junctions);
             int waiting = PlaceCrosswalks(c, junctions);
             int homeless = PlaceHomeless(c, lines);
             crowd.statics = c.statics.ToArray();
             Debug.Log($"NPC_OK pool={crowd.walkers} cornerGroups={groups} crosswalkPeople={waiting} homelessSpots={homeless} " +
-                      $"statics={c.statics.Count} sidewalkLines={lines.Count} points={pts.Count} characters={all.Count}");
+                      $"police={police} statics={c.statics.Count} sidewalkLines={lines.Count} points={pts.Count} characters={all.Count}");
+        }
+
+        // ---------- police: two officers posted at Yonge & Dundas, the corner TPS always has someone on ----------
+        static int PlacePolice(Ctx c, List<CityGenerator.Junction> junctions)
+        {
+            if (c.police.Count == 0) return 0;
+            CityGenerator.Junction centre = null;
+            foreach (var j in junctions) if (centre == null || j.p.sqrMagnitude < centre.p.sqrMagnitude) centre = j;
+            if (centre == null) return 0;
+            var corners = Corners(c, centre);
+            if (corners.Count == 0) return 0;
+            var (spot, face) = corners[0];
+            var side = new Vector3(-face.z, 0f, face.x);
+            Person(c, c.police, spot - side * 0.6f, face, Pedestrian.Mode.LookAround, watch: true);
+            Person(c, c.police, spot + side * 0.6f, (face - side).normalized, Pedestrian.Mode.Waiting, watch: false);
+            c.taken.Add(spot);
+            return 2;
         }
 
         // ---------- corners: the corner boys ----------

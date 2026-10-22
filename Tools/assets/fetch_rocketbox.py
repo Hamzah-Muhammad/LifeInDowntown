@@ -22,6 +22,9 @@ UA = {"User-Agent": "LifeInDowntown/0.1 (github.com/Hamzah-Muhammad/LifeInDownto
 
 AVATARS = ["Female_Adult_04", "Female_Adult_06", "Female_Adult_07", "Female_Adult_09", "Female_Adult_12",
            "Male_Adult_04", "Male_Adult_10", "Male_Adult_12", "Male_Adult_17", "Male_Adult_18"]
+# professions live under Assets/Avatars/Professions; approved 2026-10-22: the officer (90 MB raw) for police NPCs
+# and his duty pistol, the held / pickup pistol model (docs/DESIGN.md 3M)
+PROFESSIONS = ["Police_Male_01"]
 ANIMATIONS = ["all_animations_max_motextr_xy/f_walk_neutral_01", "all_animations_max_motextr_xy/m_walk_neutral_01",
               "all_animations_max_motextr_xy/f_walk_slow_01", "all_animations_max_motextr_xy/m_walk_slow_01",
               "all_animations_max_motextr_static/f_idle_neutral_01", "all_animations_max_motextr_static/m_idle_neutral_01",
@@ -56,8 +59,8 @@ def wanted(tree):
         if e["type"] != "blob":
             continue
         p = e["path"]
-        for av in AVATARS:
-            base = f"Assets/Avatars/Adults/{av}/"
+        for av in AVATARS + PROFESSIONS:
+            base = f"Assets/Avatars/{Group(av)}/{av}/"
             name = p.rsplit("/", 1)[-1].lower()
             if p == base + f"Export/{av}.fbx" or (p.startswith(base + "Textures/") and name.endswith(".tga") and "wrinkle" not in name):
                 files.append((p, e["size"]))
@@ -65,6 +68,10 @@ def wanted(tree):
             if p == f"Assets/Animations/{a}.max.fbx":
                 files.append((p, e["size"]))
     return files
+
+
+def Group(av):
+    return "Professions" if av in PROFESSIONS else "Adults"
 
 
 def convert_texture(src, dst_dir):
@@ -92,11 +99,11 @@ def main():
             print(f"  {i}/{len(files)} files, {got / 2**20:.0f} MB downloaded this run")
 
     raw_mb = conv_mb = 0.0
-    for av in AVATARS:
+    for av in AVATARS + PROFESSIONS:
         dst = OUT / av
         dst.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(CACHE / f"Assets/Avatars/Adults/{av}/Export/{av}.fbx", dst / f"{av}.fbx")
-        for tga in sorted((CACHE / f"Assets/Avatars/Adults/{av}/Textures").glob("*.tga")):
+        shutil.copy2(CACHE / f"Assets/Avatars/{Group(av)}/{av}/Export/{av}.fbx", dst / f"{av}.fbx")
+        for tga in sorted((CACHE / f"Assets/Avatars/{Group(av)}/{av}/Textures").glob("*.tga")):
             out = convert_texture(tga, dst)
             raw_mb += tga.stat().st_size / 2**20
             conv_mb += out.stat().st_size / 2**20

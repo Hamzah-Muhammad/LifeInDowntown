@@ -37,9 +37,10 @@ namespace LifeInDowntown.EditorTools
             foreach (var dir in Directory.GetDirectories(Root))
             {
                 string av = Path.GetFileName(dir);
-                if (!av.Contains("_Adult_")) continue;
+                if (!av.Contains("_Adult_") && !av.StartsWith("Police_")) continue;
                 if (BuildPrefab(av, av.StartsWith("Female") ? female : male)) built++;
             }
+            PistolImport.Extract();
             AssetDatabase.SaveAssets();
             Debug.Log($"NPC_IMPORT_OK prefabs={built}");
         }
@@ -126,7 +127,10 @@ namespace LifeInDowntown.EditorTools
                 for (int i = 0; i < slots.Length; i++)
                 {
                     string n = slots[i] != null ? slots[i].name.ToLowerInvariant() : "";
-                    slots[i] = n.Contains("opacity") ? mats.opacity : n.Contains("head") ? mats.head : mats.body;
+                    // professions carry extra texture sets (the officer's equipment belt, his pistol): match them by slot name
+                    var extra = n.Contains("body") || n.Contains("head") || n.Contains("opacity") ? null : Tex(dir: $"{Root}/{av}", suffix: n + "_color", normal: false, warn: false);
+                    slots[i] = extra != null ? Lit($"{Root}/{av}/{n}.mat", extra, Tex($"{Root}/{av}", n + "_normal", true, warn: false), 0.45f, false)
+                             : n.Contains("opacity") ? mats.opacity : n.Contains("head") ? mats.head : mats.body;
                 }
                 smr.sharedMaterials = slots;
                 smr.updateWhenOffscreen = false;

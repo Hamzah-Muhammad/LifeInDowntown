@@ -8,14 +8,16 @@ namespace LifeInDowntown.Items
     // The equipped weapon (docs/DESIGN.md 3M), carry-and-draw only: Q draws or holsters it, R reloads
     // from loose rounds. Drawn, it comes up into the bottom of the chest-cam frame, the way a bodycam
     // sees a pistol held out in both hands. No firing yet: combat is its own milestone.
-    // The pistol is a stand-in built from boxes until a real model is imported (gunModel).
+    // The pistol is Rocketbox Police_Male_01's duty pistol (EditorTools/PistolImport); the box stand-in is the fallback.
     public class WeaponHolder : MonoBehaviour
     {
         public static WeaponHolder Instance { get; private set; }
 
         public GameObject gunModel;                         // optional real model; otherwise the stand-in
-        public Vector3 heldPosition = new Vector3(0.03f, -0.16f, 0.46f);   // camera space, metres
-        public Vector3 heldEuler = new Vector3(-4f, 0f, 0f);
+        // camera space: out in front of the chest, a little right, canted and yawed in so the slide's side
+        // shows (a straight-on pistol reads as a black bar from a chest mount)
+        public Vector3 heldPosition = new Vector3(0.08f, -0.12f, 0.5f);
+        public Vector3 heldEuler = new Vector3(-6f, -16f, 8f);
         public float drawSeconds = 0.35f;
 
         Transform gun;

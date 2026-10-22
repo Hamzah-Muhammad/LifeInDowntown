@@ -58,7 +58,8 @@ namespace LifeInDowntown.EditorTools
             rig.player = player;
             rig.Tick(1f / 60f);   // place it at the mount now so the scene opens at the right pose
             camGo.AddComponent<BodycamOverlay>();
-            camGo.AddComponent<LifeInDowntown.Items.WeaponHolder>();   // drawn pistol in the chest-cam frame (DESIGN 3M)
+            camGo.AddComponent<LifeInDowntown.Items.WeaponHolder>().gunModel =   // drawn pistol in the chest-cam frame (DESIGN 3M)
+                AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
 
             var rain = GameObject.Find("Rain");
             if (rain != null)
