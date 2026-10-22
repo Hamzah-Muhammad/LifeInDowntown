@@ -63,6 +63,14 @@ namespace LifeInDowntown.Player
             Yaw = transform.eulerAngles.y;
         }
 
+        // used by loading a save / starting a new game
+        public void SetLook(float yaw, float pitch)
+        {
+            Yaw = yaw;
+            Pitch = Mathf.Clamp(pitch, -pitchLimit, pitchLimit);
+            transform.rotation = Quaternion.Euler(0f, Yaw, 0f);
+        }
+
         void OnEnable()
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -71,8 +79,6 @@ namespace LifeInDowntown.Player
 
         void Update()
         {
-            // no pause menu yet: Esc quits the built game (ignored in the editor)
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) Application.Quit();
 
             Vector2 m = move?.ReadValue<Vector2>() ?? Vector2.zero;
             Vector2 l = look?.ReadValue<Vector2>() ?? Vector2.zero;

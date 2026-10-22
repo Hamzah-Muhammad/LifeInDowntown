@@ -38,7 +38,7 @@ namespace LifeInDowntown.EditorTools
             float jog = MeasureSpeed(player, rig, new Vector2(0, 1), false, 180, out float bobMin, out float bobMax);
             Check(Mathf.Abs(jog - player.jogSpeed) < 0.4f, $"jog speed {jog:F2} m/s (target {player.jogSpeed})");
             float bobRange = bobMax - bobMin;
-            Check(bobRange > 0.015f && bobRange < 0.09f, $"jog vertical bob {bobRange * 100f:F1} cm (design 3-5 cm)");
+            Check(bobRange > 0.01f && bobRange < 0.04f, $"jog vertical bob {bobRange * 100f:F1} cm (design 1.5-3 cm after the 2026-10-22 shake cut)");
 
             float sprint = MeasureSpeed(player, rig, new Vector2(0, 1), true, 120, out _, out _);
             Check(Mathf.Abs(sprint - player.sprintSpeed) < 0.6f, $"sprint speed {sprint:F2} m/s (target {player.sprintSpeed})");

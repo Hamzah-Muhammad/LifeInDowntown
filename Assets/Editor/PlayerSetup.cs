@@ -1,6 +1,8 @@
 using System.IO;
 using LifeInDowntown.City;
+using LifeInDowntown.Game;
 using LifeInDowntown.Player;
+using UnityEngine.UIElements;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -63,7 +65,55 @@ namespace LifeInDowntown.EditorTools
             vol.isGlobal = true;
             vol.priority = 20f;
             vol.sharedProfile = BuildProfile();
+
+            // main menu drift: from just behind the spawn, 60 m up Yonge, a little above head height
+            var menuCam = camGo.AddComponent<MenuCamera>();
+            var fwd = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+            menuCam.from = spawn + Vector3.up * 2.1f - fwd * 6f;
+            menuCam.to = spawn + Vector3.up * 2.1f + fwd * 60f;
+            menuCam.enabled = false;
+
+            SetupMenu(player, rig, menuCam);
             Debug.Log($"PLAYER_OK spawn={spawn} yaw={yaw:F0}");
+        }
+
+        const string UxmlPath = "Assets/UI/Menu.uxml";
+        const string ThemePath = "Assets/UI/LIDTheme.tss";
+        const string PanelPath = "Assets/UI/MenuPanelSettings.asset";
+
+        // the Game object: UI Toolkit menu document + flow controller, plus an EventSystem for UI input
+        static void SetupMenu(BodycamPlayer player, BodycamRig rig, MenuCamera menuCam)
+        {
+            foreach (var n in new[] { "Game", "EventSystem" })
+            {
+                var old = GameObject.Find(n);
+                if (old != null) Object.DestroyImmediate(old);
+            }
+            var panel = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelPath);
+            if (panel == null)
+            {
+                panel = ScriptableObject.CreateInstance<PanelSettings>();
+                AssetDatabase.CreateAsset(panel, PanelPath);
+            }
+            panel.themeStyleSheet = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(ThemePath);
+            panel.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+            panel.referenceResolution = new Vector2Int(1920, 1080);
+            panel.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
+            panel.match = 1f;   // scale by height so the left-side menu fits any aspect
+            EditorUtility.SetDirty(panel);
+
+            var game = new GameObject("Game");
+            var doc = game.AddComponent<UIDocument>();
+            doc.panelSettings = panel;
+            doc.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
+            var menu = game.AddComponent<MenuController>();
+            var flow = game.AddComponent<GameFlow>();
+            flow.player = player; flow.rig = rig; flow.menuCamera = menuCam; flow.menu = menu;
+            menu.flow = flow;
+
+            var es = new GameObject("EventSystem");
+            es.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
         }
 
         // right-hand sidewalk of Yonge, ~40 m south of Dundas, facing north

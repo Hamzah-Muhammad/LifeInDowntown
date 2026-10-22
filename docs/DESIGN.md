@@ -117,6 +117,17 @@ Hamzah's brief: "BodyCam style, extremely realistic with great audio... a grimy 
 - Spatial: HDRP scene reverb zones (street canyon vs alley vs indoors).
 - Download list needs Hamzah's OK first (same rule as textures).
 
+## 3C. Menu, settings, save files (built 2026-10-22)
+
+- **Flow** (`Assets/Scripts/Game/GameFlow.cs`): the game opens on the **main menu** over a slow camera drift up rainy Yonge (`MenuCamera`); **Esc** in game opens the **pause menu** (time stops); Esc/Back steps out of sub-screens.
+- **Main menu:** title LIFE IN / DOWNTOWN / TORONTO; Continue (newest save, greyed when none), New Game, Load Game, Settings, Quit.
+- **Pause menu:** Resume, Save Game, Load Game, Settings, Quit to Main Menu, Quit to Desktop.
+- **Saves** (`SaveSystem.cs`): 3 manual slots + 1 autosave (written when quitting from the pause menu), JSON in `%USERPROFILE%\AppData\LocalLow\Hamzah Muhammad\Life In Downtown\saves\`; write-then-rename so a crash never leaves half a file; a corrupt file reads as empty. Each save holds position, look, playtime and `GameState` (name, REP/HEAT/LOYALTY/CASH, flags).
+- **Settings** (`GameSettings.cs`, `settings.json` beside the saves, applied live): graphics quality (the 3 HDRP presets), resolution, display mode, V-Sync, ray-traced reflections, motion blur, field of view (80-110° horizontal), camera shake (0-1.5), mouse sensitivity, master volume.
+- **UI:** UI Toolkit, `Assets/UI/Menu.uxml` + `Menu.uss` (palette from the icon), panel scales by screen height.
+- **Overlay change (Hamzah):** top-left device ID and REC dot removed; only the timestamp stays, hidden in menus. **Camera shake** cut roughly in half (bob 4.0 → 2.5 cm, jitter and roll halved) plus the settings slider.
+- Tests: `SaveSettingsTest.Run` (9 checks, temp folder only), `PlayerSimTest.Run` (7 checks).
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Malik and NPCs, plus pedestrians and traffic.
