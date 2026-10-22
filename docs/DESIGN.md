@@ -87,9 +87,9 @@ docs/                     this file
 | # | Task | Status |
 |---|---|---|
 | 1 | Project created from the HDRP template, repo, LFS, docs | done 2026-10-22 |
-| 2 | OSM fetch + city JSON (`Tools/osm/`) | todo |
-| 3 | CityGenerator: buildings, roads, sidewalks, ground | todo |
-| 4 | ShotTool + first screenshots (grey materials) | todo |
+| 2 | OSM fetch + city JSON (`Tools/osm/`) | done 2026-10-22: 290 buildings (43 height tags, 219 from levels, 56 default 12 m), 113 roads, 173 paths, 9 plazas |
+| 3 | CityGenerator: buildings, roads, sidewalks, ground | done 2026-10-22 (grey-box; sidewalks are 2 m slabs, gaps at bends) |
+| 4 | ShotTool + first screenshots (grey materials) | done 2026-10-22: 4 poses render in batch mode on the GPU |
 | 5 | CC0 materials + HDRI + night lighting + streetlights | todo (asset list needs Hamzah's OK) |
 | 6 | Starter Assets player in the scene | todo (Hamzah adds it to his Unity account) |
 | 7 | Playtest pass with Hamzah | todo |
