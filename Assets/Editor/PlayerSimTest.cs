@@ -44,7 +44,8 @@ namespace LifeInDowntown.EditorTools
                       $"the window glass stops you (still {behindGlass:F2} m inside, y={player.transform.position.y:F1})");
             }
             else Check(false, "condo frame found in Pantages Tower");
-            var doors = Object.FindObjectsByType<LifeInDowntown.World.DoorLink>(FindObjectsSortMode.None);
+            var doors = System.Array.FindAll(Object.FindObjectsByType<LifeInDowntown.World.DoorLink>(FindObjectsSortMode.None),
+                                             dl => !dl.name.StartsWith("SubwayElevator"));   // the subway's own pair: SubwayTest
             Check(doors.Length == 2 && System.Array.TrueForAll(doors, dl => dl.exit != null && dl.exit.GetComponent<LifeInDowntown.World.DoorLink>() != null),
                   $"street entrance and condo door are linked to each other ({doors.Length} doors)");
 

@@ -181,6 +181,20 @@ def main():
         n = math.hypot(dx, dz)
         return (a[0] + t * dx, a[1] + t * dz), (dx / n, dz / n)
 
+    # the station boxes are straight: within STRAIGHT m of each centre the line is the centre tangent exactly,
+    # easing back to the traced curve over BLEND m (College bends 1.6 m off its tangent within 100 m)
+    STRAIGHT, BLEND = 100.0, 80.0
+    for name in centres:
+        sc = centres[name][0] - shift
+        (cx, cz), (fx, fz) = frame(sc)
+        for i in range(len(kept)):
+            ds = i * SPACING - sc
+            if abs(ds) >= STRAIGHT + BLEND:
+                continue
+            w = 1.0 if abs(ds) <= STRAIGHT else 1.0 - (abs(ds) - STRAIGHT) / BLEND
+            w = w * w * (3 - 2 * w)
+            kept[i] = (kept[i][0] + (cx + fx * ds - kept[i][0]) * w, kept[i][1] + (cz + fz * ds - kept[i][1]) * w)
+
     stations = []
     for name in sorted(centres, key=lambda n: centres[n][0]):
         s = centres[name][0] - shift

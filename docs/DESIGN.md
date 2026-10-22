@@ -275,6 +275,13 @@ Game coordinates (same projection as the city):
 
 - **Stairs:** ~25 risers concourse to platform at each end, plus escalators. The elevator uses the existing fade ride (like the condo).
 - **Concourse layout:** the fare line runs across the middle, with signs to "Northbound - Finch" and "Southbound - Vaughan Metropolitan Centre via Union" over the stairs down.
+- **Built (task 3), how it is laid out:** `plan_ttc_stations.py` plans each station in its own frame and writes `ttc_stations.json`; `CityGenerator.Subway.cs` builds it.
+  - **Concourses:** one over each end of the platforms (34 m × 14.4 m), fare line across each (12 gate cabinets, open, PRESTO readers and 2 machines). Stairs down sit at the platform ends (|u| 69-76): a 2.3 m stair (25 risers) beside a 1.2 m escalator that carries you up at 0.5 m/s.
+  - **Street stairs:** each OSM entrance gets a 2.6 m × 7.6 m opening (24 risers) placed on open pavement as close to its node as fits (not on a road, not under any building or low building part), then a 3 m passage to the nearer concourse's unpaid side. Moved from the OSM point: 4.5-5 m at Queen's corners, 16.6 m Shuter, 3 m / 18 m at TMU, 1 m / 18 m at Carlton. The ground, road, sidewalk and plaza meshes are cut around each opening.
+  - **Not built:** "Entrance by 2 Queen Street East" is a door inside the tower (every metre around it is building in OSM), so it has no sidewalk stair; SubwayTest lists it. College Park Shops' door is below street level, so it counts as a closed PATH-style door.
+  - **Elevator:** Sankofa Square Elevator is a glass kiosk; E rides it down to a landing joined to the concourse (the condo's DoorLink fade).
+  - **Light:** HDRP caps how many lights reach one screen cell, and the 602 streetlights (30 m range) reach below the pavement, so underground they crowded out the station lights. `LightBudget` switches city lights more than 30 m away off while the camera is underground, and station lights more than 35 m away off while it is on the street. A local volume over each station and its passages sets exposure EV 6.0 and no fog. Rain stops below y = -1.5 (IndoorZone).
+  - **Measured:** all 18 entrance-to-platform walks pass (9 street stairs + the elevator, to both platforms), 18-40 s at a jog.
 
 ### 3N.5 Station finish (accuracy checklist)
 - **Platform edge:** yellow tactile strip with raised domes (width ~60 cm, approximate).

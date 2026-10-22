@@ -20,10 +20,11 @@ namespace LifeInDowntown.World
         }
 
         public const float CondoAbove = 60f;
+        public const float UndergroundBelow = -1.5f;   // the subway (docs/DESIGN.md 3N)
 
         public static bool IsIndoors(Vector3 world)
         {
-            if (world.y > CondoAbove) return true;
+            if (world.y > CondoAbove || world.y < UndergroundBelow) return true;
             foreach (var z in All) if (z.Contains(world)) return true;
             return false;
         }
