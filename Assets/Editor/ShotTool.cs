@@ -31,6 +31,13 @@ namespace LifeInDowntown.EditorTools
             AddStreetPose(poses, data, "Yonge Street", "street_yonge_looking_north", southToNorth: true);
             AddStreetPose(poses, data, "Dundas Street East", "street_dundas_looking_west", southToNorth: false);
             poses.Add(("intersection_yonge_dundas", new Vector3(-22f, 4.5f, -26f), new Vector3(4f, 0f, 2f)));      // crosswalks, signals
+            var shopSites = CityGenerator.ShopSites(data);
+            if (shopSites.Count > 0)
+            {
+                var shop = shopSites[0];
+                poses.Add(("rabba_outside", shop.W(-1.5f, -7f, 1.7f), shop.W(0f, 0f, 2.6f)));
+                poses.Add(("rabba_inside", shop.W(-3.2f, 0.8f, 1.65f), shop.W(1.2f, 9.5f, 0.9f)));
+            }
             if (CityGenerator.TryCondoFrame(data, out var condo))
             {
                 poses.Add(("tower_balconies", condo.outwardGround - condo.inward * 45f + condo.along * 20f + Vector3.up * 1.7f,

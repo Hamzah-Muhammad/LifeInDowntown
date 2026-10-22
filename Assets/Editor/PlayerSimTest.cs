@@ -48,6 +48,28 @@ namespace LifeInDowntown.EditorTools
             Check(doors.Length == 2 && System.Array.TrueForAll(doors, dl => dl.exit != null && dl.exit.GetComponent<LifeInDowntown.World.DoorLink>() != null),
                   $"street entrance and condo door are linked to each other ({doors.Length} doors)");
 
+            // walk-in Rabba: from the sidewalk straight through the doorway into the store (DESIGN 3K)
+            var shops = CityGenerator.ShopSites(data);
+            Check(shops.Count == 2, $"two Rabba stores placed ({shops.Count})");
+            foreach (var shop in shops)
+            {
+                var outside = shop.W(-0.2f, -1.2f, 0.3f);
+                var into = shop.W(-0.2f, 1f, 0f) - shop.W(-0.2f, 0f, 0f);
+                var ccS = player.GetComponent<CharacterController>();
+                ccS.enabled = false; player.transform.position = outside; ccS.enabled = true;
+                player.SetLook(Mathf.Atan2(into.x, into.z) * Mathf.Rad2Deg, 0f);
+                Physics.SyncTransforms();
+                for (int i = 0; i < 150; i++) Tick(player, rig, new Vector2(0, 1), false, false);   // jog in for 2.5 s
+                float depth = Vector3.Dot(player.transform.position - shop.W(0f, 0f, 0f), into.normalized);
+                bool walkedIn = depth > 2f && depth < CityGenerator.ShopDepth && player.transform.position.y > -0.1f;
+                string blocker = "";
+                if (!walkedIn)
+                    foreach (float hgt in new[] { 0.2f, 1.0f, 1.6f })
+                        if (Physics.Raycast(player.transform.position + Vector3.up * hgt, into.normalized, out var hit, 3f, ~0, QueryTriggerInteraction.Ignore))
+                            blocker += $" [{hgt}m: {hit.collider.name} at {hit.distance:F2} m]";
+                Check(walkedIn, $"{shop.name}: walked in through the door ({depth:F1} m inside, y={player.transform.position.y:F2}){blocker}");
+            }
+
             // the rest runs on the street
             var street = PlayerSetup.StreetPoint(data, out float streetYaw);
             var ccTp = player.GetComponent<CharacterController>();
@@ -69,34 +91,39 @@ namespace LifeInDowntown.EditorTools
             float sprint = MeasureSpeed(player, rig, new Vector2(0, 1), true, 120, out _, out _);
             Check(Mathf.Abs(sprint - player.sprintSpeed) < 0.6f, $"sprint speed {sprint:F2} m/s (target {player.sprintSpeed})");
 
-            // face the nearest building wall head-on and sprint into it for 3 s: the body may slide along
-            // the wall (correct CharacterController behaviour) but must never cross its plane or overlap a building
-            var wallHit = NearestWall(player.transform.position);
-            if (wallHit.HasValue)
+            // face the nearest building wall head-on and sprint into it for 7 s (long enough to reach it): the body
+            // may slide along the wall (correct CharacterController behaviour) but must never cross its plane or
+            // overlap a building. Run from where the speed tests ended AND from a clean sidewalk spot.
+            void WallTest(Vector3 from, string label)
             {
+                var ccW = player.GetComponent<CharacterController>();
+                ccW.enabled = false; player.transform.position = from; ccW.enabled = true;
+                Physics.SyncTransforms();
+                for (int i = 0; i < 30; i++) Tick(player, rig, Vector2.zero, false, false);
+                var wallHit = NearestWall(player.transform.position);
+                if (!wallHit.HasValue) { Check(false, $"{label}: found a building wall to test against"); return; }
                 var hit = wallHit.Value;
                 Vector3 into = -hit.normal; into.y = 0f;
                 float targetYaw = Mathf.Atan2(into.x, into.z) * Mathf.Rad2Deg;
-                float turn = Mathf.DeltaAngle(player.Yaw, targetYaw) / player.lookSensitivity;
-                Tick(player, rig, Vector2.zero, false, false, new Vector2(turn, 0f));
+                Tick(player, rig, Vector2.zero, false, false, new Vector2(Mathf.DeltaAngle(player.Yaw, targetYaw) / player.lookSensitivity, 0f));
                 float minPlaneDist = float.MaxValue;
                 bool overlapped = false;
-                var cc = player.GetComponent<CharacterController>();
-                for (int i = 0; i < 180; i++)
+                for (int i = 0; i < 420; i++)
                 {
                     Tick(player, rig, new Vector2(0, 1), true, false);
                     var p = player.transform.position;
                     minPlaneDist = Mathf.Min(minPlaneDist, Vector3.Dot(Flat(p) - Flat(hit.point), Flat(hit.normal).normalized));
-                    var a = p + Vector3.up * (cc.radius + 0.1f);
-                    var b = p + Vector3.up * (cc.height - cc.radius);
-                    foreach (var c in Physics.OverlapCapsule(a, b, cc.radius * 0.8f))
+                    foreach (var c in Physics.OverlapCapsule(p + Vector3.up * (ccW.radius + 0.1f), p + Vector3.up * (ccW.height - ccW.radius), ccW.radius * 0.8f, ~0, QueryTriggerInteraction.Ignore))
                         if (c.name.StartsWith("Bldg_")) overlapped = true;
                 }
-                Check(minPlaneDist > cc.radius * 0.8f && !overlapped,
-                      $"never passes through a building wall (closest {minPlaneDist:F2} m from the wall plane, radius {cc.radius}, overlap={overlapped})");
+                // the plane test only means something for a near wall: a far, short wall can be slid past at its end
+                // (its infinite plane is then crossed beside the building); never overlapping a building always must hold
+                bool near = hit.distance < 8f;
+                Check(!overlapped && (!near || (minPlaneDist > ccW.radius * 0.8f && minPlaneDist < 1.0f)),
+                      $"{label}: reaches the wall and never passes through (closest {minPlaneDist:F2} m from its plane, wall={hit.collider.name} {hit.distance:F1} m away, overlap={overlapped})");
             }
-            else Check(false, "found a building wall to test collision against");
-
+            WallTest(player.transform.position, "after the speed runs");
+            WallTest(street, "from the street spawn");
             Debug.Log(fails == 0 ? "SIM_RESULT all checks passed" : $"SIM_RESULT {fails} check(s) failed");
             EditorApplication.Exit(fails == 0 ? 0 : 1);
         }
@@ -132,10 +159,14 @@ namespace LifeInDowntown.EditorTools
             for (int a = 0; a < 360; a += 5)
             {
                 var dir = Quaternion.Euler(0f, a, 0f) * Vector3.forward;
-                if (Physics.Raycast(from + Vector3.up * 1.2f, dir, out var hit, 40f) &&
-                    hit.collider.name.StartsWith("Bldg_") && Mathf.Abs(hit.normal.y) < 0.2f &&
-                    (!best.HasValue || hit.distance < best.Value.distance))
-                    best = hit;
+                // the first BUILDING wall along the ray that faces it: street props, signal poles and indoor
+                // trigger boxes are skipped, and back faces don't count
+                RaycastHit? first = null;
+                foreach (var hit in Physics.RaycastAll(from + Vector3.up * 1.2f, dir, 40f, ~0, QueryTriggerInteraction.Ignore))
+                    if (hit.collider.name.StartsWith("Bldg_") && Mathf.Abs(hit.normal.y) < 0.2f && Vector3.Dot(hit.normal, dir) < -0.3f &&
+                        (!first.HasValue || hit.distance < first.Value.distance))
+                        first = hit;
+                if (first.HasValue && (!best.HasValue || first.Value.distance < best.Value.distance)) best = first;
             }
             return best;
         }

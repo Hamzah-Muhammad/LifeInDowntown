@@ -42,6 +42,7 @@ namespace LifeInDowntown.City
             BuildPaths(data, root.transform, mats, meshes);
             int lights = BuildStreetlights(data, root.transform, mats, meshes);
             int signs = BuildSigns(root.transform, mats, meshes);
+            BuildShops(data, root.transform, mats, meshes);
             BuildStreetDetail(data, root.transform, mats, meshes);
             BuildCondo(data, root.transform, mats, meshes);
             BuildSkyline(root.transform, mats, meshes);
@@ -101,6 +102,8 @@ namespace LifeInDowntown.City
                 var rp = CityDataUtil.Points(r.pts);
                 for (int i = 0; i + 1 < rp.Count; i++) roadSegs.Add((rp[i], rp[i + 1]));
             }
+            shopSitesCache = null;
+            var shopSites = ShopSites(d);   // Rabba stores: their walls get an opening (DESIGN 3K)
             var balc = new MeshBuilder();
             int count = 0, shopfronts = 0, balconies = 0;
             foreach (var bd in d.buildings)
@@ -126,8 +129,22 @@ namespace LifeInDowntown.City
                     Vector3 P(float y) => new Vector3(p.x, y, p.y);
                     Vector3 Q(float y) => new Vector3(q.x, y, q.y);
                     float wallBottom = y0;
+                    void Seg(float t0, float t1, float ya, float yb)
+                    {
+                        Vector2 a2 = p + e * (t0 / len), b2 = p + e * (t1 / len);
+                        mb.Quad(new Vector3(a2.x, ya, a2.y), new Vector3(b2.x, ya, b2.y), new Vector3(b2.x, yb, b2.y), new Vector3(a2.x, yb, a2.y), outward,
+                                new Vector2(u + t0, ya), new Vector2(u + t1, ya), new Vector2(u + t1, yb), new Vector2(u + t0, yb));
+                    }
+                    if (ShopOpening(shopSites, bd.id, p, q, out float sf, out float st))
+                    {
+                        // storefront band either side of the store, and a lintel over its opening
+                        mb.UseSubmesh(2);
+                        Seg(0f, sf, y0, StoreTop); Seg(st, len, y0, StoreTop); Seg(sf, st, ShopCeiling + 0.12f, StoreTop);
+                        mb.UseSubmesh(0);
+                        wallBottom = StoreTop;
+                    }
                     // street-facing walls get a lit storefront ground floor (submesh 2)
-                    if (groundFloor && len > 3f && NearAnyRoad((p + q) * 0.5f, roadSegs, 14f))
+                    else if (groundFloor && len > 3f && NearAnyRoad((p + q) * 0.5f, roadSegs, 14f))
                     {
                         mb.UseSubmesh(2);
                         mb.Quad(P(y0), Q(y0), Q(StoreTop), P(StoreTop), outward,
@@ -351,6 +368,10 @@ namespace LifeInDowntown.City
             int n = 0;
             foreach (var s in list.signs)
             {
+                // a Rabba front replaces whatever OSM shop sign sat on that wall
+                if (s.style == "neon" && shopSitesCache != null &&
+                    shopSitesCache.Exists(site => { var c = site.W(0f, 0f, 0f); return new Vector2(c.x - s.x, c.z - s.z).magnitude < 6f; }))
+                    continue;
                 var normal = new Vector3(s.nx, 0f, s.nz).normalized;
                 var right = new Vector3(-s.nz, 0f, s.nx).normalized;     // reads left-to-right for a viewer facing the wall
                 var c = new Vector3(s.x, s.y, s.z) + normal * 0.06f;
