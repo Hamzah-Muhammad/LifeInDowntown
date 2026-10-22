@@ -84,14 +84,28 @@ def rain_outdoor():
     write("rain_outdoor.wav", loopable(np.stack(chans, 1)))
 
 
+def soft_taps(r, seconds, rate, lo, hi, gain):
+    """drops hitting the window, heard from inside: a ~1 ms rise and a 3-9 ms decay, band-limited so they
+    land as soft pats. Instant-onset white-noise ticks over the muffled bed read as crackle (2026-10-22)."""
+    n = int(seconds * SR)
+    out = np.zeros(n)
+    for s in r.integers(0, n - 2000, int(seconds * rate)):
+        L = int(r.integers(600, 1800)); t = np.arange(L)
+        env = (1 - np.exp(-t / 48)) * np.exp(-t / r.uniform(150, 420))
+        out[s:s + L] += r.standard_normal(L) * env * r.uniform(0.3, 1.0)
+    return fft_band(out, lo, hi) * gain
+
+
 def rain_indoor():
+    r = np.random.default_rng(4162)         # own stream so it can be regenerated alone
     sec = 31.5
     n = int(sec * SR)
     chans = []
     for c in range(2):
-        muffled = fft_band(rng.standard_normal(n), 60, 1200) * 0.5
-        taps = droplets(sec, 90, 900, 5000, 0.6)                    # drops hitting the pane
-        chans.append(muffled + taps)
+        muffled = fft_band(r.standard_normal(n), 60, 1200) * 0.5
+        air = fft_band(r.standard_normal(n), 1200, 4000) * 0.06    # glass passes a little top end
+        taps = soft_taps(r, sec, 28, 200, 1100, 0.35)               # kept inside the bed's band: pats, not ticks
+        chans.append(muffled + air + taps)
     write("rain_indoor.wav", loopable(np.stack(chans, 1)))
 
 
@@ -177,5 +191,10 @@ def footsteps():
 
 
 if __name__ == "__main__":
-    rain_outdoor(); rain_indoor(); city_hum(); room_tone()
-    phone_ring(); phone_ping(); elevator_ding(); streetcar_bell(); siren_wail(); footsteps()
+    import sys
+    ALL = [rain_outdoor, rain_indoor, city_hum, room_tone, phone_ring, phone_ping, elevator_ding,
+           streetcar_bell, siren_wail, footsteps]
+    pick = sys.argv[1:]                     # e.g. `python make_sounds.py rain_indoor`; none = everything
+    for fn in ALL:
+        if not pick or fn.__name__ in pick:
+            fn()
