@@ -309,6 +309,9 @@ Game coordinates (same projection as the city):
 - **Physics:** Tarik physically stands in the car. The train is a moving platform that carries the CharacterController by its delta each frame. He can walk the length of the train through the gangways.
 - **End stations:** "This train is short turning. All customers must exit at Queen / College." This is real TTC wording. The train empties and goes back into the tunnel.
 - **Map:** Line 1 is drawn in yellow with roundels on the full map. The minimap shows the line while underground.
+- **Built (task 5):** `CityGenerator.SubwayTrain.cs` builds two trains (Train_NB "1 FINCH", Train_SB "1 VMC"), 6 cars each, 137.82 m (23.19 + 4 × 22.86 + 23.19), 3.137 m wide, 3.645 m tall, 4 doors a side per car. The right-side leaves slide; left-side doors are part of the body. `TrainController` runs each train: hold point 300 m behind the first stop, sent in at cruising speed from 300 m out when Tarik waits on its platform, 2.2 m/s² up to 25 m/s, 2.0 m/s² braking onto the stop mark (the train centred on the platform), 12 s dwell, chime and "Doors closing", short turn at the end (doors stay open while Tarik is aboard there), then out to 300 m past the end and back to the hold point. Cars carry whoever stands in them (position and turn). Enter zones out to the next stop. Announcements are subtitles (`SubwayAnnouncer`, OnGUI).
+  - **Measured (SubwayTest):** train at TMU with doors open 20.6 s after Tarik reached the platform; TMU → College hop 31.7 s; Tarik's height stayed on the car floor the whole ride; zone-out TMU → Queen; an unattended loop runs Queen → TMU → College → short turn → hold; doors opened only when stopped on a platform, on the platform side (0 violations in 7,212 open-door steps).
+  - **Not seen yet:** the subtitle and next-train lines are OnGUI, which ShotTool renders don't show.
 
 ### 3N.8 Sound (code-generated, like 3I)
 - **Station:** ambience hum.

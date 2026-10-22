@@ -81,6 +81,8 @@ namespace LifeInDowntown.EditorTools
             Debug.Log($"SHOT_GFX {SystemInfo.graphicsDeviceType} rayTracing={SystemInfo.supportsRayTracing}");
             var rain = GameObject.Find("Rain");
             var subwayRoot = GameObject.Find("Subway");
+            foreach (var tr in Object.FindObjectsByType<LifeInDowntown.Transit.TrainController>(FindObjectsSortMode.None))
+                tr.PlaceAt(tr.dir > 0 ? 0 : 1, tr.dir > 0 ? 1f : 0f);   // northbound at Queen, doors open; southbound at TMU, doors shut
 
             foreach (var (name, pos, target) in poses)
             {
@@ -150,6 +152,14 @@ namespace LifeInDowntown.EditorTools
                 poses.Add(($"subway_fareline_{n}", st.W(-93f, -1.5f, conc + 1.6f), st.W(-70f, 2f, conc + 0.6f)));
                 poses.Add(($"subway_platform_{n}", st.W(-25f, 6.3f, plat + 1.6f), st.W(20f, 3.2f, plat + 0.9f)));
                 poses.Add(($"subway_stairs_{n}", st.W(52f, 5.6f, plat + 1.6f), st.W(72f, 5.4f, plat + 2.6f)));
+                if (n == "queen")
+                {
+                    poses.Add(("train_platform_queen", st.W(-30f, 6.6f, plat + 1.6f), st.W(-10f, 2.0f, plat + 1.4f)));
+                    poses.Add(("train_inside_queen", st.W(-55f, 2.05f, plat + 1.65f), st.W(-35f, 2.05f, plat + 1.2f)));
+                    poses.Add(("train_door_queen", st.W(-45f, 5.2f, plat + 1.6f), st.W(-43f, 1.0f, plat + 1.2f)));
+                    poses.Add(("train_front_queen", st.W(95f, 2.05f, CityGenerator.TrackBed + 1.8f), st.W(69f, 2.05f, plat + 1.0f)));
+                }
+                if (n == "tmu") poses.Add(("train_tmu_shut", st.W(-30f, -6.6f, plat + 1.6f), st.W(-10f, -2.0f, plat + 1.4f)));
                 poses.Add(($"subway_tunnel_{n}", st.W(66f, 0f, CityGenerator.TrackBed + 1.7f), st.W(130f, 0.5f, CityGenerator.TrackBed + 1.2f)));
                 poses.Add(($"subway_up_{n}", st.W(-6f, 5.4f, plat + 1.6f), st.W(-2f, 5.4f, CityGenerator.PlatCeil)));
                 poses.Add(($"subway_track_{n}", st.W(-10f, -5.8f, plat + 1.6f), st.W(-10f, 7.2f, plat + 1.4f)));
