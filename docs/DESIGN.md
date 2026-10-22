@@ -350,6 +350,84 @@ Game coordinates (same projection as the city):
    - a hop takes ≤ 35 s;
    - plus renders and a rebuild.
 
+## 3O. Ty, the lobby, the garage, cars, shooting (design 2026-10-22)
+
+Hamzah: "make Ty the 2nd character in the game, a person who always calls me to give me missions. Lets also add cars ... Give [Tarik] his car. Also make a garage system for the condo. Build the condo lobby properly with a concierge. Add more details ... the condo lobby, the subway, the streets, the cars." Then: "give tarik an old bmw" and "add a Pistol to Tariks inventory, and add a proper shooting system."
+He skipped the scope questions except the car, so the recommended defaults apply: Tarik drives, parked cars line the streets but there is **no moving traffic yet**; the garage is underground P1 with his own spot; Ty is an old friend.
+
+### 3O.1 Ty (the second character)
+- **Who:** Tarik's friend from Regent Park, plugged in downtown. He sets up the jobs and keeps asking how Tarik affords Pantages. This is a placeholder story (section 9).
+- **Look:** Rocketbox **Male_Adult_10** (red zip track jacket, black track pants), taken **out of the street crowd** so there is only one Ty.
+- **Calls:** Ty rings on his own between jobs. When no mission is active, the next Ty job calls after 3-6 minutes of play. He also sends texts.
+- **In person:** an objective can say `"npc": "ty"`. Ty then waits at the meeting place, turns to Tarik, and talks in **subtitles** (the same dialogue files as calls, shown at the bottom of the screen with reply keys 1-3).
+- **Jobs:** the existing three are reworked around Ty, plus jobs that use the new pieces:
+  - drive the BMW somewhere;
+  - take Line 1 to College for a pickup.
+
+### 3O.2 The condo lobby (Pantages Tower, Shuter St)
+- **Walk-in:** a real ground-floor room cut into the tower like the Rabbas (`ShopSites` gains a `kind`). It is 8 × 10 m with a 4.2 m ceiling, beside the Pantages Rabba. The old street elevator prompt goes.
+- **Inside:**
+  - a glass vestibule with a fob reader;
+  - stone floor, a marble feature wall, warm downlights and an LED cove;
+  - a lounge with a sofa, chairs, table and plants (the condo's furniture sets);
+  - a wall of mailboxes, and a closed parcel-room door;
+  - **two elevators** with steel doors, call buttons and floor displays: the left goes "up to 3801", the right "down to P1 Parking".
+- **Concierge:** a uniformed Rocketbox person behind a desk with CCTV monitors. They watch Tarik, greet him on the way in or out ("Evening, Mr. Tarik." / "Late one?"), and E talks to them (a few lines, plus hints such as where his car is parked).
+
+### 3O.3 P1 garage
+- **Space:** under Pantages at floor y = -3.6 (well clear of Line 1). About 40 × 24 m, a 2.6 m ceiling, columns on an 8 m grid with yellow-black bands, painted bays 2.6 × 5.4 m numbered P1-01 to P1-24, fluorescent tubes, pipes, an EXIT sign and a fire door.
+- **Tarik's spot P1-17** holds his BMW. Residents' cars fill some other bays.
+- **Getting in and out:**
+  - **On foot:** the elevator from the lobby, or from the condo (via the lobby elevator).
+  - **By car:** drive into the **roll-up garage door on Shuter St**: a fade, and you're in the P1 lane. The reverse puts you on Shuter facing out. The same fade idea as the elevator.
+- **Remembering:** the garage records where Tarik's car is (in P1-17 or out on the street, with its position). This is saved.
+
+### 3O.4 Tarik's car: an old BMW (E46 3 Series sedan, black)
+- **Model:** built in code from E46 dimensions: 4.47 m long, 1.74 m wide, 1.42 m tall, 2.73 m wheelbase.
+  - **Body:** lofted from side and plan profiles, with the E46 cues: twin round headlights under glass, kidney grille, Hofmeister kink on the rear window, L-shaped taillights.
+  - **Wheels:** 5-spoke.
+  - **Inside:** a dash with round gauges, steering wheel, seats and a mirror.
+  - **Badges:** unbadged look (section 9: real names need a parody for any release).
+- **No good free licence exists:** the CC0 cars found are low-poly or generic. If the procedural body doesn't read as an E46, the fallback is a CC BY model that Hamzah downloads himself, credited in CREDITS.
+- **Driving:** a Rigidbody with WheelColliders, rear-wheel drive, ~1,450 kg.
+  - **Controls:** W/S throttle and brake (reverse when stopped), A/D steer, Space handbrake, **F** to get in or out (beside the driver door).
+  - **View:** from the driver's seat (the chest cam sits at a seated chest height, so the dash fills the bottom of the frame).
+  - **Feel:** a code-made engine sound (inline-6) and headlights.
+  - **Collisions:** with buildings, parked cars and poles. Pedestrians step aside; there's no running people over yet.
+
+### 3O.5 Parked cars
+- **Where:** along the curbs of side streets (residential, tertiary, unclassified and some secondary), not Yonge. They're kept out of junctions, crosswalks, the garage door and the subway entrances.
+- **Spacing:** one car every 6.5-8 m, with some gaps.
+- **Variety:** procedural body types (sedan, hatchback, SUV, minivan, a white delivery van) in real-world colour mixes: lots of grey, black, white and silver, a few blue and red. Wet paint, dark windows, a box collider each.
+- **Performance budget:** about 250 cars, static, with shadows only near the player.
+
+### 3O.6 Pistol and shooting
+- **Start kit:** a new game now includes the **9mm pistol and 30 rounds** (the nightstand pickup stays as spare ammo).
+- **Controls:** Q draws or holsters, **right mouse aims** (it comes up to the sights, FOV narrows a little), **left mouse fires**, R reloads.
+- **Feel:** semi-auto with a fire-rate cap; recoil kicks the view and the rig; muzzle flash and a light flash; a code-made gunshot with a tunnel or street echo; spent casings; dry clicks when empty.
+- **Hits:** a raycast from the barrel.
+  - **On walls:** bullet-hole decals and sparks or dust by surface.
+  - **On NPCs:** the hit person goes ragdoll (Rocketbox humanoid → ragdoll in code).
+- **Reaction:**
+  - **The crowd:** anyone within 35 m of a shot panics and runs away. Corner crews scatter.
+  - **Police:** officers within range draw their attention to Tarik (they look and walk toward him; police combat is a later milestone).
+- **Heat:** +1 per shot fired near people, +3 per person hit.
+- **Rules:** you can't fire indoors in the condo, lobby or subway trains (the safety is on with a "Not here" toast). That keeps missions sane until police AI exists.
+
+### 3O.7 Detail pass
+- **Lobby, garage, cars:** as above.
+- **Subway:** the wall colour placeholders stay until reference photos arrive. Add a train headlight glow in the tunnel, platform-edge gap fillers and more wayfinding.
+- **Streets:** hydrants, newspaper and Bike Share docks, parking machines on the parked-car streets, more litter.
+
+### 3O.8 Build order (one branch `feature/ty-lobby-garage-cars`, one commit per task)
+1. Ty
+2. Lobby + concierge
+3. P1 garage
+4. BMW + driving
+5. Parked cars
+6. Pistol + shooting
+7. Detail pass, `GarageCarTest` + `ShootingTest`, renders, rebuild
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.
