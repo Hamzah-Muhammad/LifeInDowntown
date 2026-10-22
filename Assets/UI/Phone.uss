@@ -1,0 +1,105 @@
+/* In-game phone (docs/DESIGN.md 3D): iPhone-style body, no Apple branding. */
+
+.phone-root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+
+/* ---------------------------------------------------------------- phone body */
+.phone {
+    position: absolute;
+    right: 70px; bottom: 30px;
+    width: 400px; height: 820px;
+    background-color: rgb(18, 18, 20);
+    border-radius: 62px;
+    border-width: 4px;
+    border-color: rgb(70, 70, 76);
+    padding: 12px;
+    translate: 0 900px;
+    transition-property: translate;
+    transition-duration: 0.28s;
+    transition-timing-function: ease-out-cubic;
+}
+
+.phone--up { translate: 0 0; }
+
+.phone-screen {
+    flex-grow: 1;
+    border-radius: 50px;
+    overflow: hidden;
+    background-color: rgb(14, 22, 40);
+    background-image: none;
+    padding: 0 22px;
+}
+
+.status-bar { flex-direction: row; justify-content: space-between; align-items: center; height: 54px; }
+.status-time { font-size: 18px; color: white; -unity-font-style: bold; width: 80px; }
+.status-right { font-size: 15px; color: white; width: 80px; -unity-text-align: middle-right; }
+.island { width: 112px; height: 32px; border-radius: 16px; background-color: black; }
+
+.view { flex-grow: 1; display: none; }
+.view--on { display: flex; }
+
+.view-title { font-size: 34px; color: white; -unity-font-style: bold; margin: 8px 0 12px 0; }
+
+/* ----------------------------------------------------------------------- home */
+.home-clock { font-size: 82px; color: white; -unity-text-align: middle-center; margin-top: 26px; -unity-font-style: bold; }
+.home-date { font-size: 20px; color: rgba(255, 255, 255, 0.75); -unity-text-align: middle-center; margin-bottom: 40px; }
+.app-grid { flex-direction: row; justify-content: space-around; }
+.app { background-color: rgba(0, 0, 0, 0); border-width: 0; align-items: center; padding: 0; margin: 0; width: 96px; }
+.app-icon { width: 76px; height: 76px; border-radius: 20px; align-items: center; justify-content: center; }
+.app:hover .app-icon { scale: 1.08 1.08; }
+.icon-phone { background-color: rgb(52, 199, 89); }
+.icon-messages { background-color: rgb(48, 176, 240); }
+.icon-jobs { background-color: rgb(255, 159, 10); }
+.app-glyph { color: white; font-size: 18px; -unity-font-style: bold; }
+.app-label { color: white; font-size: 15px; margin-top: 6px; }
+.home-stats { position: absolute; bottom: 44px; left: 0; right: 0; font-size: 16px; color: rgba(255, 255, 255, 0.7); -unity-text-align: middle-center; }
+
+/* ---------------------------------------------------------------------- lists */
+.list { flex-grow: 1; margin-bottom: 30px; }
+.row { flex-direction: row; align-items: center; background-color: rgba(255, 255, 255, 0.07); border-radius: 16px; border-width: 0; margin: 5px 0; padding: 12px 14px; }
+.row:hover { background-color: rgba(255, 255, 255, 0.15); }
+.row-avatar { width: 46px; height: 46px; border-radius: 23px; -unity-text-align: middle-center; font-size: 20px; color: white; -unity-font-style: bold; margin-right: 12px; }
+.row-text { flex-grow: 1; flex-shrink: 1; }
+.row-title { font-size: 19px; color: white; -unity-font-style: bold; }
+.row-sub { font-size: 15px; color: rgba(255, 255, 255, 0.7); white-space: normal; }
+.row-time { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+.job-active { border-left-width: 4px; border-color: rgb(255, 159, 10); }
+
+/* ---------------------------------------------------------------------- calls */
+.view-call { align-items: center; }
+.avatar { width: 130px; height: 130px; border-radius: 65px; margin-top: 40px; font-size: 56px; color: white; -unity-text-align: middle-center; -unity-font-style: bold; }
+.avatar.small { width: 84px; height: 84px; border-radius: 42px; margin-top: 18px; font-size: 36px; }
+.call-name { font-size: 34px; color: white; -unity-font-style: bold; margin-top: 14px; }
+.call-sub { font-size: 17px; color: rgba(255, 255, 255, 0.7); }
+.ringing { color: rgb(52, 199, 89); }
+.call-buttons { flex-direction: row; justify-content: space-between; width: 100%; margin-top: 200px; padding: 0 20px; }
+.round-btn { width: 96px; height: 96px; border-radius: 48px; border-width: 0; color: white; font-size: 16px; -unity-font-style: bold; }
+.answer { background-color: rgb(52, 199, 89); }
+.decline { background-color: rgb(255, 59, 48); }
+.round-btn:hover { scale: 1.06 1.06; }
+.hangup { position: absolute; bottom: 40px; width: 76px; height: 76px; border-radius: 38px; }
+.call-line { font-size: 20px; color: white; white-space: normal; -unity-text-align: upper-left; margin: 22px 0 10px 0; width: 100%; min-height: 110px; }
+.call-choices { width: 100%; }
+.choice { background-color: rgba(255, 255, 255, 0.1); border-width: 0; border-radius: 14px; color: white; font-size: 17px; white-space: normal; -unity-text-align: middle-left; padding: 10px 14px; margin: 4px 0; }
+.choice:hover { background-color: rgba(255, 159, 10, 0.35); }
+.hint { font-size: 13px; color: rgba(255, 255, 255, 0.45); margin-top: 8px; }
+
+.home-bar { position: absolute; bottom: 10px; left: 120px; right: 120px; height: 6px; border-radius: 3px; background-color: rgba(255, 255, 255, 0.75); border-width: 0; padding: 0; margin: 0; }
+
+/* ------------------------------------------------------------------- HUD bits */
+.waypoint { position: absolute; align-items: center; display: none; }
+.waypoint-diamond { width: 20px; height: 20px; rotate: 45deg; background-color: rgb(255, 190, 110); border-width: 2px; border-color: rgba(0, 0, 0, 0.6); }
+.waypoint-label { font-size: 18px; color: rgb(255, 190, 110); margin-top: 6px; -unity-font-style: bold; text-shadow: 1px 1px 2px black; }
+
+.banner {
+    position: absolute; top: 40px; left: 35%; right: 35%;
+    background-color: rgba(30, 30, 34, 0.92); border-radius: 22px; padding: 14px 20px;
+    opacity: 0; translate: 0 -30px;
+    transition-property: opacity, translate; transition-duration: 0.25s;
+}
+.banner--on { opacity: 1; translate: 0 0; }
+.banner-title { font-size: 15px; color: rgb(255, 190, 110); -unity-font-style: bold; letter-spacing: 2px; }
+.banner-body { font-size: 19px; color: white; white-space: normal; }
+
+.objective { position: absolute; left: 50px; bottom: 50px; max-width: 560px; display: none; }
+.objective-title { font-size: 15px; color: rgb(255, 190, 110); letter-spacing: 3px; -unity-font-style: bold; text-shadow: 1px 1px 2px black; }
+.objective-text { font-size: 22px; color: white; white-space: normal; text-shadow: 1px 1px 2px black; }

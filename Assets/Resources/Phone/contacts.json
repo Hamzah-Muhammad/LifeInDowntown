@@ -1,0 +1,19 @@
+{
+  "contacts": [
+    {
+      "id": "ty", "name": "Ty", "color": "#E0A040",
+      "calls": [
+        { "dialogue": "ty_callback", "requires": ["ty_waiting"], "blocked": ["done:link_up"] },
+        { "dialogue": "ty_idle", "requires": [], "blocked": [] }
+      ]
+    },
+    {
+      "id": "ma", "name": "Ma", "color": "#C05080",
+      "calls": [ { "dialogue": "ma_idle", "requires": [], "blocked": [] } ]
+    },
+    {
+      "id": "baba", "name": "Baba", "color": "#4080C0",
+      "calls": [ { "dialogue": "baba_idle", "requires": [], "blocked": [] } ]
+    }
+  ]
+}

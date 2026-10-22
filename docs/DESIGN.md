@@ -5,8 +5,9 @@ The source of truth for what we build and in what order. Each session updates th
 ## 1. Concept
 
 - Third-person RPG set in real downtown Toronto. GTA-style open world, choice-driven story.
-- The story carries over from LifeInTheCityRPG (Godot): Malik, 18, Pakistani/Arab, rises from small-time dealing to a King West penthouse, or ends in Prison, Dead or Out Clean. Four hidden stats decide it: **REP / HEAT / LOYALTY / CASH** (start cash $40). Ty is the friend who pulls him in. The tone is The Wire / Top Boy, with real Toronto slang and TTC references.
-- Unlike the Godot game, this one starts **downtown**. Where Malik's family lives downtown (for example a St. James Town or Regent Park tower) is an open story decision (section 9).
+- **New game, new story (Hamzah 2026-10-22):** unrelated to the Godot game's Malik story. The protagonist is **Tarik**, who lives alone in his own 1-bedroom condo downtown (section 3E). Tarik's story is still to be written (section 9).
+- Kept from the earlier plan until the story says otherwise: the four hidden stats **REP / HEAT / LOYALTY / CASH** (start cash $40), a grimy street-level tone, real Toronto slang and TTC references.
+- The phone's current cast (Ty, Ma, Baba) and the three starter missions came from the old story. They are **placeholders**: they make the systems testable and get rewritten once Tarik's story exists.
 - **Goal: as close to real life as possible.** That means real street layout and building heights from map data, photoreal materials, and realistic night lighting.
 
 ## 2. Locked-in decisions (2026-10-22)
@@ -89,9 +90,9 @@ Hamzah's brief: "BodyCam style, extremely realistic with great audio... a grimy 
 
 | Topic | Decision |
 |---|---|
-| Whose camera | **Malik's chest-mounted action cam.** He films or livestreams his life, so the bodycam view exists in the story. Story unchanged. |
+| Whose camera | **The protagonist's chest-mounted action cam** (now Tarik's). He films or livestreams his life, so the bodycam view exists in the story. |
 | Perspective | First person only. Replaces the Starter Assets third-person placeholder (no Asset Store step needed). |
-| NPCs | **Microsoft Rocketbox** (MIT, 115 rigged realistic humans) for now; hero characters (Ty, Ma, Malik's hands) upgraded later |
+| NPCs | **Microsoft Rocketbox** (MIT, 115 rigged realistic humans) for now; hero characters (main cast, Tarik's hands) upgraded later |
 | Audio | **Royalty-free allowed**: Sonniss GDC bundles (free, commercial use) + Freesound CC0. Every file is listed in CREDITS.md. |
 | Licensing rule (updated) | CC0 art, plus MIT (Rocketbox), plus royalty-free audio, plus the OSM ODbL credit. No CC-BY-NC, no "personal use only". |
 
@@ -128,9 +129,22 @@ Hamzah's brief: "BodyCam style, extremely realistic with great audio... a grimy 
 - **Overlay change (Hamzah):** top-left device ID and REC dot removed; only the timestamp stays, hidden in menus. **Camera shake** cut roughly in half (bob 4.0 → 2.5 cm, jitter and roll halved) plus the settings slider.
 - Tests: `SaveSettingsTest.Run` (9 checks, temp folder only), `PlayerSimTest.Run` (7 checks).
 
+## 3D. Phone, calls, missions (2026-10-22)
+
+Hamzah: "pressing the phone button brings up an iPhone that you can use to call people in the game, and get calls from people to do missions."
+
+- **Phone:** **Up Arrow or P** toggles it; slides up bottom-right in an iPhone-style body (rounded, camera pill, status bar, app grid). **No Apple name or logo.** While it's up the mouse is freed for tapping and mouse-look pauses; WASD still walks.
+- **Apps:** Phone (contacts → call), Messages (texts from contacts, newest first), Jobs (active mission + objective, completed list).
+- **Calls:** outgoing calls play a contact's dialogue for the current story state; **incoming calls** ring (the phone pops up, Answer/Decline). Dialogue = speaker + subtitle line + up to 3 reply choices (click or keys 1-3; Space continues).
+- **Missions** (`Assets/Resources/Phone/missions.json`): trigger (incoming call after N seconds, required/blocked flags), the call's dialogue, ordered objectives (go to a **real named place**, radius, optional arrival text), rewards (cash/REP/HEAT/LOYALTY/flags). A waypoint diamond with distance is shown on screen for the active objective.
+- **Places:** named OSM features (squares, subway entrances, malls, theatres, garages) are exported by `build_city_json.py` into `Assets/Resources/City/places.json`; missions reference them by name.
+- **Saves:** active mission, objective, messages and call log live in `GameState`, so they're in every save slot.
+- **First missions:** "Link Up" (Ty: meet at Sankofa Square, then Trinity Square), "Ma's Errand" (Ma: pick something up at the Atrium on Bay), "The Package" (Ty: drop a bag at the 300 Victoria Street garage, which you can refuse).
+- Tone and story follow section 1 (The Wire / Top Boy, real Toronto slang). Places are real; nothing here points at a real shelter, church or school as a crime location.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
-2. Realistic Malik and NPCs, plus pedestrians and traffic.
+2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.
 3. More downtown: Union / Financial District, King West, Kensington / Chinatown, TTC Line 1 stations.
 4. Missions, combat, endings.
 
@@ -179,5 +193,6 @@ docs/                     this file
 | 5d/5e | Remaining look passes (neon, lit windows, trim, props) | after 6-8 |
 
 ## 9. Open questions
-- Where in downtown does Malik's family live?
-- Do we keep the name Malik for this game?
+- Tarik's story: who he is, what he wants, the main cast, how it ends. That replaces the placeholder phone cast and missions.
+- Which real condo tower is Tarik's home (section 3E)?
+- Real business names on signs (Shoppers, Tim Hortons...) are fine for a personal project; a commercial release would need parody names like GTA uses.

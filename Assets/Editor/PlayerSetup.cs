@@ -78,13 +78,14 @@ namespace LifeInDowntown.EditorTools
         }
 
         const string UxmlPath = "Assets/UI/Menu.uxml";
+        const string PhoneUxmlPath = "Assets/UI/Phone.uxml";
         const string ThemePath = "Assets/UI/LIDTheme.tss";
         const string PanelPath = "Assets/UI/MenuPanelSettings.asset";
 
         // the Game object: UI Toolkit menu document + flow controller, plus an EventSystem for UI input
         static void SetupMenu(BodycamPlayer player, BodycamRig rig, MenuCamera menuCam)
         {
-            foreach (var n in new[] { "Game", "EventSystem" })
+            foreach (var n in new[] { "Game", "EventSystem", "Phone" })
             {
                 var old = GameObject.Find(n);
                 if (old != null) Object.DestroyImmediate(old);
@@ -106,10 +107,24 @@ namespace LifeInDowntown.EditorTools
             var doc = game.AddComponent<UIDocument>();
             doc.panelSettings = panel;
             doc.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
+            doc.sortingOrder = 10;   // menus draw over the phone HUD
             var menu = game.AddComponent<MenuController>();
             var flow = game.AddComponent<GameFlow>();
             flow.player = player; flow.rig = rig; flow.menuCamera = menuCam; flow.menu = menu;
             menu.flow = flow;
+
+            // phone + missions (docs/DESIGN.md 3D)
+            var phoneGo = new GameObject("Phone");
+            var phoneDoc = phoneGo.AddComponent<UIDocument>();
+            phoneDoc.panelSettings = panel;
+            phoneDoc.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PhoneUxmlPath);
+            phoneDoc.sortingOrder = 0;
+            var missions = phoneGo.AddComponent<LifeInDowntown.Phone.MissionManager>();
+            missions.player = player.transform;
+            var phone = phoneGo.AddComponent<LifeInDowntown.Phone.PhoneController>();
+            phone.missions = missions;
+            phone.player = player;
+            phone.cam = rig.GetComponent<Camera>();
 
             var es = new GameObject("EventSystem");
             es.AddComponent<UnityEngine.EventSystems.EventSystem>();

@@ -23,6 +23,7 @@ namespace LifeInDowntown.Player
         public float gravity = -9.81f;
 
         [Header("Look")]
+        public bool lookEnabled = true;         // off while the phone is up (mouse taps the phone instead)
         public float lookSensitivity = 0.08f;   // degrees per mouse count
         public float pitchLimit = 80f;
 
@@ -81,7 +82,7 @@ namespace LifeInDowntown.Player
         {
 
             Vector2 m = move?.ReadValue<Vector2>() ?? Vector2.zero;
-            Vector2 l = look?.ReadValue<Vector2>() ?? Vector2.zero;
+            Vector2 l = lookEnabled ? look?.ReadValue<Vector2>() ?? Vector2.zero : Vector2.zero;
             bool walk = Keyboard.current != null && Keyboard.current.leftAltKey.isPressed;
             Step(m, l, sprint?.IsPressed() ?? false, crouch?.IsPressed() ?? false,
                  jump?.WasPressedThisFrame() ?? false, walk, Time.deltaTime);

@@ -30,6 +30,11 @@ QUERY = f"""
   way["leisure"]({SOUTH},{WEST},{NORTH},{EAST});
   way["landuse"]({SOUTH},{WEST},{NORTH},{EAST});
   way["area:highway"]({SOUTH},{WEST},{NORTH},{EAST});
+  node["shop"]["name"]({SOUTH},{WEST},{NORTH},{EAST});
+  node["amenity"]["name"]({SOUTH},{WEST},{NORTH},{EAST});
+  node["tourism"]["name"]({SOUTH},{WEST},{NORTH},{EAST});
+  node["leisure"]["name"]({SOUTH},{WEST},{NORTH},{EAST});
+  node["railway"="subway_entrance"]({SOUTH},{WEST},{NORTH},{EAST});
 );
 (._;>;);
 out body;

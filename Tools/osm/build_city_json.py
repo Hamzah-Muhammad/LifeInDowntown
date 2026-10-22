@@ -16,6 +16,7 @@ import re
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 RAW = ROOT / "Tools" / "osm" / "cache" / "raw_yonge_dundas.json"
 OUT = ROOT / "Assets" / "City" / "Data" / "downtown_yonge_dundas.json"
+PLACES_OUT = ROOT / "Assets" / "Resources" / "City" / "places.json"   # loaded at runtime
 
 SOUTH, WEST, NORTH, EAST = 43.6535, -79.3845, 43.6585, -79.3775
 CLIP_MARGIN_M = 40.0          # keep road geometry this far past the box edge
@@ -235,6 +236,35 @@ def main():
             kind = "road" if ah in ROAD_WIDTHS else "pedestrian"
             plazas.append({"id": w["id"], "name": tags.get("name", ""), "kind": kind,
                            "pts": flat(pts)})
+
+    # ---- named places (mission targets, docs/DESIGN.md 3D) -----------------
+    place_keys = ("amenity", "shop", "leisure", "place", "tourism", "railway", "public_transport")
+    places, seen_names = [], set()
+    for el in raw["elements"]:
+        tags = el.get("tags", {})
+        name = tags.get("name")
+        if not name or name in seen_names or "highway" in tags:
+            continue
+        cat = next((f"{k}={tags[k]}" for k in place_keys if k in tags), None)
+        if cat is None:
+            continue
+        if el["type"] == "node":
+            pt = project(el["id"])
+        elif el["type"] == "way" and len(el.get("nodes", [])) >= 3:
+            pts = ring(el["nodes"])
+            if not pts:
+                continue
+            pt = centroid(pts)
+        else:
+            continue
+        if not in_box(pt):
+            continue
+        seen_names.add(name)
+        places.append({"name": name, "category": cat, "x": round(pt[0], 2), "z": round(pt[1], 2)})
+    PLACES_OUT.parent.mkdir(parents=True, exist_ok=True)
+    PLACES_OUT.write_text(json.dumps({"source": "OpenStreetMap contributors, ODbL", "places": places}, indent=1),
+                          encoding="utf-8")
+    print(f"places {len(places)} -> {PLACES_OUT}")
 
     out = {
         "source": "OpenStreetMap contributors, ODbL",

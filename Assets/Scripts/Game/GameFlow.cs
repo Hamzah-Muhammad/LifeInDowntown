@@ -1,3 +1,4 @@
+using System;
 using LifeInDowntown.Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -33,7 +34,19 @@ namespace LifeInDowntown.Game
         {
             GameSettings.Apply();
             EnterMainMenu();
+            // verification hook: skip the menu straight into a new game (capture scripts)
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-autostart") >= 0) NewGame();
         }
+
+        // value after a command-line switch, e.g. -startmission link_up
+        public static string Arg(string name)
+        {
+            var a = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(a, name);
+            return i >= 0 && i + 1 < a.Length ? a[i + 1] : null;
+        }
+
+        public static bool HasArg(string name) => Array.IndexOf(Environment.GetCommandLineArgs(), name) >= 0;
 
         void Update()
         {
@@ -58,6 +71,7 @@ namespace LifeInDowntown.Game
         {
             GameState.NewGame();
             playSeconds = 0f;
+            ResetPhone();
             PlaceAt(spawnPosition, spawnYaw, 0f);
             StartPlaying();
         }
@@ -68,6 +82,7 @@ namespace LifeInDowntown.Game
             if (data == null) return false;
             GameState.Current = data.state ?? new GameState();
             playSeconds = data.playSeconds;
+            ResetPhone();
             PlaceAt(data.position, data.yaw, data.pitch);
             StartPlaying();
             return true;
@@ -111,6 +126,14 @@ namespace LifeInDowntown.Game
             pitch = player.Pitch,
             state = GameState.Current,
         };
+
+        // a new or loaded game starts with no call ringing and the phone put away
+        static void ResetPhone()
+        {
+            LifeInDowntown.Phone.MissionManager.Instance?.ResetSession();
+            var phone = FindFirstObjectByType<LifeInDowntown.Phone.PhoneController>();
+            if (phone != null) phone.ResetPhone();
+        }
 
         void StartPlaying()
         {

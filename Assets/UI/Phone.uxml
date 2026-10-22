@@ -1,0 +1,79 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Phone.uss" />
+    <ui:VisualElement name="phone-root" class="phone-root" picking-mode="Ignore">
+
+        <ui:VisualElement name="waypoint" class="waypoint" picking-mode="Ignore">
+            <ui:VisualElement class="waypoint-diamond" picking-mode="Ignore" />
+            <ui:Label name="waypoint-label" class="waypoint-label" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="banner" class="banner" picking-mode="Ignore">
+            <ui:Label name="banner-title" class="banner-title" picking-mode="Ignore" />
+            <ui:Label name="banner-body" class="banner-body" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="objective" class="objective" picking-mode="Ignore">
+            <ui:Label name="objective-title" class="objective-title" picking-mode="Ignore" />
+            <ui:Label name="objective-text" class="objective-text" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="phone" class="phone">
+            <ui:VisualElement class="phone-screen">
+                <ui:VisualElement class="status-bar">
+                    <ui:Label name="status-time" class="status-time" />
+                    <ui:VisualElement class="island" />
+                    <ui:Label name="status-right" text="5G  82%" class="status-right" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="view-home" class="view">
+                    <ui:Label name="home-clock" class="home-clock" />
+                    <ui:Label name="home-date" class="home-date" />
+                    <ui:VisualElement class="app-grid">
+                        <ui:Button name="app-phone" class="app"><ui:VisualElement class="app-icon icon-phone"><ui:Label text="CALL" class="app-glyph" /></ui:VisualElement><ui:Label text="Phone" class="app-label" /></ui:Button>
+                        <ui:Button name="app-messages" class="app"><ui:VisualElement class="app-icon icon-messages"><ui:Label text="MSG" class="app-glyph" /></ui:VisualElement><ui:Label text="Messages" class="app-label" /></ui:Button>
+                        <ui:Button name="app-jobs" class="app"><ui:VisualElement class="app-icon icon-jobs"><ui:Label text="JOB" class="app-glyph" /></ui:VisualElement><ui:Label text="Jobs" class="app-label" /></ui:Button>
+                    </ui:VisualElement>
+                    <ui:Label name="home-stats" class="home-stats" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="view-contacts" class="view">
+                    <ui:Label text="Contacts" class="view-title" />
+                    <ui:ScrollView name="contacts-list" class="list" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="view-messages" class="view">
+                    <ui:Label text="Messages" class="view-title" />
+                    <ui:ScrollView name="messages-list" class="list" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="view-jobs" class="view">
+                    <ui:Label text="Jobs" class="view-title" />
+                    <ui:ScrollView name="jobs-list" class="list" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="view-incoming" class="view view-call">
+                    <ui:Label name="incoming-avatar" class="avatar" />
+                    <ui:Label name="incoming-name" class="call-name" />
+                    <ui:Label text="incoming call..." class="call-sub ringing" />
+                    <ui:VisualElement class="call-buttons">
+                        <ui:Button name="btn-decline" text="Decline" class="round-btn decline" />
+                        <ui:Button name="btn-answer" text="Answer" class="round-btn answer" />
+                    </ui:VisualElement>
+                    <ui:Label text="Enter: answer   Backspace: decline" class="hint" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="view-call" class="view view-call">
+                    <ui:Label name="call-avatar" class="avatar small" />
+                    <ui:Label name="call-name" class="call-name" />
+                    <ui:Label name="call-timer" text="00:00" class="call-sub" />
+                    <ui:Label name="call-line" class="call-line" />
+                    <ui:VisualElement name="call-choices" class="call-choices" />
+                    <ui:Label name="call-hint" class="hint" />
+                    <ui:Button name="btn-hangup" text="End" class="round-btn decline hangup" />
+                </ui:VisualElement>
+
+                <ui:Button name="home-bar" class="home-bar" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
