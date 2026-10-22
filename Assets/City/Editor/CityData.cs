@@ -55,6 +55,19 @@ namespace LifeInDowntown.City
         public float[] pts;
     }
 
+    // Tools/assets/make_signs.py output (docs/DESIGN.md 3G)
+    [Serializable]
+    public class Sign
+    {
+        public string text, kind, style;        // style: neon (store) / plate (building name) / crown (tower top)
+        public float x, z, nx, nz, y, h, w;     // centre on the wall, outward normal, height, size (m)
+        public float[] uv;                      // u0, v0, u1, v1 in the atlas
+        public float[] color;                   // neon colour (light tint)
+    }
+
+    [Serializable]
+    public class SignList { public Sign[] signs; }
+
     public static class CityDataUtil
     {
         public static List<Vector2> Points(float[] flat)

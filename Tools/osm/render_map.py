@@ -116,6 +116,19 @@ def main():
         cu, cv = (ua + uc) / 2, (va + vc) / 2
         img.paste(tile, (int(cu - tile.width / 2), int(cv - tile.height / 2)), tile)
 
+    # building names (one per name, at the footprint centre), smaller and softer than street names
+    bfont = ImageFont.truetype(FONT, int(3.2 * PX_PER_M))
+    seen = set()
+    for bd in d["buildings"]:
+        name = (bd.get("name") or "").replace(" homeless shelter", "").strip()
+        if not name or name.isdigit() or name in seen or bd["part"]:
+            continue
+        seen.add(name)
+        ring = pts(bd["pts"])
+        cx = sum(q[0] for q in ring) / len(ring); cz = sum(q[1] for q in ring) / len(ring)
+        u, v = px((cx, cz))
+        dr.text((u, v), name, font=bfont, fill=(190, 200, 214), anchor="mm", stroke_width=2, stroke_fill=(14, 16, 20))
+
     img = img.filter(ImageFilter.SMOOTH_MORE)
     OUT_MAP.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT_MAP, optimize=True)

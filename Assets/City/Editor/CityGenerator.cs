@@ -41,6 +41,7 @@ namespace LifeInDowntown.City
             BuildRoads(data, root.transform, mats, meshes, out int sidewalkPieces);
             BuildPaths(data, root.transform, mats, meshes);
             int lights = BuildStreetlights(data, root.transform, mats, meshes);
+            int signs = BuildSigns(root.transform, mats, meshes);
             int puddles = RainLook.BuildPuddles(data, root.transform);
             RainLook.BuildRain();
             RainLook.EnableRayTracing();
@@ -57,7 +58,7 @@ namespace LifeInDowntown.City
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log($"CITY_OK buildings={built} roads={data.roads.Length} paths={data.paths.Length} " +
-                      $"plazas={data.plazas.Length} sidewalkPieces={sidewalkPieces} streetlights={lights} puddles={puddles} meshes={meshes.Count}");
+                      $"plazas={data.plazas.Length} sidewalkPieces={sidewalkPieces} streetlights={lights} signs={signs} puddles={puddles} meshes={meshes.Count}");
         }
 
         public static void GenerateFromCommandLine() => Generate();
@@ -256,6 +257,57 @@ namespace LifeInDowntown.City
             AddObject("RoadAreas", parent, roadAreas.ToMesh("RoadAreas"), mats.Asphalt, meshes, collider: false);
         }
 
+        // ----------------------------------------------------------------- signs
+        const string SignsPath = "Assets/City/Data/signs.json";
+        public const float SignNits = 300f;          // neon/backlit face luminance
+        public const float SignLightLumens = 260f;   // coloured spill light per store sign
+
+        // Store signs and building names (docs/DESIGN.md 3G): one quad per sign on its wall, all in one
+        // mesh with the atlas material, plus a small coloured light in front of each neon store sign.
+        static int BuildSigns(Transform parent, Materials mats, List<Mesh> meshes)
+        {
+            if (!File.Exists(SignsPath)) { Debug.Log("CITY_SKIP no signs.json (run Tools/assets/make_signs.py)"); return 0; }
+            var list = JsonUtility.FromJson<SignList>(File.ReadAllText(SignsPath));
+            var group = new GameObject("Signs").transform;
+            group.SetParent(parent, false);
+            var mb = new MeshBuilder();
+            int n = 0;
+            foreach (var s in list.signs)
+            {
+                var normal = new Vector3(s.nx, 0f, s.nz).normalized;
+                var right = new Vector3(-s.nz, 0f, s.nx).normalized;     // reads left-to-right for a viewer facing the wall
+                var c = new Vector3(s.x, s.y, s.z) + normal * 0.06f;
+                Vector3 hw = right * (s.w * 0.5f), hh = Vector3.up * (s.h * 0.5f);
+                mb.Quad(c - hw - hh, c + hw - hh, c + hw + hh, c - hw + hh, normal,
+                        new Vector2(s.uv[0], s.uv[1]), new Vector2(s.uv[2], s.uv[1]),
+                        new Vector2(s.uv[2], s.uv[3]), new Vector2(s.uv[0], s.uv[3]));
+                if (s.style == "neon")
+                {
+                    var go = new GameObject($"SignLight_{n:000}");
+                    go.transform.SetParent(group, false);
+                    go.transform.position = c + normal * 0.9f - Vector3.up * 0.4f;
+                    var light = go.AddComponent<Light>();
+                    go.AddComponent<UnityEngine.Rendering.HighDefinition.HDAdditionalLightData>();
+                    light.type = LightType.Point;
+                    light.lightUnit = UnityEngine.Rendering.LightUnit.Lumen;
+                    light.intensity = SignLightLumens;
+                    light.color = new Color(s.color[0], s.color[1], s.color[2]);
+                    light.range = 6f;
+                    light.shadows = LightShadows.None;
+                }
+                n++;
+            }
+            var obj = new GameObject("SignFaces");
+            obj.transform.SetParent(group, false);
+            var mesh = mb.ToMesh("Signs");
+            obj.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var r = obj.AddComponent<MeshRenderer>();
+            r.sharedMaterial = mats.Signs;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            meshes.Add(mesh);
+            return n;
+        }
+
         // ---------------------------------------------------------- streetlights
         const float LightSpacing = 32f, PoleHeight = 8f, ArmLength = 1.8f;
         static readonly HashSet<string> LitRoadTypes = new HashSet<string>
@@ -402,7 +454,7 @@ namespace LifeInDowntown.City
         class Materials
         {
             const string TexDir = "Assets/City/Textures";
-            public readonly Material Ground, Asphalt, Concrete, Paving, Roof, Pole, Lamp;
+            public readonly Material Ground, Asphalt, Concrete, Paving, Roof, Pole, Lamp, Signs;
             readonly Material[] towers, midRise, lowRise;
 
             public Materials()
@@ -425,6 +477,7 @@ namespace LifeInDowntown.City
                 var brown = Lit("FacadeBrickBuff", "brown_brick_02", 1.5f, Color.white);
                 Pole = Plain("StreetlightPole", new Color(0.18f, 0.18f, 0.19f), 0.45f, 0.8f, Color.black, 0f);
                 Lamp = Plain("StreetlightLamp", new Color(0.9f, 0.9f, 0.85f), 0.6f, 0f, new Color(1f, 0.78f, 0.52f), LampNits);
+                Signs = SignMaterial();
                 towers = new[] { f009, f009, f001, f005 };
                 midRise = new[] { f006, f006, brick, f009 };
                 lowRise = new[] { brick, brick, brown };
@@ -458,6 +511,36 @@ namespace LifeInDowntown.City
                 mat.SetFloat("_AORemapMin", 0f); mat.SetFloat("_AORemapMax", 1f);
                 float s = 1f / tileMetres;
                 mat.SetTextureScale("_BaseColorMap", new Vector2(s, s));
+                UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
+                EditorUtility.SetDirty(mat);
+                return mat;
+            }
+
+            // sign atlas from make_signs.py: albedo for the plates, emissive map for the glowing letters
+            static Material SignMaterial()
+            {
+                string path = $"{MaterialDir}/Signs.mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (mat == null)
+                {
+                    mat = new Material(Shader.Find("HDRP/Lit")) { name = "Signs" };
+                    AssetDatabase.CreateAsset(mat, path);
+                }
+                Texture2D Atlas(string file)
+                {
+                    string p = $"Assets/City/Signs/{file}";
+                    var ti = (TextureImporter)AssetImporter.GetAtPath(p);
+                    if (ti != null && ti.maxTextureSize < 8192) { ti.maxTextureSize = 8192; ti.SaveAndReimport(); }   // 4096 x 8192 atlas
+                    return AssetDatabase.LoadAssetAtPath<Texture2D>(p);
+                }
+                mat.SetTexture("_BaseColorMap", Atlas("signs_albedo.png"));
+                mat.SetColor("_BaseColor", Color.white);
+                mat.SetTexture("_EmissiveColorMap", Atlas("signs_emissive.png"));
+                mat.SetColor("_EmissiveColorLDR", Color.white);
+                mat.SetFloat("_EmissiveIntensity", SignNits);
+                mat.SetColor("_EmissiveColor", Color.white * SignNits);
+                mat.SetFloat("_Smoothness", 0.6f);
+                mat.SetFloat("_Metallic", 0f);
                 UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
                 EditorUtility.SetDirty(mat);
                 return mat;

@@ -150,6 +150,14 @@ Hamzah: "Make a map Grand Theft Auto style, and a circular on screen map on the 
 - **Full map (M):** pauses the game; drag to pan, scroll to zoom around the cursor, Space re-centres, M or Esc closes (Esc doesn't also open the pause menu). Shows the player arrow, the job blip, the active objective and a legend.
 - The objective line moved up above the minimap.
 
+## 3G. Store signs and building names (built 2026-10-22)
+
+- `Tools/assets/make_signs.py` reads the real OSM places and buildings and writes `Assets/City/Data/signs.json` plus a 4096×8192 atlas (`Assets/City/Signs/signs_albedo.png` / `signs_emissive.png`, 256 slots).
+- **Store signs (116):** every named shop, café, restaurant, bar, bank, pharmacy, cinema or arcade within 200 m of Yonge & Dundas gets a neon sign on the building wall nearest its OSM point, 0.85 m tall, above the shopfront, coloured by type (food orange, cafés cyan, bars magenta, shops blue, pharmacies red, banks green, entertainment purple, theatres gold). Each casts a small coloured light onto the wet street.
+- **Building names (22 plates + 4 tower crowns):** named buildings get a backlit plate on the side facing the nearest road; towers over 40 m also get a lit crown sign near the top. One sign per name. "homeless shelter" is dropped from the Bond Place Hotel's OSM name.
+- Long names shrink to fit instead of being clipped. The full map also shows building names.
+- Real business names come from OSM; fine for a personal project, a commercial release needs parody names (section 9).
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.
