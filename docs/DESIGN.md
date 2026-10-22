@@ -17,8 +17,8 @@ The source of truth for what we build and in what order. Each session updates th
 | Render pipeline | **HDRP** 17.3 (template `3d-high-end`) |
 | City source | **OpenStreetMap** footprints, heights and roads, generated into meshes by our own tools, skinned with photoreal materials |
 | Rejected | Google Photorealistic 3D Tiles (one melted scan you can't enter or edit, needs an API key, and the terms restrict shipping it) |
-| Character (milestone 1) | Unity **Starter Assets: Third Person** as a placeholder; a realistic Malik comes later |
-| Licensing | **CC0 art only** (Poly Haven, ambientCG, and similar), plus the required **OSM ODbL credit** (CREDITS.md and the in-game credits) |
+| Character (milestone 1) | ~~Starter Assets third person~~, replaced 2026-10-22 by the first-person bodycam (3B) |
+| Licensing | ~~CC0 art only~~, widened 2026-10-22 (3B): CC0 art + MIT (Rocketbox) + royalty-free audio + the **OSM ODbL credit** |
 | Input | Unity Input System (new) |
 | Repo | `C:\Apps\Games\LifeInDowntown`, public GitHub `Hamzah-Muhammad/LifeInDowntown`, Git LFS for binaries |
 | Verification | Rendered screenshots from batch mode (section 6), then Hamzah eyeballs the editor or game |
@@ -83,6 +83,40 @@ Realistic expectation: CDPR built Night City with hundreds of artists. We aim fo
 
 Downloads go through `Tools/assets/fetch_cc0.py` (raw zips cached in `Tools/assets/cache/`, gitignored); textures land in `Assets/City/Textures/<asset>/` (LFS).
 
+## 3B. Bodycam presentation, realistic NPCs, audio (locked 2026-10-22)
+
+Hamzah's brief: "BodyCam style, extremely realistic with great audio... a grimy RPG." The look reference is bodycam-shooter footage: first person, raw and unstable, as if recorded.
+
+| Topic | Decision |
+|---|---|
+| Whose camera | **Malik's chest-mounted action cam.** He films or livestreams his life, so the bodycam view exists in the story. Story unchanged. |
+| Perspective | First person only. Replaces the Starter Assets third-person placeholder (no Asset Store step needed). |
+| NPCs | **Microsoft Rocketbox** (MIT, 115 rigged realistic humans) for now; hero characters (Ty, Ma, Malik's hands) upgraded later |
+| Audio | **Royalty-free allowed**: Sonniss GDC bundles (free, commercial use) + Freesound CC0. Every file is listed in CREDITS.md. |
+| Licensing rule (updated) | CC0 art, plus MIT (Rocketbox), plus royalty-free audio, plus the OSM ODbL credit. No CC-BY-NC, no "personal use only". |
+
+### 3B.1 Bodycam camera (task 6)
+- **Controller:** CharacterController, Input System actions from the template (`InputSystem_Actions`): walk 1.4 m/s, jog 3.2, sprint 5.5, crouch.
+- **Mount:** chest height 1.35 m, 0.15 m in front of the body. The camera *lags* the look input (spring-damped yaw/pitch), so turns feel heavy and the frame drifts like a strapped-on camera.
+- **Motion:** footstep-phase bob (vertical 3–5 cm, lateral 2 cm), roll sway 1–2°, landing and stop impulses, micro-jitter. Every amount is a tunable field.
+- **Lens:** wide FOV (~100° horizontal), barrel distortion (HDRP Lens Distortion), stronger vignette, chromatic aberration and film grain than the free-camera look, motion blur on.
+- **Exposure:** automatic histogram with fast adaptation, so highlights bloom out and dark alleys crush the way a cheap sensor does.
+- **Recording artefacts:** an HDRP Custom Post Process with light block compression, rolling noise, and occasional frame hitches.
+- **Overlay:** date/time timestamp, REC dot, a generic device ID. **No real camera or police brand names.**
+- **Rain follows the camera:** a runtime script moves the rain mesh with the player and scrolls it downward (wraps every `RainBoxHeight`).
+
+### 3B.2 NPCs (task 7)
+- Source: `microsoft/Microsoft-Rocketbox` on GitHub (MIT). The download list (which avatars, which animations, sizes) needs Hamzah's OK first.
+- First pass: about 10 pedestrians on the Yonge-Dundas sidewalks with NavMesh walking, idle loops, umbrellas or hoods for the rain, and LOD + distance culling.
+- Later: reactions to the player (look-at, step aside, flinch at running), dialogue hooks into the ported dialogue system.
+
+### 3B.3 Audio (task 8)
+- Ambience: layered rain (on pavement, on awnings, in gutters), distant traffic, streetcar bells and squeal on Dundas, sirens, crowd walla near the square.
+- Player: footsteps by surface and wetness, clothing rustle, breathing when sprinting, camera-handling bumps.
+- **Body-mic sound:** an AudioMixer chain (compressor, band-pass ~150 Hz–8 kHz, light saturation, wind-buffet noise) so the whole mix sounds recorded on a chest mic.
+- Spatial: HDRP scene reverb zones (street canyon vs alley vs indoors).
+- Download list needs Hamzah's OK first (same rule as textures).
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Malik and NPCs, plus pedestrians and traffic.
@@ -125,8 +159,11 @@ docs/                     this file
 | 5c | Look pass L3 + L4 (rain, wet streets, ray-traced reflections) | done 2026-10-22: `RainLook.cs` turns on ray tracing + SSR in all 4 HDRP quality assets (renders confirmed `Direct3D12 rayTracing=True`), RT reflections in the profile, wet smoothness remaps on street materials, 180 puddle decals, and a 9,000-streak rain mesh (a ParticleSystem simulated but never drew in batch renders). Open: rain mesh must follow + scroll with the player camera at runtime (task 6); no splashes yet |
 | 5d | Look pass L5 + L6 (lit windows, neon, square billboards) | todo |
 | 5e | Look pass L7 + L9 (building trim, street props) | todo |
-| 6 | Starter Assets player in the scene | todo (Hamzah adds it to his Unity account) |
-| 7 | Playtest pass with Hamzah | todo |
+| 6 | Bodycam first-person player (3B.1) + rain follow | todo, NEXT |
+| 7 | Rocketbox NPCs (3B.2) | todo (download list needs OK) |
+| 8 | Audio + body-mic mix (3B.3) | todo (download list needs OK) |
+| 9 | Playtest pass with Hamzah | todo |
+| 5d/5e | Remaining look passes (neon, lit windows, trim, props) | after 6-8 |
 
 ## 9. Open questions
 - Where in downtown does Malik's family live?
