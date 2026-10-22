@@ -71,6 +71,9 @@ namespace LifeInDowntown.Player
 
         void Update()
         {
+            // no pause menu yet: Esc quits the built game (ignored in the editor)
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) Application.Quit();
+
             Vector2 m = move?.ReadValue<Vector2>() ?? Vector2.zero;
             Vector2 l = look?.ReadValue<Vector2>() ?? Vector2.zero;
             bool walk = Keyboard.current != null && Keyboard.current.leftAltKey.isPressed;

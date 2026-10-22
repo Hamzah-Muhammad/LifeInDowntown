@@ -145,6 +145,7 @@ docs/                     this file
 - Open or create: `"C:\Program Files\Unity\Hub\Editor\6000.3.26f1\Editor\Unity.exe" -projectPath C:\Apps\Games\LifeInDowntown`
 - Generate the city: `-batchmode -quit -projectPath <proj> -executeMethod CityGenerator.GenerateFromCommandLine -logFile <log>`
 - Screenshots: `-batchmode -quit -projectPath <proj> -executeMethod ShotTool.Run -logFile <log>`
+- Windows build: `-batchmode -quit -projectPath <proj> -executeMethod LifeInDowntown.EditorTools.BuildTool.BuildWindows -logFile <log>` writes `Builds/Windows/LifeInDowntown.exe` (gitignored, ~310 MB, ~4 min). Desktop shortcut `Life In Downtown.lnk` points at it. The exe is a snapshot, so rebuild after changes. Esc quits.
 - Player test: `-batchmode -nographics -quit -projectPath <proj> -executeMethod LifeInDowntown.EditorTools.PlayerSimTest.Run -logFile <log>` (SIM_PASS/SIM_FAIL lines, exit 1 on failure)
 - Map data: `python Tools/osm/fetch_osm.py`, then `python Tools/osm/build_city_json.py`
 
