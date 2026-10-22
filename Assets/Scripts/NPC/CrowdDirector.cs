@@ -10,6 +10,7 @@ namespace LifeInDowntown.NPC
     public class CrowdDirector : MonoBehaviour
     {
         public GameObject[] walkerPrefabs;
+        public GameObject[] policePrefabs;    // a couple of officers walk the beat among the walkers
         public Pedestrian[] statics;          // placed by NpcSetup
         [Header("Sidewalk lines (flat)")]
         public Vector3[] points;              // all lines back to back
@@ -17,6 +18,7 @@ namespace LifeInDowntown.NPC
         public float[] lineWeight;            // Yonge St 3, primary 2, ... (busier streets get more people)
         [Header("Tuning")]
         public int walkers = 90;
+        public int policeWalkers = 2;         // part of the pool, not extra
         public float spawnMin = 35f, spawnMax = 140f, despawn = 165f, staticRange = 150f;
         public float slowWalkChance = 0.2f;
 
@@ -48,7 +50,8 @@ namespace LifeInDowntown.NPC
             var rnd = new System.Random(77);
             for (int n = 0; n < walkers && walkerPrefabs.Length > 0; n++)
             {
-                var go = Instantiate(walkerPrefabs[rnd.Next(walkerPrefabs.Length)], transform);
+                bool cop = n < policeWalkers && policePrefabs != null && policePrefabs.Length > 0;
+                var go = Instantiate(cop ? policePrefabs[rnd.Next(policePrefabs.Length)] : walkerPrefabs[rnd.Next(walkerPrefabs.Length)], transform);
                 go.name = $"Walker_{n:00}";
                 go.SetActive(false);
                 pool.Add(go.GetComponent<Pedestrian>());

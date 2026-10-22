@@ -18,6 +18,9 @@ namespace LifeInDowntown.Player
         public float jogSpeed = 3.2f;      // default
         public float sprintSpeed = 5.5f;   // Sprint action
         public float crouchSpeed = 1.0f;
+        public float speedScale = 1f;      // PlayerStats: an overloaded backpack slows Tarik down
+        public bool canSprint = true;
+        public bool moveEnabled = true;    // off while the inventory or a shop is open
         public float acceleration = 9f;    // m/s^2 towards the target speed
         public float jumpSpeed = 3.6f;
         public float gravity = -9.81f;
@@ -97,7 +100,9 @@ namespace LifeInDowntown.Player
             Pitch = Mathf.Clamp(Pitch - lookDelta.y * lookSensitivity, -pitchLimit, pitchLimit);
             transform.rotation = Quaternion.Euler(0f, Yaw, 0f);
 
-            float target = crouching ? crouchSpeed : sprinting && moveIn.y > 0.1f ? sprintSpeed : walking ? walkSpeed : jogSpeed;
+            if (!moveEnabled) { moveIn = Vector2.zero; jumping = false; }
+            float target = crouching ? crouchSpeed : sprinting && canSprint && moveIn.y > 0.1f ? sprintSpeed : walking ? walkSpeed : jogSpeed;
+            target *= speedScale;
             Vector3 wish = transform.TransformDirection(new Vector3(moveIn.x, 0f, moveIn.y));
             wish = Vector3.ClampMagnitude(wish, 1f) * target;
             horizontal = Vector3.MoveTowards(horizontal, wish, acceleration * dt);

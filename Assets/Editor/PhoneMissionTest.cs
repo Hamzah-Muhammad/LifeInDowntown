@@ -50,8 +50,8 @@ namespace LifeInDowntown.EditorTools
             Wait(1f, P("Sankofa Square Entrance"));
             Check(S.objectiveIndex == 1 && S.messages.Count == 1, "arriving at Sankofa Square advances to Trinity Square and Ty texts");
             Wait(1f, P("Trinity Square"));
-            Check(S.HasFlag("done:link_up") && S.activeMission == "" && S.cash == 60 && S.rep == 1,
-                  $"Link Up complete: cash {S.cash} (40+20), REP {S.rep}");
+            Check(S.HasFlag("done:link_up") && S.activeMission == "" && Mathf.Approximately(S.cash, 80f) && S.rep == 1,
+                  $"Link Up complete: cash {S.cash} (60+20), REP {S.rep}");
 
             // ---- Ma's Errand: rings 40 s later; declining delays the retry by 60 s
             Wait(41f, away);
@@ -70,7 +70,7 @@ namespace LifeInDowntown.EditorTools
             runner.Continue();
             mm.CallEnded(false); ringing = null;
             Wait(1f, P("Shoppers Drug Mart"));
-            Check(S.HasFlag("done:ma_errand") && S.cash == 52 && S.loyalty == 1, $"errand done: cash {S.cash} (-8), LOYALTY {S.loyalty}");
+            Check(S.HasFlag("done:ma_errand") && Mathf.Approximately(S.cash, 72f) && S.loyalty == 1, $"errand done: cash {S.cash} (-8), LOYALTY {S.loyalty}");
 
             // ---- The Package: refusing blocks it for good
             Wait(46f, away);

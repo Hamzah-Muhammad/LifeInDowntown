@@ -31,11 +31,13 @@ namespace LifeInDowntown.Phone
         Mission ringingMission;        // the mission whose call is ringing / being talked through
         string callerId;
 
+        public static PhoneController Instance { get; private set; }
         public bool IsUp => up;
         public bool InCall => runner != null && runner.Active;
 
         void OnEnable()
         {
+            Instance = this;
             root = GetComponent<UIDocument>().rootVisualElement;
             phone = root.Q("phone");
             banner = root.Q("banner"); bannerTitle = root.Q<Label>("banner-title"); bannerBody = root.Q<Label>("banner-body");
@@ -91,7 +93,7 @@ namespace LifeInDowntown.Phone
         void Update()
         {
             bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
-            bool mapOpen = LifeInDowntown.Map.MapController.IsOpen;
+            bool mapOpen = LifeInDowntown.Map.MapController.IsOpen || LifeInDowntown.Items.InventoryUI.IsOpen;   // full-screen panels own input
             root.style.display = playing && !mapOpen ? DisplayStyle.Flex : DisplayStyle.None;
             if (!playing || mapOpen) return;   // the full map owns the screen and input while open
             // the phone owns the cursor while playing (also right after resuming from pause)
@@ -120,7 +122,8 @@ namespace LifeInDowntown.Phone
             homeClock.text = now;
             homeDate.text = DateTime.Now.ToString("dddd, MMMM d");
             var s = GameState.Current;
-            homeStats.text = $"${s.cash}   REP {s.rep}   HEAT {s.heat}   LOYALTY {s.loyalty}";
+            homeStats.text = $"{LifeInDowntown.Items.ItemCatalog.Money(s.cash)}   REP {s.rep}   HEAT {s.heat}   LOYALTY {s.loyalty}\n" +
+                             $"HEALTH {s.health:0}   FOOD {s.hunger:0}   WATER {s.thirst:0}";
             if (InCall) callTimer.text = TimeSpan.FromSeconds(Time.time - callStarted).ToString(@"mm\:ss");
             if (bannerUntil > 0f && Time.unscaledTime > bannerUntil) { banner.RemoveFromClassList("banner--on"); bannerUntil = 0f; }
             UpdateObjectiveHud();
@@ -303,6 +306,8 @@ namespace LifeInDowntown.Phone
         }
 
         // ------------------------------------------------------------------ HUD
+        public void ShowBanner(string title, string body) => Banner(title, body);
+
         void Banner(string title, string body)
         {
             bannerTitle.text = title.ToUpperInvariant();

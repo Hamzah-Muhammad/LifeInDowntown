@@ -58,6 +58,8 @@ namespace LifeInDowntown.EditorTools
             rig.player = player;
             rig.Tick(1f / 60f);   // place it at the mount now so the scene opens at the right pose
             camGo.AddComponent<BodycamOverlay>();
+            camGo.AddComponent<LifeInDowntown.Items.WeaponHolder>().gunModel =   // drawn pistol in the chest-cam frame (DESIGN 3M)
+                AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
 
             var rain = GameObject.Find("Rain");
             if (rain != null)
@@ -93,7 +95,7 @@ namespace LifeInDowntown.EditorTools
         // the Game object: UI Toolkit menu document + flow controller, plus an EventSystem for UI input
         static void SetupMenu(BodycamPlayer player, BodycamRig rig, MenuCamera menuCam)
         {
-            foreach (var n in new[] { "Game", "EventSystem", "Phone", "Map" })
+            foreach (var n in new[] { "Game", "EventSystem", "Phone", "Map", "Inventory" })
             {
                 var old = GameObject.Find(n);
                 if (old != null) Object.DestroyImmediate(old);
@@ -153,6 +155,15 @@ namespace LifeInDowntown.EditorTools
             mapDoc.sortingOrder = 5;   // over the phone HUD, under the menus
             var map = mapGo.AddComponent<LifeInDowntown.Map.MapController>();
             map.player = player; map.rig = rig; map.missions = missions;
+
+            // backpack, shop and body stats (docs/DESIGN.md 3M)
+            var invGo = new GameObject("Inventory");
+            var invDoc = invGo.AddComponent<UIDocument>();
+            invDoc.panelSettings = panel;
+            invDoc.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/UI/Inventory.uxml");
+            invDoc.sortingOrder = 7;   // over the phone and map, under the menus
+            invGo.AddComponent<LifeInDowntown.Items.InventoryUI>().player = player;
+            invGo.AddComponent<LifeInDowntown.Items.PlayerStats>().player = player;
 
             var es = new GameObject("EventSystem");
             es.AddComponent<UnityEngine.EventSystems.EventSystem>();

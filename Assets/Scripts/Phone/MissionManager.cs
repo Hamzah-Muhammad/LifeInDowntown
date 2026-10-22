@@ -93,6 +93,7 @@ namespace LifeInDowntown.Phone
         }
 
         // dialogue actions: start:<mission> flag:<f> unflag:<f> cash:+N rep:+N heat:+N loyalty:+N text:<contact>:<msg>
+        //                   item:<id>:<count> (into the backpack)
         public void Apply(string action)
         {
             Init();
@@ -108,6 +109,10 @@ namespace LifeInDowntown.Phone
                 case "rep": S.rep += ParseInt(arg); break;
                 case "heat": S.heat += ParseInt(arg); break;
                 case "loyalty": S.loyalty += ParseInt(arg); break;
+                case "item":
+                    var ip = arg.Split(':');
+                    LifeInDowntown.Items.Inventory.Add(S, ip[0], ip.Length > 1 ? Mathf.Max(1, ParseInt(ip[1])) : 1);
+                    break;
                 case "text":
                     int c2 = arg.IndexOf(':');
                     if (c2 > 0) Text(arg.Substring(0, c2), arg.Substring(c2 + 1));

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace LifeInDowntown.Game
 {
-    // The four hidden stats, story flags, and phone/mission progress (docs/DESIGN.md 1, 3D).
+    // The four hidden stats, story flags, phone/mission progress, body stats and the backpack
+    // (docs/DESIGN.md 1, 3D, 3M).
     // Carried in every save file.
     [Serializable]
     public class GameState
@@ -12,8 +13,15 @@ namespace LifeInDowntown.Game
         public int rep;
         public int heat;
         public int loyalty;
-        public int cash = 40;
+        public float cash = 60f;           // CAD
         public List<string> flags = new List<string>();
+
+        // body and backpack (docs/DESIGN.md 3M): 0-100, full = 100
+        public float health = 100f, hunger = 100f, thirst = 100f;
+        public List<LifeInDowntown.Items.InventorySlot> inventory = new List<LifeInDowntown.Items.InventorySlot>();
+        public string equipped = "";       // weapon item id in hand ("" = none)
+        public bool drawn;                 // weapon out, or holstered
+        public int loaded;                 // rounds in the equipped weapon's magazine
 
         public string activeMission = "";
         public int objectiveIndex;
@@ -22,7 +30,11 @@ namespace LifeInDowntown.Game
 
         public static GameState Current { get; set; } = new GameState();
 
-        public static void NewGame() => Current = new GameState();
+        public static void NewGame()
+        {
+            Current = new GameState { cash = LifeInDowntown.Items.ItemCatalog.StartCash };
+            foreach (var id in LifeInDowntown.Items.ItemCatalog.StartKit) LifeInDowntown.Items.Inventory.Add(Current, id, 1);
+        }
 
         public bool HasFlag(string f) => flags.Contains(f);
         public void SetFlag(string f) { if (!flags.Contains(f)) flags.Add(f); }
