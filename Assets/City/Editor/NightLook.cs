@@ -18,7 +18,7 @@ namespace LifeInDowntown.City
         // pass 1 (EV 2.5, sky -1) left buildings as black silhouettes; pass 2 brightens both
         public const float ExposureEV = 1.5f;
         const float SkyExposureEV = 0.5f;
-        const float FogMeanFreePath = 220f;
+        const float FogMeanFreePath = 160f;   // denser for rain (5b used 220)
 
         public static void Apply()
         {
@@ -75,6 +75,16 @@ namespace LifeInDowntown.City
             fog.anisotropy.Override(0.6f);
             fog.depthExtent.Override(160f);
 
+            // L4: ray-traced reflections (HDRP falls back to screen-space on GPUs without DXR)
+            var ssr = Add<ScreenSpaceReflection>(p);
+            ssr.enabled.Override(true);
+            ssr.tracing.Override(RayCastingMode.RayTracing);
+            // HDRP 17 exposes these as plain float properties over private parameters,
+            // so the override flag has to be set on the parameter field itself
+            OverrideField(ssr, "m_MinSmoothness", 0.4f);
+            OverrideField(ssr, "m_SmoothnessFadeStart", 0.5f);
+            OverrideField(ssr, "m_RayLength", 80f);
+
             var ao = Add<ScreenSpaceAmbientOcclusion>(p);
             ao.intensity.Override(1.2f);
 
@@ -119,6 +129,14 @@ namespace LifeInDowntown.City
             c.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
             AssetDatabase.AddObjectToAsset(c, p);
             return c;
+        }
+
+        static void OverrideField<T>(VolumeComponent c, string field, T value)
+        {
+            var f = c.GetType().GetField(field, System.Reflection.BindingFlags.Instance |
+                                                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            if (f?.GetValue(c) is VolumeParameter<T> p) p.Override(value);
+            else Debug.LogWarning($"CITY_WARN {c.GetType().Name}.{field} not found");
         }
 
         static Cubemap LoadCubemap(string path)

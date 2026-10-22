@@ -39,9 +39,18 @@ namespace LifeInDowntown.EditorTools
             var rt = new RenderTexture(Width, Height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
             cam.targetTexture = rt;
 
+            Debug.Log($"SHOT_GFX {SystemInfo.graphicsDeviceType} rayTracing={SystemInfo.supportsRayTracing}");
+            var rain = GameObject.Find("Rain");
+
             foreach (var (name, pos, target) in poses)
             {
                 cam.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(target - pos));
+                if (rain != null)
+                {
+                    // the rain box stands on the ground around the camera (useless high up, so aerials skip it)
+                    rain.SetActive(pos.y < 30f);
+                    rain.transform.position = new Vector3(pos.x, 0f, pos.z);
+                }
                 for (int i = 0; i < WarmupFrames; i++) Render(cam, rt);   // lets auto-exposure and sky settle
                 var prev = RenderTexture.active;
                 RenderTexture.active = rt;
@@ -84,7 +93,8 @@ namespace LifeInDowntown.EditorTools
             }
             if (bestErr == float.MaxValue) { Debug.LogWarning($"SHOT_SKIP no road named {street}"); return; }
             Vector2 dir = (-eyeOnRoad).normalized;   // towards the intersection
-            Vector2 eye = eyeOnRoad + new Vector2(dir.y, -dir.x) * (roadWidth * 0.5f + 1.5f);
+            // 2.5 m past the curb: streetlight poles stand 0.6 m past it
+            Vector2 eye = eyeOnRoad + new Vector2(dir.y, -dir.x) * (roadWidth * 0.5f + 2.5f);
             Vector2 target = eye + dir * 150f;
             poses.Add((name, new Vector3(eye.x, 1.7f, eye.y), new Vector3(target.x, 8f, target.y)));
         }

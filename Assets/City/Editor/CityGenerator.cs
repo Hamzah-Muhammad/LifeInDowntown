@@ -41,6 +41,9 @@ namespace LifeInDowntown.City
             BuildRoads(data, root.transform, mats, meshes, out int sidewalkPieces);
             BuildPaths(data, root.transform, mats, meshes);
             int lights = BuildStreetlights(data, root.transform, mats, meshes);
+            int puddles = RainLook.BuildPuddles(data, root.transform);
+            RainLook.BuildRain();
+            RainLook.EnableRayTracing();
 
             // meshes live in one asset file so the scene file stays small
             AssetDatabase.CreateAsset(meshes[0], MeshAssetPath);
@@ -52,7 +55,7 @@ namespace LifeInDowntown.City
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log($"CITY_OK buildings={built} roads={data.roads.Length} paths={data.paths.Length} " +
-                      $"plazas={data.plazas.Length} sidewalkPieces={sidewalkPieces} streetlights={lights} meshes={meshes.Count}");
+                      $"plazas={data.plazas.Length} sidewalkPieces={sidewalkPieces} streetlights={lights} puddles={puddles} meshes={meshes.Count}");
         }
 
         public static void GenerateFromCommandLine() => Generate();
@@ -403,13 +406,14 @@ namespace LifeInDowntown.City
             public Materials()
             {
                 Directory.CreateDirectory(MaterialDir);
-                Asphalt = Lit("Asphalt", "asphalt_02", 3f, Color.white);
-                Concrete = Lit("Sidewalk", "brushed_concrete_03", 2f, new Color(0.85f, 0.85f, 0.85f));
+                // L3 wet streets: rain darkens albedo and lifts smoothness (smoothness remap min/max)
+                Asphalt = Lit("Asphalt", "asphalt_02", 3f, new Color(0.6f, 0.6f, 0.62f), 0.62f, 0.95f);
+                Concrete = Lit("Sidewalk", "brushed_concrete_03", 2f, new Color(0.62f, 0.62f, 0.63f), 0.45f, 0.85f);
                 // PavingStones138 turned out to be mossy cobblestone; Yonge-Dundas Square is granite slabs.
                 // Concrete stands in until a granite-slab set is approved.
-                Paving = Lit("Paving", "brushed_concrete_03", 2f, new Color(0.7f, 0.7f, 0.72f));
+                Paving = Lit("Paving", "brushed_concrete_03", 2f, new Color(0.55f, 0.55f, 0.57f), 0.5f, 0.88f);
                 // downtown, everything off the road is pavement: the ground matches the sidewalk slabs
-                Ground = Lit("Ground", "brushed_concrete_03", 2f, new Color(0.85f, 0.85f, 0.85f));
+                Ground = Lit("Ground", "brushed_concrete_03", 2f, new Color(0.62f, 0.62f, 0.63f), 0.45f, 0.85f);
                 Roof = Lit("Roof", "brushed_concrete_03", 2f, new Color(0.35f, 0.35f, 0.36f));
                 var f009 = Lit("FacadeOfficeNight", "Facade009", 24f, Color.white);
                 var f001 = Lit("FacadeGlassPanels", "Facade001", 14f, Color.white);
@@ -431,7 +435,8 @@ namespace LifeInDowntown.City
                 return set[(int)((id * 2654435761L & 0x7fffffff) % set.Length)];
             }
 
-            static Material Lit(string name, string texSet, float tileMetres, Color tint)
+            static Material Lit(string name, string texSet, float tileMetres, Color tint,
+                                float smoothMin = 0f, float smoothMax = 1f)
             {
                 string path = $"{MaterialDir}/{name}.mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -447,7 +452,7 @@ namespace LifeInDowntown.City
                 mat.SetFloat("_NormalScale", 1f);
                 mat.SetTexture("_MaskMap", LoadMap(dir, "_MaskMap", TextureImporterType.Default, false));
                 mat.SetFloat("_MetallicRemapMin", 0f); mat.SetFloat("_MetallicRemapMax", 1f);
-                mat.SetFloat("_SmoothnessRemapMin", 0f); mat.SetFloat("_SmoothnessRemapMax", 1f);
+                mat.SetFloat("_SmoothnessRemapMin", smoothMin); mat.SetFloat("_SmoothnessRemapMax", smoothMax);
                 mat.SetFloat("_AORemapMin", 0f); mat.SetFloat("_AORemapMax", 1f);
                 float s = 1f / tileMetres;
                 mat.SetTextureScale("_BaseColorMap", new Vector2(s, s));
