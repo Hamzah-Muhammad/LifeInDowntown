@@ -37,3 +37,7 @@ crashlytics-build.properties
 /Tools/osm/cache/
 /Screenshots/
 __pycache__/
+/Tools/assets/cache/
+
+# Git LFS hooks written to a literal dev/null/ by this machine's tool environment
+/dev/

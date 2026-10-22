@@ -1,0 +1,62 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Menu.uss" />
+    <ui:VisualElement name="menu-root" class="root">
+        <ui:VisualElement class="shade" />
+        <ui:VisualElement class="panel">
+            <ui:VisualElement class="title-block">
+                <ui:Label text="LIFE IN" class="title-small" />
+                <ui:Label text="DOWNTOWN" class="title-big" />
+                <ui:Label text="TORONTO" class="subtitle" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="screen-main" class="screen">
+                <ui:Button name="btn-continue" text="Continue" class="menu-btn" />
+                <ui:Button name="btn-new" text="New Game" class="menu-btn" />
+                <ui:Button name="btn-load" text="Load Game" class="menu-btn" />
+                <ui:Button name="btn-settings" text="Settings" class="menu-btn" />
+                <ui:Button name="btn-quit" text="Quit" class="menu-btn" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="screen-pause" class="screen">
+                <ui:Label text="Paused" class="screen-title" />
+                <ui:Button name="btn-resume" text="Resume" class="menu-btn" />
+                <ui:Button name="btn-save" text="Save Game" class="menu-btn" />
+                <ui:Button name="btn-pause-load" text="Load Game" class="menu-btn" />
+                <ui:Button name="btn-pause-settings" text="Settings" class="menu-btn" />
+                <ui:Button name="btn-quit-menu" text="Quit to Main Menu" class="menu-btn" />
+                <ui:Button name="btn-quit-desktop" text="Quit to Desktop" class="menu-btn" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="screen-slots" class="screen">
+                <ui:Label name="slots-title" text="Load Game" class="screen-title" />
+                <ui:Button name="slot-auto" class="slot-btn" />
+                <ui:Button name="slot-0" class="slot-btn" />
+                <ui:Button name="slot-1" class="slot-btn" />
+                <ui:Button name="slot-2" class="slot-btn" />
+                <ui:Button name="btn-slots-back" text="Back" class="menu-btn back" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="screen-settings" class="screen">
+                <ui:Label text="Settings" class="screen-title" />
+                <ui:ScrollView class="settings-list">
+                    <ui:Label text="GRAPHICS" class="section" />
+                    <ui:DropdownField name="set-quality" label="Graphics quality" />
+                    <ui:DropdownField name="set-resolution" label="Resolution" />
+                    <ui:DropdownField name="set-display" label="Display mode" />
+                    <ui:Toggle name="set-vsync" label="V-Sync" />
+                    <ui:Toggle name="set-raytracing" label="Ray-traced reflections" />
+                    <ui:Toggle name="set-motionblur" label="Motion blur" />
+                    <ui:Label text="CAMERA" class="section" />
+                    <ui:Slider name="set-fov" label="Field of view" low-value="80" high-value="110" show-input-field="true" />
+                    <ui:Slider name="set-shake" label="Camera shake" low-value="0" high-value="1.5" show-input-field="true" />
+                    <ui:Slider name="set-sensitivity" label="Mouse sensitivity" low-value="0.25" high-value="3" show-input-field="true" />
+                    <ui:Label text="AUDIO" class="section" />
+                    <ui:Slider name="set-volume" label="Master volume" low-value="0" high-value="1" show-input-field="true" />
+                </ui:ScrollView>
+                <ui:Button name="btn-settings-back" text="Back" class="menu-btn back" />
+            </ui:VisualElement>
+
+            <ui:Label name="toast" class="toast" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

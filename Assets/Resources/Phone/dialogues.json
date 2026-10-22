@@ -1,0 +1,75 @@
+{
+  "dialogues": [
+    {
+      "id": "ty_linkup",
+      "nodes": [
+        { "id": "start", "speaker": "Ty", "text": "Yo {name}, you up? Pull up to Sankofa Square, by the subway stairs. Gotta talk to you about something.",
+          "choices": [
+            { "text": "Say less, I'm coming.", "next": "ok" },
+            { "text": "Bro, it's pouring. What's so important?", "next": "rain" },
+            { "text": "Can't right now.", "next": "no" } ] },
+        { "id": "rain", "speaker": "Ty", "text": "Rain never stopped nobody from getting money, ahlie. Just come.", "next": "ok" },
+        { "id": "ok", "speaker": "Ty", "text": "Bet. Don't take forever.", "actions": ["start:link_up"] },
+        { "id": "no", "speaker": "Ty", "text": "Say less. Hit me when you're free. And don't leave me on read like last time.", "actions": ["flag:ty_waiting"] }
+      ]
+    },
+    {
+      "id": "ty_callback",
+      "nodes": [
+        { "id": "start", "speaker": "Ty", "text": "Finally. Sankofa Square, by the stairs. Come now.", "actions": ["unflag:ty_waiting", "start:link_up"] }
+      ]
+    },
+    {
+      "id": "ty_idle",
+      "nodes": [
+        { "id": "start", "speaker": "Ty", "text": "What's good? I'm in the middle of something, I'll hit you later." }
+      ]
+    },
+    {
+      "id": "ma_errand_call",
+      "nodes": [
+        { "id": "start", "speaker": "Ma", "text": "{name}, beta, where are you? It's late and it's raining.",
+          "choices": [
+            { "text": "Downtown with Ty, Ma.", "next": "ty" },
+            { "text": "Just walking. I'm good.", "next": "walk" } ] },
+        { "id": "ty", "speaker": "Ma", "text": "That boy... okay. Your Baba's medicine is ready at the Shoppers on Yonge. Pick it up before you come home.", "next": "ask" },
+        { "id": "walk", "speaker": "Ma", "text": "Walking, in this? Okay, listen. Your Baba's medicine is ready at the Shoppers on Yonge. Pick it up for me.", "next": "ask" },
+        { "id": "ask", "speaker": "Ma", "text": "Can you do that for me?",
+          "choices": [
+            { "text": "I got you, Ma.", "next": "yes" },
+            { "text": "Can Baba not get it tomorrow?", "next": "push" } ] },
+        { "id": "push", "speaker": "Ma", "text": "He's on night shift again. Please, {name}.", "next": "yes" },
+        { "id": "yes", "speaker": "Ma", "text": "Allah bless you. Text me when you have it.", "actions": ["start:ma_errand"] }
+      ]
+    },
+    {
+      "id": "ma_idle",
+      "nodes": [
+        { "id": "start", "speaker": "Ma", "text": "Beta, are you eating properly? Come home before midnight.",
+          "choices": [ { "text": "Yes, Ma.", "next": "bye" }, { "text": "I'm not a kid, Ma.", "next": "kid" } ] },
+        { "id": "kid", "speaker": "Ma", "text": "You'll always be my kid. Midnight.", "next": "bye" },
+        { "id": "bye", "speaker": "Ma", "text": "Okay. Khuda hafiz." }
+      ]
+    },
+    {
+      "id": "baba_idle",
+      "nodes": [
+        { "id": "start", "speaker": "Baba", "text": "I'm at work, {name}. Listen to your mother, okay? I have to go, the supervisor is watching." }
+      ]
+    },
+    {
+      "id": "ty_package",
+      "nodes": [
+        { "id": "start", "speaker": "Ty", "text": "Remember I said something real? I got a bag that needs to get to the garage on Victoria Street. Easy sixty.",
+          "choices": [
+            { "text": "What's in the bag?", "next": "what" },
+            { "text": "Sixty? Bet.", "next": "yes" },
+            { "text": "Nah, I'm good.", "next": "no" } ] },
+        { "id": "what", "speaker": "Ty", "text": "Don't ask questions you don't want answers to. You in or what?",
+          "choices": [ { "text": "...Fine. I'm in.", "next": "yes" }, { "text": "I'm good, Ty.", "next": "no" } ] },
+        { "id": "yes", "speaker": "Ty", "text": "That's my guy. Bag's by the Sankofa Square subway entrance. Grab it, then the garage.", "actions": ["start:the_package"] },
+        { "id": "no", "speaker": "Ty", "text": "Your loss. Don't come crying when your pockets are empty.", "actions": ["flag:refused_package", "loyalty:-1"] }
+      ]
+    }
+  ]
+}

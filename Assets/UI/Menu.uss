@@ -1,0 +1,189 @@
+/* Life In Downtown menu. Palette matches the game icon: off-white text, sodium-orange accent. */
+
+.root {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+}
+
+.shade {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 52%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.panel {
+    position: absolute;
+    left: 120px; top: 100px; bottom: 70px;
+    width: 780px;
+}
+
+.title-small {
+    font-size: 64px;
+    color: rgb(235, 235, 230);
+    -unity-font-style: bold;
+    letter-spacing: 8px;
+    margin: 0; padding: 0;
+}
+
+.title-big {
+    font-size: 124px;
+    color: rgb(255, 190, 110);
+    -unity-font-style: bold;
+    margin: -22px 0 0 0; padding: 0;
+}
+
+.subtitle {
+    font-size: 22px;
+    color: rgba(235, 235, 230, 0.55);
+    letter-spacing: 16px;
+    margin: 0 0 56px 4px;
+}
+
+.screen-title {
+    font-size: 40px;
+    color: rgb(255, 190, 110);
+    -unity-font-style: bold;
+    margin: 0 0 18px 0;
+}
+
+.menu-btn {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    font-size: 36px;
+    color: rgb(230, 230, 225);
+    -unity-text-align: middle-left;
+    height: 58px;
+    margin: 4px 0;
+    padding-left: 0;
+    transition-property: color, padding-left;
+    transition-duration: 0.12s;
+}
+
+.menu-btn:hover, .menu-btn:focus {
+    color: rgb(255, 190, 110);
+    padding-left: 16px;
+}
+
+.menu-btn:disabled {
+    color: rgba(230, 230, 225, 0.28);
+}
+
+.back {
+    margin-top: 24px;
+}
+
+.slot-btn {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-width: 0;
+    border-left-width: 3px;
+    border-color: rgba(255, 190, 110, 0);
+    font-size: 26px;
+    color: rgb(230, 230, 225);
+    -unity-text-align: middle-left;
+    height: 60px;
+    margin: 6px 0;
+    padding-left: 20px;
+}
+
+.slot-btn:hover {
+    background-color: rgba(255, 190, 110, 0.16);
+    border-color: rgb(255, 190, 110);
+}
+
+.slot-btn:disabled {
+    color: rgba(230, 230, 225, 0.3);
+}
+
+.settings-list {
+    height: 600px;
+}
+
+.section {
+    font-size: 20px;
+    letter-spacing: 6px;
+    color: rgba(255, 190, 110, 0.85);
+    margin: 22px 0 6px 0;
+}
+
+.settings-list .unity-base-field {
+    margin: 7px 0;
+    min-height: 40px;
+}
+
+.settings-list .unity-base-field__label {
+    font-size: 24px;
+    color: rgb(230, 230, 225);
+    min-width: 320px;
+}
+
+.settings-list .unity-base-field__input {
+    font-size: 22px;
+}
+
+/* slider value boxes: dark, wide enough for "100" */
+.settings-list .unity-base-slider__text-field {
+    width: 84px;
+    min-width: 84px;
+}
+
+.settings-list .unity-base-slider__text-field .unity-base-text-field__input,
+.settings-list .unity-text-field__input {
+    background-color: rgba(0, 0, 0, 0.55);
+    border-width: 0;
+    color: rgb(230, 230, 225);
+    font-size: 22px;
+    -unity-text-align: middle-center;
+}
+
+.settings-list .unity-base-slider__dragger {
+    background-color: rgb(255, 190, 110);
+    border-width: 0;
+}
+
+.settings-list .unity-base-slider__tracker {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-width: 0;
+}
+
+/* thin orange scrollbar, no arrow buttons */
+.settings-list .unity-scroller--vertical {
+    width: 6px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.settings-list .unity-scroller__low-button,
+.settings-list .unity-scroller__high-button {
+    display: none;
+}
+
+.settings-list .unity-scroller--vertical .unity-base-slider__tracker {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.settings-list .unity-scroller--vertical .unity-base-slider__dragger {
+    background-color: rgba(255, 190, 110, 0.75);
+    border-width: 0;
+    width: 6px;
+    left: 0;
+}
+
+/* dropdowns and toggles on the dark panel */
+.settings-list .unity-base-popup-field__input {
+    background-color: rgba(0, 0, 0, 0.55);
+    border-width: 0;
+    color: rgb(230, 230, 225);
+}
+
+.settings-list .unity-toggle__checkmark {
+    background-color: rgba(0, 0, 0, 0.55);
+    border-color: rgba(255, 190, 110, 0.8);
+}
+
+.toast {
+    position: absolute;
+    left: 0; bottom: 0;
+    font-size: 26px;
+    color: rgb(255, 190, 110);
+}

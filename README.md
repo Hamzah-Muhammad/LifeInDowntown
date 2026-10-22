@@ -2,7 +2,7 @@
 
 A third-person RPG set in real downtown Toronto, built in Unity 6 (HDRP).
 
-Malik, 18, grows up with nothing and works his way toward a King West penthouse. How it ends depends on four hidden stats: REP, HEAT, LOYALTY and CASH. The city is generated from real OpenStreetMap data, so the streets, blocks and building heights match the real downtown.
+You play Tarik, who lives alone in a 1-bedroom condo downtown, seen through his chest-mounted camera. The city is generated from real OpenStreetMap data, so the streets, blocks, building heights and shop locations match the real downtown.
 
 ## Status
 
