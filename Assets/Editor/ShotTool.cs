@@ -27,6 +27,10 @@ namespace LifeInDowntown.EditorTools
             {
                 ("overhead", new Vector3(0, 420, -330), new Vector3(0, 0, -20)),
                 ("aerial_northwest", new Vector3(-260, 160, -260), new Vector3(0, 30, 0)),
+                // the whole map after the 3N.3 extension, and the streets above Queen and College stations
+                ("overhead_full", new Vector3(0, 1250, -40), new Vector3(0, 0, 20)),
+                ("aerial_queen", new Vector3(200, 170, -520), new Vector3(117, 0, -379)),
+                ("aerial_college", new Vector3(-60, 170, 330), new Vector3(-152, 0, 478)),
             };
             AddStreetPose(poses, data, "Yonge Street", "street_yonge_looking_north", southToNorth: true);
             AddStreetPose(poses, data, "Dundas Street East", "street_dundas_looking_west", southToNorth: false);

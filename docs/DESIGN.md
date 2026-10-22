@@ -259,6 +259,7 @@ Game coordinates (same projection as the city):
 - The OSM box grows from 43.6535-43.6585 N to **43.6505-43.6625 N** (same west/east). That is ~1.33 km of Yonge, one block past Queen (Richmond) and past College/Carlton.
 - Everything regenerates: buildings, roads, signs, map.png, places.json, the sidewalk lines and the crowd.
 - **Risks:** roughly 2.4× the buildings with ray tracing on, and the Yonge Rabba site is re-picked from the new data, so it may move.
+- **Built 2026-10-22.** Box now x -289..275, z -645..681 m. Measured: 837 buildings (was 290), 232 roads, 535 paths, 12 plazas, 579 streetlights, 13,406 sidewalk pieces, 135 signs (was 142: the sign picker re-ranks shops), 1,032 meshes. Both Rabbas stayed put (same buildings and doors) and the condo still generates. map.png is now 2735×5785 px (import max raised to 8192). All 4 suites green. FPS with 2.9× the buildings and ray tracing is **not measured** (no exe launch); check `Player.log` after a play.
 
 ### 3N.4 Levels (all three stations, shallow 1954 box)
 

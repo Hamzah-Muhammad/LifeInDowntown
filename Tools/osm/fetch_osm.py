@@ -10,8 +10,8 @@ import pathlib
 import urllib.parse
 import urllib.request
 
-# lat/lon bounding box from docs/DESIGN.md section 3.1
-SOUTH, WEST, NORTH, EAST = 43.6535, -79.3845, 43.6585, -79.3775
+# lat/lon bounding box from docs/DESIGN.md section 3.1, grown south and north for the subway (3N.3)
+SOUTH, WEST, NORTH, EAST = 43.6505, -79.3845, 43.6625, -79.3775
 # public Overpass instances, tried in order (the main one often returns 502/504 when busy)
 OVERPASS_URLS = [
     "https://overpass-api.de/api/interpreter",

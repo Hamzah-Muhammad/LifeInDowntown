@@ -18,7 +18,7 @@ RAW = ROOT / "Tools" / "osm" / "cache" / "raw_yonge_dundas.json"
 OUT = ROOT / "Assets" / "City" / "Data" / "downtown_yonge_dundas.json"
 PLACES_OUT = ROOT / "Assets" / "Resources" / "City" / "places.json"   # loaded at runtime
 
-SOUTH, WEST, NORTH, EAST = 43.6535, -79.3845, 43.6585, -79.3775
+SOUTH, WEST, NORTH, EAST = 43.6505, -79.3845, 43.6625, -79.3775
 CLIP_MARGIN_M = 40.0          # keep road geometry this far past the box edge
 LEVEL_HEIGHT_M = 3.5
 DEFAULT_HEIGHT_M = 12.0

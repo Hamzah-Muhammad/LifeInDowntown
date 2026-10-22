@@ -2,6 +2,12 @@
  "source": "OpenStreetMap contributors, ODbL",
  "places": [
   {
+   "name": "TD",
+   "category": "amenity=bank",
+   "x": -75.63,
+   "z": -516.82
+  },
+  {
    "name": "Toronto Eaton Centre - Yonge Parkade",
    "category": "amenity=parking_entrance",
    "x": 57.41,
@@ -32,6 +38,30 @@
    "z": -147.06
   },
   {
+   "name": "City Hall Parking",
+   "category": "amenity=parking_entrance",
+   "x": -178.88,
+   "z": -533.44
+  },
+  {
+   "name": "Courtyard Marriott;Courtyard by Marriot",
+   "category": "tourism=hotel",
+   "x": -176.36,
+   "z": 672.25
+  },
+  {
+   "name": "Tokyo Smoke",
+   "category": "shop=cannabis",
+   "x": -192.15,
+   "z": 572.17
+  },
+  {
+   "name": "Tim Hortons",
+   "category": "amenity=cafe",
+   "x": -191.35,
+   "z": 531.59
+  },
+  {
    "name": "Cineplex Cinemas Yonge-Dundas and VIP",
    "category": "amenity=cinema",
    "x": 35.34,
@@ -44,22 +74,70 @@
    "z": 67.55
   },
   {
-   "name": "Tim Hortons",
-   "category": "amenity=cafe",
-   "x": 81.81,
-   "z": 44.27
-  },
-  {
    "name": "Bond Place Hotel Parking",
    "category": "amenity=parking",
    "x": 216.86,
    "z": 23.74
   },
   {
+   "name": "Shoppers Drug Mart",
+   "category": "amenity=pharmacy",
+   "x": -162.25,
+   "z": 579.01
+  },
+  {
+   "name": "Pogue Mahone Irish Pub",
+   "category": "amenity=pub",
+   "x": -274.37,
+   "z": 493.43
+  },
+  {
    "name": "Red Lobster",
    "category": "amenity=restaurant",
    "x": -219.32,
    "z": -18.78
+  },
+  {
+   "name": "7-Eleven",
+   "category": "shop=convenience",
+   "x": -40.02,
+   "z": -585.13
+  },
+  {
+   "name": "Meridian Credit Union",
+   "category": "amenity=bank",
+   "x": -9.29,
+   "z": -578.29
+  },
+  {
+   "name": "Duke of Richmond",
+   "category": "amenity=pub",
+   "x": 22.98,
+   "z": -426.5
+  },
+  {
+   "name": "Rogers",
+   "category": "shop=mobile_phone",
+   "x": -50.37,
+   "z": -562.7
+  },
+  {
+   "name": "Yonge / Carlton Northeast Corner",
+   "category": "railway=subway_entrance",
+   "x": -149.48,
+   "z": 567.36
+  },
+  {
+   "name": "Pizza Pizza",
+   "category": "amenity=fast_food",
+   "x": -174.3,
+   "z": 615.19
+  },
+  {
+   "name": "McDonald's",
+   "category": "amenity=fast_food",
+   "x": -215.33,
+   "z": 648.48
   },
   {
    "name": "Subway",
@@ -72,6 +150,60 @@
    "category": "shop=optician",
    "x": 176.25,
    "z": -35.56
+  },
+  {
+   "name": "Bay Adelaide Centre, Hudson's Bay, 37 Richmond Street West Shipping & Receiving",
+   "category": "amenity=loading_dock",
+   "x": 40.5,
+   "z": -582.88
+  },
+  {
+   "name": "South Street Burger",
+   "category": "amenity=fast_food",
+   "x": -27.43,
+   "z": -630.14
+  },
+  {
+   "name": "Bay Adelaide Centre Parking",
+   "category": "amenity=parking",
+   "x": 106.59,
+   "z": -538.99
+  },
+  {
+   "name": "Cambridge Suites Hotel",
+   "category": "tourism=hotel",
+   "x": 242.81,
+   "z": -513.47
+  },
+  {
+   "name": "Friends Convenience & Grocery",
+   "category": "shop=convenience",
+   "x": 262.28,
+   "z": -470.25
+  },
+  {
+   "name": "Kinton Ramen",
+   "category": "amenity=fast_food",
+   "x": 156.32,
+   "z": -547.36
+  },
+  {
+   "name": "Sunset Grill",
+   "category": "amenity=restaurant",
+   "x": 147.3,
+   "z": -532.7
+  },
+  {
+   "name": "Rexall",
+   "category": "amenity=pharmacy",
+   "x": 166.08,
+   "z": -493.1
+  },
+  {
+   "name": "BMO",
+   "category": "amenity=bank",
+   "x": 146.17,
+   "z": -403.73
   },
   {
    "name": "Burger King",
@@ -98,10 +230,28 @@
    "z": -200.33
   },
   {
+   "name": "Entrance by 2 Queen Street East",
+   "category": "railway=subway_entrance",
+   "x": 170.69,
+   "z": -408.57
+  },
+  {
    "name": "Sankofa Square Entrance",
    "category": "railway=subway_entrance",
    "x": 28.44,
    "z": -11.77
+  },
+  {
+   "name": "Yonge / Queen Northwest Corner",
+   "category": "railway=subway_entrance",
+   "x": 89.59,
+   "z": -429.58
+  },
+  {
+   "name": "The Elgin & Winter Garden",
+   "category": "amenity=theatre",
+   "x": 130.64,
+   "z": -365.24
   },
   {
    "name": "Entrance from Atrium on Bay (via PATH)",
@@ -110,10 +260,28 @@
    "z": -0.95
   },
   {
-   "name": "Rogers",
-   "category": "shop=mobile_phone",
-   "x": -16.47,
-   "z": 6.78
+   "name": "Delta Chelsea Hotel Parking",
+   "category": "amenity=parking",
+   "x": -150.64,
+   "z": 279.14
+  },
+  {
+   "name": "Eaton Chelsea Hotel Parking",
+   "category": "amenity=parking",
+   "x": -227.02,
+   "z": 246.84
+  },
+  {
+   "name": "Chrysalis Theatre",
+   "category": "amenity=theatre",
+   "x": 81.67,
+   "z": 325.81
+  },
+  {
+   "name": "Alicos",
+   "category": "shop=copyshop",
+   "x": 168.39,
+   "z": 399.33
   },
   {
    "name": "Roots",
@@ -122,10 +290,46 @@
    "z": -204.72
   },
   {
+   "name": "Metro",
+   "category": "shop=supermarket",
+   "x": -210.28,
+   "z": 474.76
+  },
+  {
+   "name": "College Park Shops Entrance",
+   "category": "railway=subway_entrance",
+   "x": -200.37,
+   "z": 524.7
+  },
+  {
+   "name": "Bulk Barn",
+   "category": "shop=supermarket",
+   "x": -134.77,
+   "z": 573.85
+  },
+  {
    "name": "Indigo",
    "category": "shop=books",
    "x": 14.76,
    "z": -298.66
+  },
+  {
+   "name": "Apple Store",
+   "category": "shop=electronics",
+   "x": 32.03,
+   "z": -388.92
+  },
+  {
+   "name": "Baskin-Robbins",
+   "category": "amenity=ice_cream",
+   "x": 43.15,
+   "z": -383.34
+  },
+  {
+   "name": "Queen\u2019s Cross Food Hall",
+   "category": "amenity=food_court",
+   "x": 44.76,
+   "z": -420.8
   },
   {
    "name": "H&M",
@@ -140,10 +344,22 @@
    "z": -12.28
   },
   {
-   "name": "Shoppers Drug Mart",
-   "category": "amenity=pharmacy",
-   "x": 17.1,
-   "z": 51.92
+   "name": "The Canadian Naturalist",
+   "category": "shop=gift",
+   "x": 74.08,
+   "z": -358.61
+  },
+  {
+   "name": "KFC",
+   "category": "amenity=fast_food",
+   "x": -238.95,
+   "z": 491.18
+  },
+  {
+   "name": "Richtree Market Restaurants",
+   "category": "amenity=fast_food",
+   "x": -179.83,
+   "z": 455.47
   },
   {
    "name": "Hop on-hop off Toronto bus tours tickets and first stop",
@@ -164,16 +380,40 @@
    "z": 27.56
   },
   {
-   "name": "Urban Outfitters",
-   "category": "shop=clothes",
-   "x": 82.08,
-   "z": -222.68
+   "name": "Second Cup",
+   "category": "amenity=cafe",
+   "x": 60.56,
+   "z": -420.39
+  },
+  {
+   "name": "Booster Juice",
+   "category": "amenity=fast_food",
+   "x": 193.23,
+   "z": -387.97
+  },
+  {
+   "name": "Gateway Newsstands",
+   "category": "shop=convenience",
+   "x": 177.03,
+   "z": -395.22
   },
   {
    "name": "Starbucks",
    "category": "amenity=cafe",
-   "x": 33.69,
-   "z": 25.15
+   "x": 212.58,
+   "z": -443.22
+  },
+  {
+   "name": "HomeSense",
+   "category": "shop=interior_decoration",
+   "x": 117.29,
+   "z": -346.96
+  },
+  {
+   "name": "Urban Outfitters",
+   "category": "shop=clothes",
+   "x": 82.08,
+   "z": -222.68
   },
   {
    "name": "Foot Locker",
@@ -212,6 +452,72 @@
    "z": 220.94
   },
   {
+   "name": "Crazy Grotto",
+   "category": "shop=gift",
+   "x": -89.22,
+   "z": 242.7
+  },
+  {
+   "name": "Pastable",
+   "category": "amenity=fast_food",
+   "x": -96.21,
+   "z": 265.57
+  },
+  {
+   "name": "BarBurrito",
+   "category": "amenity=fast_food",
+   "x": -108.63,
+   "z": 409.0
+  },
+  {
+   "name": "Sweet & Natural",
+   "category": "shop=herbalist",
+   "x": -96.91,
+   "z": 365.72
+  },
+  {
+   "name": "Nails on Yonge",
+   "category": "shop=beauty",
+   "x": -99.69,
+   "z": 376.08
+  },
+  {
+   "name": "Radiant Pharmacy",
+   "category": "amenity=pharmacy",
+   "x": -117.63,
+   "z": 441.89
+  },
+  {
+   "name": "Amato Gyro",
+   "category": "amenity=fast_food",
+   "x": -119.49,
+   "z": 448.45
+  },
+  {
+   "name": "Popeyes",
+   "category": "amenity=fast_food",
+   "x": -144.1,
+   "z": 496.79
+  },
+  {
+   "name": "The Carlu",
+   "category": "amenity=theatre",
+   "x": -185.98,
+   "z": 517.15
+  },
+  {
+   "name": "Perfume Boutique",
+   "category": "shop=cosmetics",
+   "x": -180.45,
+   "z": 499.08
+  },
+  {
+   "name": "Alleen's Window & Wall Decor",
+   "category": "shop=curtain",
+   "x": -169.04,
+   "z": 469.56
+  },
+  {
    "name": "Hazukido",
    "category": "shop=bakery",
    "x": -130.91,
@@ -248,22 +554,34 @@
    "z": -81.25
   },
   {
+   "name": "CIBC",
+   "category": "amenity=bank",
+   "x": 163.07,
+   "z": -453.8
+  },
+  {
    "name": "3 Brewers",
    "category": "amenity=restaurant",
    "x": 42.91,
    "z": -92.15
   },
   {
+   "name": "Scotiabank",
+   "category": "amenity=bank",
+   "x": -57.17,
+   "z": -541.14
+  },
+  {
+   "name": "Pharmamart",
+   "category": "amenity=pharmacy",
+   "x": 28.5,
+   "z": -533.99
+  },
+  {
    "name": "California Thai",
    "category": "amenity=fast_food",
    "x": 27.46,
    "z": 62.21
-  },
-  {
-   "name": "Baskin-Robbins",
-   "category": "amenity=ice_cream",
-   "x": 21.25,
-   "z": 51.91
   },
   {
    "name": "Harvey's",
@@ -296,16 +614,94 @@
    "z": -68.95
   },
   {
-   "name": "Second Cup",
+   "name": "Printland Digital Printing Solutions",
+   "category": "shop=copyshop",
+   "x": -82.35,
+   "z": 388.81
+  },
+  {
+   "name": "401 Games",
+   "category": "amenity=language_school",
+   "x": -135.35,
+   "z": 478.38
+  },
+  {
+   "name": "Lebanon Express",
+   "category": "amenity=fast_food",
+   "x": -151.78,
+   "z": 521.22
+  },
+  {
+   "name": "International News",
+   "category": "shop=convenience",
+   "x": 189.44,
+   "z": -430.19
+  },
+  {
+   "name": "Ryerson University map",
+   "category": "tourism=information",
+   "x": 184.74,
+   "z": 367.73
+  },
+  {
+   "name": "Maple Leaf Medical Pharmacy",
+   "category": "shop=chemist",
+   "x": 164.11,
+   "z": 608.95
+  },
+  {
+   "name": "Treats",
    "category": "amenity=cafe",
-   "x": -4.78,
-   "z": -58.61
+   "x": -197.24,
+   "z": 512.26
+  },
+  {
+   "name": "Carlton Cinemas",
+   "category": "amenity=cinema",
+   "x": -57.67,
+   "z": 577.28
+  },
+  {
+   "name": "Mieluna Cafe",
+   "category": "amenity=cafe",
+   "x": -88.64,
+   "z": -336.33
+  },
+  {
+   "name": "Tiger Sugar",
+   "category": "amenity=cafe",
+   "x": -153.72,
+   "z": 527.3
+  },
+  {
+   "name": "Swarovski",
+   "category": "shop=jewelry",
+   "x": 53.1,
+   "z": -319.06
   },
   {
    "name": "Curry & Co.",
    "category": "amenity=fast_food",
    "x": 25.23,
    "z": 67.89
+  },
+  {
+   "name": "Rolltation",
+   "category": "amenity=fast_food",
+   "x": -134.43,
+   "z": 540.74
+  },
+  {
+   "name": "Yonge / Carlton Southeast Corner",
+   "category": "railway=subway_entrance",
+   "x": -144.27,
+   "z": 544.4
+  },
+  {
+   "name": "Chip trucks",
+   "category": "amenity=fast_food",
+   "x": -183.6,
+   "z": -512.84
   },
   {
    "name": "Opa! Souvlaki of Greece",
@@ -320,10 +716,100 @@
    "z": 49.81
   },
   {
+   "name": "Dixie Uniforms Ltd",
+   "category": "shop=clothes",
+   "x": -240.39,
+   "z": 281.11
+  },
+  {
+   "name": "Shopsy's",
+   "category": "amenity=restaurant",
+   "x": -233.18,
+   "z": -571.55
+  },
+  {
    "name": "CF Toronto Eaton Centre Shipping / Receiving",
    "category": "amenity=loading_dock",
    "x": -149.22,
    "z": -278.65
+  },
+  {
+   "name": "Panago",
+   "category": "amenity=fast_food",
+   "x": -277.14,
+   "z": 266.01
+  },
+  {
+   "name": "Centre Francophone",
+   "category": "amenity=community_centre",
+   "x": -274.32,
+   "z": 548.89
+  },
+  {
+   "name": "Native Child & Family Centre of Toronto",
+   "category": "amenity=social_facility",
+   "x": -281.14,
+   "z": 545.58
+  },
+  {
+   "name": "Freshii",
+   "category": "amenity=restaurant",
+   "x": -249.81,
+   "z": 515.13
+  },
+  {
+   "name": "Christian Science Reading Room",
+   "category": "shop=books",
+   "x": -178.64,
+   "z": -542.09
+  },
+  {
+   "name": "Toys Toys Toys",
+   "category": "shop=toys",
+   "x": 75.88,
+   "z": -364.8
+  },
+  {
+   "name": "Economy Optical",
+   "category": "shop=optician",
+   "x": -215.98,
+   "z": 562.48
+  },
+  {
+   "name": "W Burger Bar",
+   "category": "amenity=restaurant",
+   "x": -223.14,
+   "z": 561.69
+  },
+  {
+   "name": "Hot dog stand",
+   "category": "amenity=fast_food",
+   "x": 93.16,
+   "z": -434.52
+  },
+  {
+   "name": "FedEx Office",
+   "category": "amenity=post_office",
+   "x": 3.8,
+   "z": -622.89
+  },
+  {
+   "name": "Bluestone Grill & Bar",
+   "category": "amenity=restaurant",
+   "x": -34.69,
+   "z": -605.23
+  },
+  {
+   "name": "Ben McNally",
+   "category": "shop=books",
+   "x": -32.99,
+   "z": -609.74
+  },
+  {
+   "name": "Ladies Gym",
+   "category": "leisure=sports_centre",
+   "x": -69.64,
+   "z": -601.14
   },
   {
    "name": "Herzing Career College",
@@ -350,6 +836,18 @@
    "z": -104.15
   },
   {
+   "name": "Mick E. Fynns",
+   "category": "amenity=pub",
+   "x": 63.89,
+   "z": 575.29
+  },
+  {
+   "name": "Hinoya Curry",
+   "category": "amenity=restaurant",
+   "x": -65.01,
+   "z": 573.99
+  },
+  {
    "name": "Paramount Middle Eastern Kitchen",
    "category": "amenity=restaurant",
    "x": 60.86,
@@ -360,12 +858,6 @@
    "category": "amenity=restaurant",
    "x": -263.85,
    "z": -63.72
-  },
-  {
-   "name": "Rexall",
-   "category": "shop=vacant",
-   "x": -146.93,
-   "z": -32.82
   },
   {
    "name": "Entrance from Eaton Centre L1 (via PATH)",
@@ -416,6 +908,36 @@
    "z": -203.06
   },
   {
+   "name": "Freshly Squeezed",
+   "category": "amenity=fast_food",
+   "x": 52.71,
+   "z": -396.64
+  },
+  {
+   "name": "Yogen Fr\u00fcz",
+   "category": "amenity=ice_cream",
+   "x": 47.93,
+   "z": -350.63
+  },
+  {
+   "name": "Kernels Popcorn",
+   "category": "amenity=fast_food",
+   "x": 49.77,
+   "z": -357.18
+  },
+  {
+   "name": "Batteries and Gadgets",
+   "category": "shop=electronics",
+   "x": 56.68,
+   "z": -381.01
+  },
+  {
+   "name": "Toothworks Bay-Adelaide Dental",
+   "category": "amenity=dentist",
+   "x": 100.45,
+   "z": -637.1
+  },
+  {
    "name": "The Doctor's Office",
    "category": "amenity=doctors",
    "x": -208.27,
@@ -428,16 +950,34 @@
    "z": -33.22
   },
   {
-   "name": "CIBC",
-   "category": "amenity=bank",
-   "x": -181.69,
-   "z": -38.51
+   "name": "Mado",
+   "category": "amenity=restaurant",
+   "x": 157.14,
+   "z": -566.48
+  },
+  {
+   "name": "Patient Networks",
+   "category": "amenity=doctors",
+   "x": 175.0,
+   "z": -491.52
   },
   {
    "name": "Alforat Iraqi Street Food",
    "category": "amenity=restaurant",
    "x": 46.65,
    "z": -105.57
+  },
+  {
+   "name": "Canada Gifts",
+   "category": "shop=gift",
+   "x": -90.43,
+   "z": 244.9
+  },
+  {
+   "name": "Baroness Bubble Tea",
+   "category": "amenity=fast_food",
+   "x": -110.16,
+   "z": 415.27
   },
   {
    "name": "St. Louis Bar & Grill",
@@ -458,6 +998,24 @@
    "z": 130.68
   },
   {
+   "name": "Cultures",
+   "category": "amenity=fast_food",
+   "x": -286.42,
+   "z": 472.09
+  },
+  {
+   "name": "Nine To Five",
+   "category": "shop=clothes",
+   "x": -231.3,
+   "z": 467.87
+  },
+  {
+   "name": "Rogers/Fido",
+   "category": "shop=mobile_phone",
+   "x": -201.27,
+   "z": 518.64
+  },
+  {
    "name": "EB Games",
    "category": "shop=video_games",
    "x": 48.36,
@@ -470,10 +1028,106 @@
    "z": -134.9
   },
   {
+   "name": "Flight Centre",
+   "category": "shop=travel_agency",
+   "x": -1.36,
+   "z": -607.02
+  },
+  {
+   "name": "Quesada",
+   "category": "amenity=fast_food",
+   "x": -160.43,
+   "z": -548.32
+  },
+  {
+   "name": "Silka",
+   "category": "shop=clothes",
+   "x": -221.8,
+   "z": -581.71
+  },
+  {
+   "name": "Batteries & Gadgets",
+   "category": "shop=electronics",
+   "x": -255.7,
+   "z": -601.27
+  },
+  {
+   "name": "Druxy's",
+   "category": "amenity=fast_food",
+   "x": -265.94,
+   "z": 454.86
+  },
+  {
+   "name": "Timothy's",
+   "category": "amenity=cafe",
+   "x": -257.4,
+   "z": 448.87
+  },
+  {
+   "name": "Temperance St Station",
+   "category": "amenity=bicycle_rental",
+   "x": 119.53,
+   "z": -595.66
+  },
+  {
    "name": "Toronto Eaton Centre (Yonge St) - SMART",
    "category": "amenity=bicycle_rental",
    "x": 13.47,
    "z": -70.19
+  },
+  {
+   "name": "Bannock Canadian Comfort Food",
+   "category": "amenity=fast_food",
+   "x": -30.36,
+   "z": -502.45
+  },
+  {
+   "name": "Santa Claus Parade",
+   "category": "tourism=information",
+   "x": 2.78,
+   "z": -458.17
+  },
+  {
+   "name": "Old City Hall",
+   "category": "tourism=information",
+   "x": -8.86,
+   "z": -445.2
+  },
+  {
+   "name": "Dr. C. Goldberg Dental Office",
+   "category": "amenity=dentist",
+   "x": -69.52,
+   "z": -333.78
+  },
+  {
+   "name": "Pizza maru",
+   "category": "amenity=restaurant",
+   "x": 176.38,
+   "z": 396.54
+  },
+  {
+   "name": "Katsuya",
+   "category": "amenity=restaurant",
+   "x": 164.03,
+   "z": 393.31
+  },
+  {
+   "name": "Church Street Barber Shop",
+   "category": "shop=hairdresser",
+   "x": 170.82,
+   "z": 415.91
+  },
+  {
+   "name": "Granby St / Church St - SMART",
+   "category": "amenity=bicycle_rental",
+   "x": 164.26,
+   "z": 558.01
+  },
+  {
+   "name": "Adelaide Dental",
+   "category": "amenity=dentist",
+   "x": 271.0,
+   "z": -617.53
   },
   {
    "name": "Atrium on Bay Parking",
@@ -494,6 +1148,42 @@
    "z": -290.27
   },
   {
+   "name": "Yulla Sushi Asian Cuisine",
+   "category": "amenity=restaurant",
+   "x": 123.64,
+   "z": -546.11
+  },
+  {
+   "name": "Canna North Cannabis Store",
+   "category": "shop=cannabis",
+   "x": 201.84,
+   "z": -618.85
+  },
+  {
+   "name": "Nick\u2019s Novelty",
+   "category": "shop=gift",
+   "x": 201.11,
+   "z": -615.64
+  },
+  {
+   "name": "Ebix Cash",
+   "category": "amenity=bureau_de_change",
+   "x": 200.39,
+   "z": -611.44
+  },
+  {
+   "name": "Portico",
+   "category": "amenity=restaurant",
+   "x": 232.39,
+   "z": -503.3
+  },
+  {
+   "name": "Zeglio Custom Clothiers",
+   "category": "shop=clothes",
+   "x": 249.85,
+   "z": -516.08
+  },
+  {
    "name": "Terminal Barber Shop",
    "category": "shop=hairdresser",
    "x": -247.25,
@@ -512,16 +1202,46 @@
    "z": 151.24
   },
   {
+   "name": "Canna Cabana",
+   "category": "shop=cannabis",
+   "x": -146.39,
+   "z": 504.9
+  },
+  {
+   "name": "College Currency Investments",
+   "category": "amenity=bureau_de_change",
+   "x": -150.27,
+   "z": 516.51
+  },
+  {
+   "name": "GoodLife Fitness",
+   "category": "leisure=fitness_centre",
+   "x": 198.54,
+   "z": -578.72
+  },
+  {
    "name": "Joey",
    "category": "amenity=restaurant",
    "x": -76.26,
    "z": -52.0
   },
   {
+   "name": "Oakley",
+   "category": "shop=optician",
+   "x": 54.45,
+   "z": -426.2
+  },
+  {
    "name": "Aritzia",
    "category": "shop=clothes",
    "x": 9.5,
    "z": -309.39
+  },
+  {
+   "name": "Farm Boy",
+   "category": "shop=supermarket",
+   "x": -287.79,
+   "z": 439.93
   },
   {
    "name": "Healthy Planet",
@@ -540,12 +1260,6 @@
    "category": "amenity=cafe",
    "x": 30.94,
    "z": 31.13
-  },
-  {
-   "name": "Timothy's",
-   "category": "amenity=cafe",
-   "x": 22.0,
-   "z": 46.06
   },
   {
    "name": "Jugo Juice",
@@ -584,16 +1298,76 @@
    "z": -253.14
   },
   {
+   "name": "Industrial and Commercial Bank of China (Canada)",
+   "category": "amenity=bank",
+   "x": 184.2,
+   "z": -525.44
+  },
+  {
+   "name": "Green Box",
+   "category": "amenity=fast_food",
+   "x": 189.68,
+   "z": -562.47
+  },
+  {
+   "name": "Podium Green Roof",
+   "category": "leisure=garden",
+   "x": -189.58,
+   "z": -331.66
+  },
+  {
+   "name": "IKEA",
+   "category": "shop=furniture",
+   "x": -123.93,
+   "z": 314.24
+  },
+  {
    "name": "Five Guys",
    "category": "amenity=fast_food",
    "x": -7.97,
    "z": 71.82
   },
   {
+   "name": "The Archer",
+   "category": "tourism=artwork",
+   "x": -251.02,
+   "z": -386.54
+  },
+  {
    "name": "Bell",
    "category": "shop=telecommunication",
    "x": 35.73,
    "z": -273.42
+  },
+  {
+   "name": "Quinn's",
+   "category": "amenity=restaurant",
+   "x": -153.34,
+   "z": -589.54
+  },
+  {
+   "name": "RBC Royal Bank",
+   "category": "amenity=bank",
+   "x": -123.8,
+   "z": 324.55
+  },
+  {
+   "name": "Loblaws",
+   "category": "amenity=parking",
+   "x": 15.47,
+   "z": 596.76
+  },
+  {
+   "name": "Mattamy Athletic Centre",
+   "category": "leisure=sports_centre",
+   "x": 49.83,
+   "z": 647.68
+  },
+  {
+   "name": "Richmond Station",
+   "category": "amenity=restaurant",
+   "x": 112.87,
+   "z": -536.68
   },
   {
    "name": "Eggsmart",
@@ -608,6 +1382,12 @@
    "z": 100.86
   },
   {
+   "name": "Cafeteria",
+   "category": "amenity=food_court",
+   "x": -12.53,
+   "z": 264.38
+  },
+  {
    "name": "Okyo",
    "category": "leisure=amusement_arcade",
    "x": -62.55,
@@ -620,10 +1400,34 @@
    "z": 97.05
   },
   {
-   "name": "RBC Royal Bank",
-   "category": "amenity=bank",
-   "x": -240.42,
-   "z": -87.98
+   "name": "Ryerson Community Park",
+   "category": "amenity=fountain",
+   "x": 34.68,
+   "z": 270.22
+  },
+  {
+   "name": "TFO",
+   "category": "amenity=studio",
+   "x": -246.76,
+   "z": 511.42
+  },
+  {
+   "name": "Bocconcini Pizza and Wings",
+   "category": "amenity=restaurant",
+   "x": 263.28,
+   "z": 427.85
+  },
+  {
+   "name": "Gallery Arcturus",
+   "category": "tourism=gallery",
+   "x": 234.95,
+   "z": 415.61
+  },
+  {
+   "name": "Som Tum Jinda",
+   "category": "amenity=restaurant",
+   "x": 221.11,
+   "z": 411.79
   },
   {
    "name": "LCBO",
@@ -632,16 +1436,40 @@
    "z": 4.07
   },
   {
+   "name": "Toronto Public Library - City Hall",
+   "category": "amenity=library",
+   "x": -186.96,
+   "z": -354.32
+  },
+  {
    "name": "Jazz Bistro",
    "category": "amenity=restaurant",
    "x": 149.18,
    "z": -57.74
   },
   {
-   "name": "McDonald's",
-   "category": "amenity=fast_food",
-   "x": -81.74,
-   "z": 207.3
+   "name": "Thirty Bar and Lounge",
+   "category": "amenity=bar",
+   "x": -1.22,
+   "z": 590.78
+  },
+  {
+   "name": "The Brick",
+   "category": "shop=furniture",
+   "x": -161.56,
+   "z": 448.07
+  },
+  {
+   "name": "McGill Street Arch",
+   "category": "tourism=information",
+   "x": -110.52,
+   "z": 391.55
+  },
+  {
+   "name": "Marshalls",
+   "category": "shop=department_store",
+   "x": -139.38,
+   "z": 356.25
   },
   {
    "name": "Shark Club Sports Bar Grill",
@@ -686,6 +1514,12 @@
    "z": 79.2
   },
   {
+   "name": "Hero Certified Burgers",
+   "category": "amenity=fast_food",
+   "x": -243.53,
+   "z": -456.43
+  },
+  {
    "name": "Aroma Espresso Bar",
    "category": "amenity=cafe",
    "x": -228.0,
@@ -716,10 +1550,34 @@
    "z": -97.88
   },
   {
-   "name": "GoodLife Fitness",
-   "category": "leisure=fitness_centre",
-   "x": -123.65,
-   "z": -311.27
+   "name": "Shisha Pasha Lounge",
+   "category": "amenity=hookah_lounge",
+   "x": -100.34,
+   "z": 268.13
+  },
+  {
+   "name": "Ikkousha Ramen",
+   "category": "amenity=restaurant",
+   "x": -99.72,
+   "z": 278.1
+  },
+  {
+   "name": "Cotti Coffee \u5e93\u8fea\u5496\u5561",
+   "category": "amenity=cafe",
+   "x": -98.64,
+   "z": 273.88
+  },
+  {
+   "name": "eggspectation",
+   "category": "amenity=restaurant",
+   "x": -78.61,
+   "z": -334.11
+  },
+  {
+   "name": "hot dog stand",
+   "category": "amenity=fast_food",
+   "x": -39.75,
+   "z": -332.02
   },
   {
    "name": "N15 Hair Salon",
@@ -728,16 +1586,58 @@
    "z": 75.09
   },
   {
+   "name": "Dineen Coffee",
+   "category": "amenity=cafe",
+   "x": 159.88,
+   "z": -573.26
+  },
+  {
+   "name": "Pita Way",
+   "category": "amenity=fast_food",
+   "x": 11.47,
+   "z": 562.78
+  },
+  {
    "name": "M Ch\u00e1 Bar",
    "category": "amenity=cafe",
    "x": -280.65,
    "z": -69.42
   },
   {
+   "name": "Duke's Refresher + Bar",
+   "category": "amenity=restaurant",
+   "x": -195.74,
+   "z": 295.26
+  },
+  {
+   "name": "M Square Coffee Co.",
+   "category": "amenity=cafe",
+   "x": -222.07,
+   "z": -596.22
+  },
+  {
+   "name": "Noodle King",
+   "category": "amenity=fast_food",
+   "x": -157.06,
+   "z": -540.94
+  },
+  {
    "name": "Muji",
    "category": "shop=department_store",
    "x": -52.83,
    "z": -1.24
+  },
+  {
+   "name": "Yonge / Queen Southwest Corner",
+   "category": "railway=subway_entrance",
+   "x": 109.78,
+   "z": -453.2
+  },
+  {
+   "name": "Entrance from One Queen Street East (via PATH)",
+   "category": "railway=subway_entrance",
+   "x": 151.49,
+   "z": -432.73
   },
   {
    "name": "Yonge / Shuter Southeast corner",
@@ -758,6 +1658,48 @@
    "z": 212.75
   },
   {
+   "name": "RBC",
+   "category": "amenity=atm",
+   "x": -122.88,
+   "z": -545.5
+  },
+  {
+   "name": "Teppanyaki Grill",
+   "category": "amenity=fast_food",
+   "x": -136.34,
+   "z": -538.01
+  },
+  {
+   "name": "Mr. Souvlaki",
+   "category": "amenity=fast_food",
+   "x": -161.51,
+   "z": -543.95
+  },
+  {
+   "name": "Bagel & Co.",
+   "category": "amenity=fast_food",
+   "x": -220.09,
+   "z": -640.87
+  },
+  {
+   "name": "Courtyard Marriott Hotel & Public Parking",
+   "category": "amenity=parking",
+   "x": -133.14,
+   "z": 669.29
+  },
+  {
+   "name": "Toronto Star",
+   "category": "amenity=vending_machine",
+   "x": -70.53,
+   "z": 676.26
+  },
+  {
+   "name": "College Park - Yonge St Entrance",
+   "category": "amenity=bicycle_rental",
+   "x": -144.82,
+   "z": 385.14
+  },
+  {
    "name": "Urban Eatery",
    "category": "amenity=food_court",
    "x": -40.7,
@@ -768,6 +1710,18 @@
    "category": "shop=books",
    "x": -4.99,
    "z": 61.14
+  },
+  {
+   "name": "la prep(closed)",
+   "category": "amenity=cafe",
+   "x": -126.39,
+   "z": -547.9
+  },
+  {
+   "name": "Shops at Sheraton Food Court",
+   "category": "amenity=food_court",
+   "x": -149.71,
+   "z": -542.91
   },
   {
    "name": "Entrance from The Tenor (via PATH)",
@@ -812,6 +1766,12 @@
    "z": 149.51
   },
   {
+   "name": "Coca-Cola",
+   "category": "amenity=vending_machine",
+   "x": 192.14,
+   "z": 263.81
+  },
+  {
    "name": "Unholy Donuts",
    "category": "amenity=cafe",
    "x": -247.68,
@@ -854,10 +1814,22 @@
    "z": -42.78
   },
   {
+   "name": "Harry's Fine Jewellery",
+   "category": "shop=jewelry",
+   "x": -145.71,
+   "z": -558.25
+  },
+  {
    "name": "Senator Restaurant",
    "category": "amenity=restaurant",
    "x": 140.35,
    "z": -66.57
+  },
+  {
+   "name": "La Bettola Di Terroni",
+   "category": "amenity=restaurant",
+   "x": 237.47,
+   "z": -477.22
   },
   {
    "name": "The Senator",
@@ -884,6 +1856,42 @@
    "z": -67.99
   },
   {
+   "name": "Globe Car & Truck Rentals",
+   "category": "amenity=car_rental",
+   "x": -138.69,
+   "z": 362.99
+  },
+  {
+   "name": "Sud Forno",
+   "category": "amenity=restaurant",
+   "x": 166.95,
+   "z": -606.28
+  },
+  {
+   "name": "Jacob Mercari",
+   "category": "shop=jewelry",
+   "x": 257.75,
+   "z": -415.94
+  },
+  {
+   "name": "Urban Philosophy",
+   "category": "shop=hairdresser",
+   "x": 218.96,
+   "z": -477.52
+  },
+  {
+   "name": "Kinka Izakaya",
+   "category": "amenity=restaurant",
+   "x": 141.88,
+   "z": 455.21
+  },
+  {
+   "name": "Mean Bao",
+   "category": "amenity=fast_food",
+   "x": 109.46,
+   "z": -633.33
+  },
+  {
    "name": "A&W",
    "category": "amenity=fast_food",
    "x": -40.46,
@@ -900,12 +1908,6 @@
    "category": "amenity=fast_food",
    "x": -35.23,
    "z": -99.5
-  },
-  {
-   "name": "KFC",
-   "category": "amenity=fast_food",
-   "x": -54.15,
-   "z": -109.5
   },
   {
    "name": "Jimmy the Greek",
@@ -932,10 +1934,40 @@
    "z": 39.76
   },
   {
+   "name": "Accord Travel Inc",
+   "category": "shop=travel_agency",
+   "x": -271.88,
+   "z": 472.19
+  },
+  {
+   "name": "Addition Elle",
+   "category": "shop=clothes",
+   "x": 142.89,
+   "z": -372.11
+  },
+  {
+   "name": "Crunch Fitness",
+   "category": "leisure=fitness_centre",
+   "x": -133.25,
+   "z": 327.2
+  },
+  {
    "name": "Balzac's Coffee",
    "category": "amenity=cafe",
    "x": 142.02,
    "z": 157.31
+  },
+  {
+   "name": "Banana Republic",
+   "category": "shop=clothes",
+   "x": 55.16,
+   "z": -343.68
+  },
+  {
+   "name": "Bb 33 Bistro & Brasserie",
+   "category": "amenity=restaurant",
+   "x": -249.18,
+   "z": 249.73
   },
   {
    "name": "Spellbound Salon",
@@ -950,16 +1982,22 @@
    "z": 31.13
   },
   {
+   "name": "Best Doctors Canada",
+   "category": "amenity=doctors",
+   "x": 154.74,
+   "z": -440.76
+  },
+  {
    "name": "Black Canary",
    "category": "amenity=cafe",
    "x": -7.47,
    "z": 71.08
   },
   {
-   "name": "Booster Juice",
-   "category": "amenity=fast_food",
-   "x": -120.48,
-   "z": 22.59
+   "name": "Boyd's barber shop",
+   "category": "shop=hairdresser",
+   "x": -131.6,
+   "z": 540.64
   },
   {
    "name": "Sweat and Tonic",
@@ -974,10 +2012,34 @@
    "z": -110.4
   },
   {
+   "name": "Caesar Spa",
+   "category": "shop=massage",
+   "x": -3.58,
+   "z": 595.74
+  },
+  {
+   "name": "Carlton Dental",
+   "category": "amenity=dentist",
+   "x": -63.01,
+   "z": 539.98
+  },
+  {
+   "name": "The Way of Noodles",
+   "category": "amenity=fast_food",
+   "x": -236.27,
+   "z": 479.99
+  },
+  {
    "name": "Caribbean Queen",
    "category": "amenity=fast_food",
    "x": 48.7,
    "z": 79.22
+  },
+  {
+   "name": "Souper Hot Pot & Tea",
+   "category": "amenity=restaurant",
+   "x": -223.92,
+   "z": 666.95
   },
   {
    "name": "Champs",
@@ -986,10 +2048,34 @@
    "z": -111.02
   },
   {
+   "name": "College Dry Cleaners",
+   "category": "shop=laundry",
+   "x": -191.33,
+   "z": 519.38
+  },
+  {
+   "name": "Coach",
+   "category": "shop=bag",
+   "x": 60.32,
+   "z": -359.03
+  },
+  {
    "name": "Cloud Care Clinics",
    "category": "amenity=doctors",
    "x": 178.5,
    "z": -44.76
+  },
+  {
+   "name": "Beleaf",
+   "category": "amenity=restaurant",
+   "x": -3.77,
+   "z": 557.25
+  },
+  {
+   "name": "A & E Optical",
+   "category": "shop=medical_supply",
+   "x": 167.7,
+   "z": -441.62
   },
   {
    "name": "Presotea",
@@ -1028,16 +2114,34 @@
    "z": -213.99
   },
   {
+   "name": "Global Gifts",
+   "category": "shop=gift",
+   "x": -114.94,
+   "z": 433.83
+  },
+  {
    "name": "Adega",
    "category": "amenity=restaurant",
    "x": -189.65,
    "z": 116.28
   },
   {
+   "name": "Elapra Shoes",
+   "category": "shop=shoes",
+   "x": 156.46,
+   "z": -454.49
+  },
+  {
    "name": "Bangkok Garden",
    "category": "amenity=restaurant",
    "x": -150.01,
    "z": 160.47
+  },
+  {
+   "name": "Esthetic Studio Two",
+   "category": "shop=beauty",
+   "x": -286.82,
+   "z": 445.6
   },
   {
    "name": "Ferraro Hair and Body Care",
@@ -1082,16 +2186,52 @@
    "z": -34.46
   },
   {
+   "name": "Gurume Sushi",
+   "category": "amenity=restaurant",
+   "x": 5.5,
+   "z": 560.91
+  },
+  {
    "name": "Holiday Shoe Repair",
    "category": "shop=shoes",
    "x": -59.56,
    "z": 6.3
   },
   {
+   "name": "The Gabardine",
+   "category": "amenity=restaurant",
+   "x": -39.89,
+   "z": -590.12
+  },
+  {
    "name": "Freedom Mobile",
    "category": "shop=mobile_phone",
    "x": 13.39,
    "z": -258.56
+  },
+  {
+   "name": "Le\u00f1a",
+   "category": "amenity=restaurant",
+   "x": 138.23,
+   "z": -500.81
+  },
+  {
+   "name": "Saint James Hotel",
+   "category": "tourism=hotel",
+   "x": -5.43,
+   "z": 347.38
+  },
+  {
+   "name": "Maezo",
+   "category": "amenity=restaurant",
+   "x": -78.21,
+   "z": -595.64
+  },
+  {
+   "name": "Flock Rotisserie & Greens",
+   "category": "amenity=restaurant",
+   "x": -89.45,
+   "z": -599.07
   },
   {
    "name": "Mos Mos",
@@ -1110,6 +2250,30 @@
    "category": "amenity=fast_food",
    "x": -195.19,
    "z": -42.5
+  },
+  {
+   "name": "CoCo Fresh Tea & Juice",
+   "category": "amenity=cafe",
+   "x": -105.93,
+   "z": 262.8
+  },
+  {
+   "name": "Taco Bell",
+   "category": "amenity=fast_food",
+   "x": -238.56,
+   "z": 489.21
+  },
+  {
+   "name": "Revitasize",
+   "category": "amenity=fast_food",
+   "x": 112.38,
+   "z": -642.85
+  },
+  {
+   "name": "Canada Post",
+   "category": "amenity=post_office",
+   "x": 94.66,
+   "z": -552.69
   },
   {
    "name": "Chachu's",
@@ -1352,6 +2516,180 @@
    "z": -274.82
   },
   {
+   "name": "Lululemon",
+   "category": "shop=clothes",
+   "x": 27.27,
+   "z": -333.09
+  },
+  {
+   "name": "Browns",
+   "category": "shop=shoes",
+   "x": 24.91,
+   "z": -352.11
+  },
+  {
+   "name": "OVO",
+   "category": "shop=clothes",
+   "x": 26.89,
+   "z": -367.41
+  },
+  {
+   "name": "Ann Taylor",
+   "category": "shop=clothes",
+   "x": 30.28,
+   "z": -380.48
+  },
+  {
+   "name": "Kiehl's",
+   "category": "shop=cosmetics",
+   "x": 59.2,
+   "z": -415.4
+  },
+  {
+   "name": "Marc Cain",
+   "category": "shop=clothes",
+   "x": 55.32,
+   "z": -406.64
+  },
+  {
+   "name": "Sandro",
+   "category": "shop=clothes",
+   "x": 46.27,
+   "z": -401.54
+  },
+  {
+   "name": "Maje",
+   "category": "shop=clothes",
+   "x": 37.09,
+   "z": -397.09
+  },
+  {
+   "name": "Pink",
+   "category": "shop=clothes",
+   "x": 20.61,
+   "z": -334.59
+  },
+  {
+   "name": "Bailey Neilson",
+   "category": "shop=optician",
+   "x": 15.51,
+   "z": -349.33
+  },
+  {
+   "name": "Godiva Chocolatier",
+   "category": "shop=chocolate",
+   "x": 53.45,
+   "z": -417.72
+  },
+  {
+   "name": "Sunglass Hut",
+   "category": "shop=optician",
+   "x": 50.64,
+   "z": -412.04
+  },
+  {
+   "name": "Geox",
+   "category": "shop=shoes",
+   "x": 43.39,
+   "z": -408.39
+  },
+  {
+   "name": "Vivo Rosa",
+   "category": "shop=shoes",
+   "x": 35.29,
+   "z": -403.67
+  },
+  {
+   "name": "American Eagle Outfitters",
+   "category": "shop=clothes",
+   "x": 7.22,
+   "z": -341.98
+  },
+  {
+   "name": "Footaction",
+   "category": "shop=shoes",
+   "x": 18.01,
+   "z": -385.64
+  },
+  {
+   "name": "Aerie",
+   "category": "shop=clothes",
+   "x": 20.18,
+   "z": -395.17
+  },
+  {
+   "name": "The Source",
+   "category": "shop=electronics",
+   "x": 33.79,
+   "z": -409.93
+  },
+  {
+   "name": "Purdys Chocolatier",
+   "category": "shop=chocolate",
+   "x": 39.12,
+   "z": -345.14
+  },
+  {
+   "name": "Mrs. Fields",
+   "category": "amenity=fast_food",
+   "x": 35.38,
+   "z": -353.41
+  },
+  {
+   "name": "WirelessWave",
+   "category": "shop=mobile_phone",
+   "x": 37.3,
+   "z": -360.68
+  },
+  {
+   "name": "Caryl Baker Visage",
+   "category": "shop=cosmetics",
+   "x": 38.3,
+   "z": -364.68
+  },
+  {
+   "name": "Auntie Anne's",
+   "category": "amenity=fast_food",
+   "x": 51.75,
+   "z": -363.7
+  },
+  {
+   "name": "Tbooth Wireless",
+   "category": "shop=mobile_phone",
+   "x": 40.9,
+   "z": -372.56
+  },
+  {
+   "name": "Rocky Mountain Chocolate Factory",
+   "category": "shop=confectionery",
+   "x": 42.02,
+   "z": -377.49
+  },
+  {
+   "name": "Sushi-Q",
+   "category": "amenity=fast_food",
+   "x": 46.04,
+   "z": -393.89
+  },
+  {
+   "name": "Sweet Jesus",
+   "category": "amenity=ice_cream",
+   "x": 53.06,
+   "z": -369.55
+  },
+  {
+   "name": "Refuel Juicery",
+   "category": "amenity=fast_food",
+   "x": 55.1,
+   "z": -374.6
+  },
+  {
+   "name": "Calforex Currency Exchange",
+   "category": "amenity=bureau_de_change",
+   "x": 59.63,
+   "z": -388.27
+  },
+  {
    "name": "Aesop",
    "category": "shop=cosmetics",
    "x": 14.96,
@@ -1410,6 +2748,102 @@
    "category": "shop=houseware",
    "x": 35.62,
    "z": -299.6
+  },
+  {
+   "name": "Sephora",
+   "category": "shop=cosmetics",
+   "x": 42.85,
+   "z": -318.31
+  },
+  {
+   "name": "True Religion",
+   "category": "shop=clothes",
+   "x": 44.92,
+   "z": -329.42
+  },
+  {
+   "name": "Massimo Dutti",
+   "category": "shop=clothes",
+   "x": 64.19,
+   "z": -371.06
+  },
+  {
+   "name": "Ted Baker",
+   "category": "shop=clothes",
+   "x": 66.07,
+   "z": -379.94
+  },
+  {
+   "name": "Harry Rosen",
+   "category": "shop=clothes",
+   "x": 66.73,
+   "z": -402.53
+  },
+  {
+   "name": "Victoria's Secret",
+   "category": "shop=clothes",
+   "x": 58.83,
+   "z": -334.55
+  },
+  {
+   "name": "Little Burgandy",
+   "category": "shop=shoes",
+   "x": 65.25,
+   "z": -354.99
+  },
+  {
+   "name": "Abercrombie & Fitch",
+   "category": "shop=clothes",
+   "x": 70.77,
+   "z": -373.33
+  },
+  {
+   "name": "Honey",
+   "category": "shop=clothes",
+   "x": 73.26,
+   "z": -390.17
+  },
+  {
+   "name": "Armani Exchange",
+   "category": "shop=clothes",
+   "x": 75.5,
+   "z": -410.57
+  },
+  {
+   "name": "Frank & Oak",
+   "category": "shop=clothes",
+   "x": 77.12,
+   "z": -423.42
+  },
+  {
+   "name": "Lids",
+   "category": "shop=clothes",
+   "x": 69.95,
+   "z": -341.7
+  },
+  {
+   "name": "Miniso",
+   "category": "shop=variety_store",
+   "x": 72.58,
+   "z": -352.81
+  },
+  {
+   "name": "Soft Moc",
+   "category": "shop=shoes",
+   "x": 77.45,
+   "z": -371.96
+  },
+  {
+   "name": "Cellicon",
+   "category": "shop=mobile_phone",
+   "x": 87.59,
+   "z": -422.9
+  },
+  {
+   "name": "GNC",
+   "category": "shop=nutrition_supplements",
+   "x": 82.27,
+   "z": -418.37
   },
   {
    "name": "Pandora",
@@ -1490,12 +2924,6 @@
    "z": -142.97
   },
   {
-   "name": "Sunglass Hut",
-   "category": "shop=optician",
-   "x": -24.26,
-   "z": -149.05
-  },
-  {
    "name": "claire's",
    "category": "shop=fashion_accessories",
    "x": -22.83,
@@ -1524,12 +2952,6 @@
    "category": "shop=massage",
    "x": -20.28,
    "z": -35.69
-  },
-  {
-   "name": "Batteries and Gadgets",
-   "category": "shop=electronics",
-   "x": -12.35,
-   "z": -120.52
   },
   {
    "name": "Lucky Mobile",
@@ -1754,16 +3176,22 @@
    "z": -70.5
   },
   {
-   "name": "Kernels Popcorn",
-   "category": "amenity=fast_food",
-   "x": -4.82,
-   "z": -65.62
-  },
-  {
    "name": "Nutrition House",
    "category": "shop=health_food",
    "x": -4.32,
    "z": -51.68
+  },
+  {
+   "name": "Swatch",
+   "category": "shop=watches",
+   "x": 38.77,
+   "z": -332.02
+  },
+  {
+   "name": "Ajisen Ramens",
+   "category": "amenity=restaurant",
+   "x": 145.93,
+   "z": 600.78
   },
   {
    "name": "The Met Campus Pub",
@@ -1796,6 +3224,18 @@
    "z": -64.6
   },
   {
+   "name": "Richmond St E / Yonge St",
+   "category": "amenity=bicycle_rental",
+   "x": 174.21,
+   "z": -499.4
+  },
+  {
+   "name": "Impark",
+   "category": "amenity=parking",
+   "x": 53.23,
+   "z": 422.02
+  },
+  {
    "name": "Trinity Square Cafe",
    "category": "amenity=cafe",
    "x": -43.76,
@@ -1808,16 +3248,142 @@
    "z": 161.95
   },
   {
+   "name": "Edo Japan",
+   "category": "amenity=fast_food",
+   "x": -199.28,
+   "z": 580.32
+  },
+  {
    "name": "Body and Spirit Cannabis",
    "category": "shop=cannabis",
    "x": -50.01,
    "z": 203.84
   },
   {
+   "name": "Flaming Kitchen",
+   "category": "amenity=restaurant",
+   "x": -219.65,
+   "z": 655.06
+  },
+  {
+   "name": "Four Four South Village",
+   "category": "amenity=restaurant",
+   "x": -221.3,
+   "z": 660.24
+  },
+  {
+   "name": "Domino's",
+   "category": "amenity=fast_food",
+   "x": -225.76,
+   "z": 672.19
+  },
+  {
+   "name": "Shair Dental",
+   "category": "amenity=dentist",
+   "x": -95.17,
+   "z": 361.55
+  },
+  {
+   "name": "Lucky Donkatsu",
+   "category": "amenity=fast_food",
+   "x": -101.74,
+   "z": 383.6
+  },
+  {
+   "name": "Aden Camera",
+   "category": "shop=camera",
+   "x": -172.19,
+   "z": 355.82
+  },
+  {
+   "name": "Taie International Institute",
+   "category": "amenity=college",
+   "x": 147.22,
+   "z": 594.57
+  },
+  {
+   "name": "Alexandros",
+   "category": "amenity=fast_food",
+   "x": 176.41,
+   "z": 523.95
+  },
+  {
+   "name": "Assembli Custom-Made Salads & Pizzas",
+   "category": "amenity=fast_food",
+   "x": 172.35,
+   "z": 522.2
+  },
+  {
+   "name": "Fleets Food",
+   "category": "shop=supermarket",
+   "x": 179.3,
+   "z": 502.01
+  },
+  {
+   "name": "McGill St / Church St",
+   "category": "amenity=bicycle_rental",
+   "x": 141.74,
+   "z": 481.21
+  },
+  {
+   "name": "Bob's Bulgogi",
+   "category": "amenity=fast_food",
+   "x": 266.05,
+   "z": -467.35
+  },
+  {
    "name": "111 Bond St (North of Dundas St E) - SMART",
    "category": "amenity=bicycle_rental",
    "x": 195.53,
    "z": 71.14
+  },
+  {
+   "name": "ChargePoint",
+   "category": "amenity=charging_station",
+   "x": -258.5,
+   "z": -623.41
+  },
+  {
+   "name": "Kenshi Toronto",
+   "category": "shop=clothes",
+   "x": -130.04,
+   "z": 316.65
+  },
+  {
+   "name": "Pi Co",
+   "category": "amenity=restaurant",
+   "x": 116.25,
+   "z": 591.34
+  },
+  {
+   "name": "Bulldog Coffee",
+   "category": "amenity=cafe",
+   "x": 186.42,
+   "z": 525.33
+  },
+  {
+   "name": "Goldstruck Coffee",
+   "category": "amenity=cafe",
+   "x": -51.98,
+   "z": 542.07
+  },
+  {
+   "name": "Hailed Coffee",
+   "category": "amenity=cafe",
+   "x": -234.7,
+   "z": 287.77
+  },
+  {
+   "name": "The Lexington",
+   "category": "amenity=restaurant",
+   "x": 25.51,
+   "z": 549.27
+  },
+  {
+   "name": "Hitotoki Japanese Bakery",
+   "category": "shop=bakery",
+   "x": -44.81,
+   "z": 542.71
   },
   {
    "name": "Jollibee",
@@ -1844,6 +3410,30 @@
    "z": -16.75
   },
   {
+   "name": "Popeye's Supplements",
+   "category": "shop=nutrition_supplements",
+   "x": 205.22,
+   "z": -627.85
+  },
+  {
+   "name": "world cafe",
+   "category": "amenity=cafe",
+   "x": -176.7,
+   "z": 319.9
+  },
+  {
+   "name": "Metro Central Ultrasound",
+   "category": "amenity=clinic",
+   "x": 249.1,
+   "z": -423.26
+  },
+  {
+   "name": "Hoops Sports Bar & Grill",
+   "category": "amenity=restaurant",
+   "x": -206.38,
+   "z": 598.57
+  },
+  {
    "name": "Chasha Express",
    "category": "amenity=fast_food",
    "x": -193.5,
@@ -1854,12 +3444,6 @@
    "category": "amenity=fast_food",
    "x": -201.77,
    "z": -2.02
-  },
-  {
-   "name": "Popeyes",
-   "category": "amenity=fast_food",
-   "x": -194.82,
-   "z": -0.49
   },
   {
    "name": "My Sushi",
@@ -1874,10 +3458,40 @@
    "z": 30.1
   },
   {
+   "name": "Le G\u00e9nie",
+   "category": "shop=bakery",
+   "x": -147.56,
+   "z": 357.92
+  },
+  {
+   "name": "AAA Diamonds",
+   "category": "shop=jewelry",
+   "x": 255.87,
+   "z": -432.32
+  },
+  {
+   "name": "Dawson Dental",
+   "category": "amenity=dentist",
+   "x": 133.49,
+   "z": -383.42
+  },
+  {
+   "name": "The Nathan Phillips Square Bicycle Station",
+   "category": "amenity=bicycle_parking",
+   "x": -256.9,
+   "z": -475.29
+  },
+  {
    "name": "Bay St / Dundas St W",
    "category": "amenity=bicycle_rental",
    "x": -198.13,
    "z": -122.03
+  },
+  {
+   "name": "Style By Serkan",
+   "category": "shop=hairdresser",
+   "x": -57.92,
+   "z": -324.43
   },
   {
    "name": "Bond Street Dental",
@@ -1892,10 +3506,22 @@
    "z": 105.02
   },
   {
+   "name": "Bruno Rosales Salon Pour Hommes",
+   "category": "shop=hairdresser",
+   "x": 262.1,
+   "z": -557.49
+  },
+  {
    "name": "288 Church Street Garage",
    "category": "amenity=parking",
    "x": 268.52,
    "z": 44.23
+  },
+  {
+   "name": "Saint Stephen's Chapel",
+   "category": "amenity=place_of_worship",
+   "x": -31.14,
+   "z": -619.81
   },
   {
    "name": "RC Coffee",
@@ -1910,16 +3536,40 @@
    "z": 29.48
   },
   {
+   "name": "The Alley",
+   "category": "amenity=cafe",
+   "x": -178.06,
+   "z": 355.44
+  },
+  {
+   "name": "Rabba",
+   "category": "shop=supermarket",
+   "x": 273.1,
+   "z": -492.51
+  },
+  {
    "name": "Oakham Cafe",
    "category": "amenity=cafe",
    "x": 208.95,
    "z": 170.53
   },
   {
+   "name": "Salus",
+   "category": "amenity=restaurant",
+   "x": 154.43,
+   "z": -413.45
+  },
+  {
    "name": "285 Victoria St",
    "category": "amenity=bicycle_rental",
    "x": 102.59,
    "z": 44.8
+  },
+  {
+   "name": "Chop Hop",
+   "category": "amenity=fast_food",
+   "x": 140.73,
+   "z": -580.52
   },
   {
    "name": "Shake Shack",
@@ -1934,10 +3584,52 @@
    "z": 20.36
   },
   {
+   "name": "College Park - Gerrard Entrance",
+   "category": "amenity=bicycle_rental",
+   "x": -214.81,
+   "z": 292.63
+  },
+  {
+   "name": "Richmond St W / York St",
+   "category": "amenity=bicycle_rental",
+   "x": -216.21,
+   "z": -618.21
+  },
+  {
+   "name": "Bike Share Toronto",
+   "category": "amenity=bicycle_rental",
+   "x": -164.67,
+   "z": -498.86
+  },
+  {
+   "name": "Canada's Theatre Museum",
+   "category": "tourism=museum",
+   "x": 130.08,
+   "z": -367.31
+  },
+  {
    "name": "bb.q Chicken",
    "category": "amenity=restaurant",
    "x": -222.8,
    "z": 104.56
+  },
+  {
+   "name": "Acupuncture Toronto - ALIVE Holistic Health & Fertility Clinic",
+   "category": "amenity=clinic",
+   "x": -158.49,
+   "z": 587.95
+  },
+  {
+   "name": "Hassle Free Clinic",
+   "category": "amenity=clinic",
+   "x": 174.56,
+   "z": 399.09
+  },
+  {
+   "name": "College Park South",
+   "category": "amenity=bicycle_rental",
+   "x": -117.79,
+   "z": 345.82
   },
   {
    "name": "Dollarama",
@@ -1970,6 +3662,12 @@
    "z": 140.4
   },
   {
+   "name": "Mary Wong",
+   "category": "amenity=clinic",
+   "x": -156.49,
+   "z": 579.69
+  },
+  {
    "name": "Digital Xpress",
    "category": "shop=copyshop",
    "x": 256.41,
@@ -1986,6 +3684,24 @@
    "category": "amenity=restaurant",
    "x": 198.29,
    "z": 92.39
+  },
+  {
+   "name": "Turtle Sculpture",
+   "category": "tourism=artwork",
+   "x": -285.97,
+   "z": -458.16
+  },
+  {
+   "name": "Spirit Canoe",
+   "category": "tourism=artwork",
+   "x": -272.11,
+   "z": -473.96
+  },
+  {
+   "name": "Inuksuk",
+   "category": "tourism=artwork",
+   "x": -273.38,
+   "z": -461.7
   },
   {
    "name": "Punjabi Chaap Corner",
@@ -2012,16 +3728,118 @@
    "z": 118.86
   },
   {
+   "name": "T Dot Dental",
+   "category": "amenity=dentist",
+   "x": -229.32,
+   "z": 619.39
+  },
+  {
    "name": "The Eaton Centre Child Care Centre",
    "category": "amenity=childcare",
    "x": -55.05,
    "z": -150.08
   },
   {
+   "name": "Grenville St / Yonge St",
+   "category": "amenity=bicycle_rental",
+   "x": -237.53,
+   "z": 633.98
+  },
+  {
+   "name": "18 Feet",
+   "category": "amenity=cafe",
+   "x": 252.64,
+   "z": 424.22
+  },
+  {
    "name": "\u5927\u7d71\u83ef T&T Supermarket",
    "category": "shop=supermarket",
    "x": -119.77,
    "z": 65.35
+  },
+  {
+   "name": "Sorry I\u2019ve Got Plants",
+   "category": "amenity=fast_food",
+   "x": 82.21,
+   "z": -580.95
+  },
+  {
+   "name": "Zen Kyoto",
+   "category": "amenity=restaurant",
+   "x": 78.93,
+   "z": -570.08
+  },
+  {
+   "name": "Pumpernickel\u2019s",
+   "category": "amenity=restaurant",
+   "x": 85.6,
+   "z": -593.29
+  },
+  {
+   "name": "Kiyomio",
+   "category": "amenity=restaurant",
+   "x": 224.94,
+   "z": 413.68
+  },
+  {
+   "name": "Crying Tiger",
+   "category": "amenity=restaurant",
+   "x": 217.32,
+   "z": 411.92
+  },
+  {
+   "name": "420 Sunshine",
+   "category": "shop=e-cigarette",
+   "x": 215.39,
+   "z": 410.51
+  },
+  {
+   "name": "Slider Byte",
+   "category": "amenity=fast_food",
+   "x": 128.25,
+   "z": 385.66
+  },
+  {
+   "name": "La Fuzion Hair Salon",
+   "category": "shop=hairdresser",
+   "x": -93.63,
+   "z": 348.89
+  },
+  {
+   "name": "Sanuki Udon",
+   "category": "amenity=restaurant",
+   "x": -42.37,
+   "z": 581.01
+  },
+  {
+   "name": "Signature Beauty Lounge",
+   "category": "shop=beauty",
+   "x": -25.97,
+   "z": 584.81
+  },
+  {
+   "name": "Bar Filo",
+   "category": "amenity=bar",
+   "x": 152.51,
+   "z": -556.61
+  },
+  {
+   "name": "Mississaugas of the Credit Medicine Wheel",
+   "category": "shop=cannabis",
+   "x": 172.58,
+   "z": 412.04
+  },
+  {
+   "name": "Indian Studio Kitchen",
+   "category": "amenity=fast_food",
+   "x": -119.19,
+   "z": 447.47
+  },
+  {
+   "name": "Hero Dumpling",
+   "category": "amenity=fast_food",
+   "x": -148.51,
+   "z": 510.88
   },
   {
    "name": "Shelby's Legendary Shawarma",
@@ -2036,10 +3854,112 @@
    "z": 207.25
   },
   {
+   "name": "Perfrect Threading & Beauty Salon",
+   "category": "shop=beauty",
+   "x": -55.63,
+   "z": 540.15
+  },
+  {
+   "name": "Le Lert",
+   "category": "amenity=restaurant",
+   "x": -36.73,
+   "z": 548.82
+  },
+  {
+   "name": "Super Vage",
+   "category": "shop=e-cigarette",
+   "x": -24.31,
+   "z": 553.05
+  },
+  {
+   "name": "INS Vape",
+   "category": "shop=e-cigarette",
+   "x": 18.56,
+   "z": 564.3
+  },
+  {
+   "name": "B Boyz",
+   "category": "amenity=fast_food",
+   "x": 24.91,
+   "z": 566.23
+  },
+  {
+   "name": "Wingstop",
+   "category": "amenity=fast_food",
+   "x": 100.67,
+   "z": 590.04
+  },
+  {
+   "name": "Guac Mexi Grill",
+   "category": "amenity=fast_food",
+   "x": 110.28,
+   "z": 593.11
+  },
+  {
+   "name": "J-Mart",
+   "category": "amenity=fast_food",
+   "x": 160.13,
+   "z": 608.01
+  },
+  {
+   "name": "Local Central Shop",
+   "category": "shop=convenience",
+   "x": 272.67,
+   "z": 639.61
+  },
+  {
    "name": "Ali Baba's Pita & Hummus",
    "category": "amenity=fast_food",
    "x": -32.01,
    "z": 149.65
+  },
+  {
+   "name": "Super Eater",
+   "category": "shop=convenience",
+   "x": -100.96,
+   "z": 282.55
+  },
+  {
+   "name": "Fusettes",
+   "category": "shop=hairdresser",
+   "x": -94.98,
+   "z": 350.35
+  },
+  {
+   "name": "Abra Cleaners",
+   "category": "shop=dry_cleaning",
+   "x": -251.1,
+   "z": 276.33
+  },
+  {
+   "name": "Martina's Nail Place",
+   "category": "shop=beauty",
+   "x": -267.32,
+   "z": 271.86
+  },
+  {
+   "name": "Chun Chung Rice Hotdog",
+   "category": "amenity=fast_food",
+   "x": -102.78,
+   "z": 263.79
+  },
+  {
+   "name": "Thai on Yonge",
+   "category": "amenity=restaurant",
+   "x": -93.22,
+   "z": 246.74
+  },
+  {
+   "name": "High Altitude Barbershop",
+   "category": "shop=hairdresser",
+   "x": -97.55,
+   "z": 246.29
+  },
+  {
+   "name": "Shawarma Royal",
+   "category": "amenity=fast_food",
+   "x": -88.0,
+   "z": 239.51
   },
   {
    "name": "Pinocho",
@@ -2144,6 +4064,12 @@
    "z": -281.62
   },
   {
+   "name": "Maple Leaf Pharmacy",
+   "category": "amenity=pharmacy",
+   "x": -237.11,
+   "z": 561.42
+  },
+  {
    "name": "Entrance from Eaton Centre L2 (via PATH)",
    "category": "railway=subway_entrance",
    "x": -14.39,
@@ -2156,10 +4082,28 @@
    "z": 0.3
   },
   {
+   "name": "South Entrance from Eaton Centre (via PATH)",
+   "category": "railway=subway_entrance",
+   "x": 85.5,
+   "z": -428.12
+  },
+  {
    "name": "North Entrance from Eaton Centre (via PATH)",
    "category": "railway=subway_entrance",
    "x": 78.19,
    "z": -305.93
+  },
+  {
+   "name": "Entrance from Hudson's Bay (via PATH)",
+   "category": "railway=subway_entrance",
+   "x": 98.73,
+   "z": -454.05
+  },
+  {
+   "name": "Yonge / Queen Northeast Corner",
+   "category": "railway=subway_entrance",
+   "x": 137.29,
+   "z": -402.43
   },
   {
    "name": "Alpha\u2019s Shawarma",
@@ -2186,6 +4130,12 @@
    "z": 116.37
   },
   {
+   "name": "Pretty Yonge Thing",
+   "category": "shop=beauty",
+   "x": -106.55,
+   "z": 242.78
+  },
+  {
    "name": "Eataly",
    "category": "shop=supermarket",
    "x": 15.14,
@@ -2210,10 +4160,28 @@
    "z": 86.64
   },
   {
+   "name": "Planet Fitness",
+   "category": "leisure=fitness_centre",
+   "x": -154.11,
+   "z": 424.01
+  },
+  {
+   "name": "Daon Cafe",
+   "category": "amenity=cafe",
+   "x": -184.97,
+   "z": 648.22
+  },
+  {
    "name": "Canada Computers",
    "category": "shop=computer",
    "x": -43.03,
    "z": 31.11
+  },
+  {
+   "name": "Yonge & College Optometry",
+   "category": "shop=optician",
+   "x": -218.02,
+   "z": 561.39
   },
   {
    "name": "Two Children of Toronto",
@@ -2228,16 +4196,70 @@
    "z": -88.14
   },
   {
+   "name": "Plearn Cafe",
+   "category": "amenity=cafe",
+   "x": -36.45,
+   "z": 547.55
+  },
+  {
+   "name": "Eaton Centre Canada Post",
+   "category": "amenity=post_office",
+   "x": 83.95,
+   "z": -391.48
+  },
+  {
    "name": "Dundas Square Canada Post",
    "category": "amenity=post_office",
    "x": 43.9,
    "z": -74.79
   },
   {
+   "name": "Wood Street Canada Post",
+   "category": "amenity=post_office",
+   "x": -162.75,
+   "z": 584.76
+  },
+  {
+   "name": "Mamma\u2019s Pizza",
+   "category": "amenity=fast_food",
+   "x": 197.0,
+   "z": -601.13
+  },
+  {
    "name": "Tesla Supercharger",
    "category": "amenity=charging_station",
    "x": -181.37,
    "z": -144.85
+  },
+  {
+   "name": "Yonge St / College St",
+   "category": "amenity=bicycle_rental",
+   "x": -164.33,
+   "z": 492.32
+  },
+  {
+   "name": "Temperance St / Bay St",
+   "category": "amenity=bicycle_rental",
+   "x": -28.69,
+   "z": -635.98
+  },
+  {
+   "name": "Richmond St E / Yonge St (2)",
+   "category": "amenity=bicycle_rental",
+   "x": 178.97,
+   "z": -498.19
+  },
+  {
+   "name": "Collectors Vault",
+   "category": "shop=collector",
+   "x": 75.32,
+   "z": -430.17
+  },
+  {
+   "name": "Raani",
+   "category": "amenity=restaurant",
+   "x": -42.44,
+   "z": -620.73
   },
   {
    "name": "Print & Gift",
@@ -2276,16 +4298,40 @@
    "z": -75.7
   },
   {
-   "name": "BMO",
-   "category": "amenity=bank",
-   "x": -4.23,
-   "z": -53.18
-  },
-  {
    "name": "Gourmet Hot Dogs & Sausages",
    "category": "amenity=fast_food",
    "x": -29.62,
    "z": -19.91
+  },
+  {
+   "name": "Pita Lite",
+   "category": "amenity=fast_food",
+   "x": -237.41,
+   "z": 484.56
+  },
+  {
+   "name": "z-teca",
+   "category": "amenity=fast_food",
+   "x": -249.62,
+   "z": 441.92
+  },
+  {
+   "name": "BHKRoll",
+   "category": "amenity=fast_food",
+   "x": -240.76,
+   "z": 498.09
+  },
+  {
+   "name": "Cellphone 2Go",
+   "category": "shop=mobile_phone",
+   "x": -151.13,
+   "z": 518.21
+  },
+  {
+   "name": "Sushi on the Run",
+   "category": "amenity=restaurant",
+   "x": -202.83,
+   "z": 522.61
   },
   {
    "name": "Marry Me Mochi",
@@ -2330,6 +4376,12 @@
    "z": -231.68
   },
   {
+   "name": "College Park",
+   "category": "leisure=park",
+   "x": -231.71,
+   "z": 368.46
+  },
+  {
    "name": "Library Building",
    "category": "amenity=library",
    "x": 31.18,
@@ -2352,6 +4404,12 @@
    "category": "amenity=university",
    "x": 214.01,
    "z": 157.91
+  },
+  {
+   "name": "Joseph Sheard Parkette",
+   "category": "leisure=park",
+   "x": -75.68,
+   "z": 441.5
   },
   {
    "name": "Larry Sefton Park",
@@ -2384,6 +4442,12 @@
    "z": -183.52
   },
   {
+   "name": "Holiday Inn",
+   "category": "tourism=hotel",
+   "x": -13.36,
+   "z": 597.26
+  },
+  {
    "name": "Bond Place Hotel homeless shelter",
    "category": "amenity=social_facility",
    "x": 197.06,
@@ -2414,6 +4478,18 @@
    "z": 106.91
   },
   {
+   "name": "Toronto City Hall",
+   "category": "amenity=townhall",
+   "x": -211.36,
+   "z": -344.16
+  },
+  {
+   "name": "Kerr Hall Quad",
+   "category": "leisure=park",
+   "x": 119.94,
+   "z": 264.64
+  },
+  {
    "name": "Downtown Diversity Garden on Elizabeth Street",
    "category": "leisure=park",
    "x": -287.5,
@@ -2430,6 +4506,36 @@
    "category": "shop=mall",
    "x": 40.05,
    "z": 54.8
+  },
+  {
+   "name": "Sheraton Centre Toronto Hotel",
+   "category": "tourism=hotel",
+   "x": -225.68,
+   "z": -581.58
+  },
+  {
+   "name": "Pitman Quad",
+   "category": "leisure=park",
+   "x": 273.81,
+   "z": 280.22
+  },
+  {
+   "name": "McGill Parkette",
+   "category": "leisure=park",
+   "x": -60.34,
+   "z": 389.45
+  },
+  {
+   "name": "Oasis Aqualounge",
+   "category": "amenity=swingerclub",
+   "x": 265.65,
+   "z": 622.4
+  },
+  {
+   "name": "Spirit Garden",
+   "category": "leisure=garden",
+   "x": -288.07,
+   "z": -467.33
   },
   {
    "name": "The Image Centre",
