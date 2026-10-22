@@ -30,6 +30,9 @@ namespace LifeInDowntown.EditorTools
             };
             AddStreetPose(poses, data, "Yonge Street", "street_yonge_looking_north", southToNorth: true);
             AddStreetPose(poses, data, "Dundas Street East", "street_dundas_looking_west", southToNorth: false);
+            var bodycam = GameObject.Find("BodycamCamera");
+            if (bodycam != null)   // what the player sees at spawn: chest height, wide lens
+                poses.Add(("bodycam_spawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));
 
             var go = new GameObject("ShotCamera");
             var cam = go.AddComponent<Camera>();
@@ -45,6 +48,7 @@ namespace LifeInDowntown.EditorTools
             foreach (var (name, pos, target) in poses)
             {
                 cam.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(target - pos));
+                cam.fieldOfView = name.StartsWith("bodycam") ? PlayerSetup.VerticalFov : 60f;
                 if (rain != null)
                 {
                     // the rain box stands on the ground around the camera (useless high up, so aerials skip it)

@@ -145,6 +145,7 @@ docs/                     this file
 - Open or create: `"C:\Program Files\Unity\Hub\Editor\6000.3.26f1\Editor\Unity.exe" -projectPath C:\Apps\Games\LifeInDowntown`
 - Generate the city: `-batchmode -quit -projectPath <proj> -executeMethod CityGenerator.GenerateFromCommandLine -logFile <log>`
 - Screenshots: `-batchmode -quit -projectPath <proj> -executeMethod ShotTool.Run -logFile <log>`
+- Player test: `-batchmode -nographics -quit -projectPath <proj> -executeMethod LifeInDowntown.EditorTools.PlayerSimTest.Run -logFile <log>` (SIM_PASS/SIM_FAIL lines, exit 1 on failure)
 - Map data: `python Tools/osm/fetch_osm.py`, then `python Tools/osm/build_city_json.py`
 
 ## 8. Task list for milestone 1
@@ -159,7 +160,7 @@ docs/                     this file
 | 5c | Look pass L3 + L4 (rain, wet streets, ray-traced reflections) | done 2026-10-22: `RainLook.cs` turns on ray tracing + SSR in all 4 HDRP quality assets (renders confirmed `Direct3D12 rayTracing=True`), RT reflections in the profile, wet smoothness remaps on street materials, 180 puddle decals, and a 9,000-streak rain mesh (a ParticleSystem simulated but never drew in batch renders). Open: rain mesh must follow + scroll with the player camera at runtime (task 6); no splashes yet |
 | 5d | Look pass L5 + L6 (lit windows, neon, square billboards) | todo |
 | 5e | Look pass L7 + L9 (building trim, street props) | todo |
-| 6 | Bodycam first-person player (3B.1) + rain follow | todo, NEXT |
+| 6 | Bodycam first-person player (3B.1) + rain follow | done 2026-10-22: `Assets/Scripts/Player/` (BodycamPlayer, BodycamRig, RainFollow, BodycamOverlay), `Assets/Editor/PlayerSetup.cs` (spawn on the Yonge sidewalk south of Dundas, `Bodycam.asset` volume: barrel lens, motion blur, heavy vignette/CA/grain/bloom), `PlayerSimTest` 7/7 pass (grounded, jog 3.20, sprint 5.50, bob 4.0 cm, never crosses a wall). Not yet: live play-mode feel check by Hamzah, compression-artefact post process, auto exposure (fixed EV kept so shots stay comparable) |
 | 7 | Rocketbox NPCs (3B.2) | todo (download list needs OK) |
 | 8 | Audio + body-mic mix (3B.3) | todo (download list needs OK) |
 | 9 | Playtest pass with Hamzah | todo |
