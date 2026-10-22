@@ -8,7 +8,7 @@ namespace LifeInDowntown.City
 {
     // Builds the Downtown_YongeDundas scene's City root from the OSM-derived JSON
     // (docs/DESIGN.md 3.2). Everything under City is regenerated; never hand-edit it.
-    public static class CityGenerator
+    public static partial class CityGenerator
     {
         const string DataPath = "Assets/City/Data/downtown_yonge_dundas.json";
         const string ScenePath = "Assets/Scenes/Downtown_YongeDundas.unity";
@@ -42,6 +42,8 @@ namespace LifeInDowntown.City
             BuildPaths(data, root.transform, mats, meshes);
             int lights = BuildStreetlights(data, root.transform, mats, meshes);
             int signs = BuildSigns(root.transform, mats, meshes);
+            BuildCondo(data, root.transform, mats, meshes);
+            BuildSkyline(root.transform, mats, meshes);
             int puddles = RainLook.BuildPuddles(data, root.transform);
             RainLook.BuildRain();
             RainLook.EnableRayTracing();
@@ -455,6 +457,7 @@ namespace LifeInDowntown.City
         {
             const string TexDir = "Assets/City/Textures";
             public readonly Material Ground, Asphalt, Concrete, Paving, Roof, Pole, Lamp, Signs;
+            public Material FacadeNight;   // Facade009: lit office windows, reused for the distant skyline
             readonly Material[] towers, midRise, lowRise;
 
             public Materials()
@@ -478,6 +481,7 @@ namespace LifeInDowntown.City
                 Pole = Plain("StreetlightPole", new Color(0.18f, 0.18f, 0.19f), 0.45f, 0.8f, Color.black, 0f);
                 Lamp = Plain("StreetlightLamp", new Color(0.9f, 0.9f, 0.85f), 0.6f, 0f, new Color(1f, 0.78f, 0.52f), LampNits);
                 Signs = SignMaterial();
+                FacadeNight = f009;
                 towers = new[] { f009, f009, f001, f005 };
                 midRise = new[] { f006, f006, brick, f009 };
                 lowRise = new[] { brick, brick, brown };
@@ -490,7 +494,7 @@ namespace LifeInDowntown.City
                 return set[(int)((id * 2654435761L & 0x7fffffff) % set.Length)];
             }
 
-            static Material Lit(string name, string texSet, float tileMetres, Color tint,
+            internal static Material Lit(string name, string texSet, float tileMetres, Color tint,
                                 float smoothMin = 0f, float smoothMax = 1f)
             {
                 string path = $"{MaterialDir}/{name}.mat";
@@ -547,7 +551,7 @@ namespace LifeInDowntown.City
             }
 
             // untextured Lit material, optionally emissive (luminance in nits)
-            static Material Plain(string name, Color baseColor, float smoothness, float metallic, Color emissive, float nits)
+            internal static Material Plain(string name, Color baseColor, float smoothness, float metallic, Color emissive, float nits)
             {
                 string path = $"{MaterialDir}/{name}.mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(path);

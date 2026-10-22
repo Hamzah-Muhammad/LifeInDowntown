@@ -111,6 +111,9 @@ namespace LifeInDowntown.Game
 
         public void Save(int slot) => SaveSystem.Write(slot, Snapshot());
 
+        // doors / elevators (World.Interactor)
+        public void Teleport(Vector3 position, float yaw) => PlaceAt(position + Vector3.up * 0.1f, yaw, 0f);
+
         public void Pause()
         {
             State = FlowState.Paused;

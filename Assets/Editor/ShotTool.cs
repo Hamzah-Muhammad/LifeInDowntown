@@ -30,6 +30,13 @@ namespace LifeInDowntown.EditorTools
             };
             AddStreetPose(poses, data, "Yonge Street", "street_yonge_looking_north", southToNorth: true);
             AddStreetPose(poses, data, "Dundas Street East", "street_dundas_looking_west", southToNorth: false);
+            if (CityGenerator.TryCondoFrame(data, out var condo))
+            {
+                // from the living room out through the glass, and from the window back into the room
+                poses.Add(("condo_window_view", condo.W(-1.2f, 4.6f, 1.6f), condo.W(-0.6f, -40f, 0.4f)));
+                poses.Add(("condo_room", condo.W(0.2f, 0.5f, 1.65f), condo.W(-1.6f, 7.5f, 1.0f)));
+                poses.Add(("condo_cn_tower_view", condo.W(-1.0f, 1.2f, 1.6f), new Vector3(-499f, 280f, -1514f)));   // toward the real CN Tower
+            }
             var bodycam = GameObject.Find("BodycamCamera");
             if (bodycam != null)   // what the player sees at spawn: chest height, wide lens
                 poses.Add(("bodycam_spawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));
@@ -49,6 +56,8 @@ namespace LifeInDowntown.EditorTools
             {
                 cam.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(target - pos));
                 cam.fieldOfView = name.StartsWith("bodycam") ? PlayerSetup.VerticalFov : 60f;
+                var condoGlass = GameObject.Find("CondoGlass");
+                if (condoGlass != null) condoGlass.GetComponent<Renderer>().enabled = name != "condo_window_noglass";
                 if (rain != null)
                 {
                     // the rain box stands on the ground around the camera (useless high up, so aerials skip it)
@@ -65,7 +74,10 @@ namespace LifeInDowntown.EditorTools
                 string file = Path.Combine("Screenshots", name + ".png");
                 File.WriteAllBytes(file, tex.EncodeToPNG());
                 Object.DestroyImmediate(tex);
-                Debug.Log($"SHOT_OK {file} pos={pos}");
+                var stack = UnityEngine.Rendering.HighDefinition.HDCamera.GetOrCreate(cam).volumeStack;   // the camera's own stack
+                var fogNow = stack.GetComponent<UnityEngine.Rendering.HighDefinition.Fog>();
+                var expNow = stack.GetComponent<UnityEngine.Rendering.HighDefinition.Exposure>();
+                Debug.Log($"SHOT_OK {file} pos={pos} fog={fogNow.enabled.value}/{fogNow.meanFreePath.value:0} exposureEV={expNow.fixedExposure.value:0.0}");
             }
             Object.DestroyImmediate(go);
             rt.Release();

@@ -10,6 +10,7 @@ namespace LifeInDowntown.Player
         public float boxHeight = 22f;     // RainLook.RainBoxHeight
         public float fallSpeed = 11f;     // m/s
         public float belowTarget = 3f;    // mesh bottom sits this far below the camera
+        public float IndoorAbove = 60f;   // camera height (m) above which the rain is hidden
 
         Transform upper;
 
@@ -29,6 +30,9 @@ namespace LifeInDowntown.Player
         {
             if (target == null) target = Camera.main != null ? Camera.main.transform : null;
             if (target == null) return;
+            // no rain indoors: everything above street level is inside (Tarik's condo is at ~120 m)
+            bool indoors = target.position.y > IndoorAbove;
+            foreach (var r in GetComponentsInChildren<MeshRenderer>()) r.enabled = !indoors;
             float scroll = -Mathf.Repeat(Time.time * fallSpeed, boxHeight);
             var p = target.position;
             transform.position = new Vector3(p.x, p.y - belowTarget + scroll, p.z);

@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO;
 using LifeInDowntown.City;
 using LifeInDowntown.Player;
 using UnityEditor;
@@ -28,6 +29,31 @@ namespace LifeInDowntown.EditorTools
             Check(player != null && rig != null, "player and rig exist in the scene");
             if (player == null || rig == null) { EditorApplication.Exit(1); return; }
             player.Init();
+            var data = JsonUtility.FromJson<CityData>(File.ReadAllText("Assets/City/Data/downtown_yonge_dundas.json"));
+
+            // a new game starts in Tarik's condo (DESIGN 3H): stand on its floor, and the glass stops you
+            if (CityGenerator.TryCondoFrame(data, out var condo))
+            {
+                for (int i = 0; i < 60; i++) Tick(player, rig, Vector2.zero, false, false);
+                float y = player.transform.position.y;
+                Check(player.Grounded && y > CityGenerator.CondoFloorY - 0.2f && y < CityGenerator.CondoFloorY + 0.6f,
+                      $"spawn stands on the condo floor (y={y:F2}, floor {CityGenerator.CondoFloorY})");
+                for (int i = 0; i < 240; i++) Tick(player, rig, new Vector2(0, 1), true, false);   // sprint at the window 4 s
+                float behindGlass = Vector3.Dot(player.transform.position - condo.origin, condo.inward);
+                Check(behindGlass > 0.15f && player.transform.position.y > CityGenerator.CondoFloorY - 0.2f,
+                      $"the window glass stops you (still {behindGlass:F2} m inside, y={player.transform.position.y:F1})");
+            }
+            else Check(false, "condo frame found in Pantages Tower");
+            var doors = Object.FindObjectsByType<LifeInDowntown.World.DoorLink>(FindObjectsSortMode.None);
+            Check(doors.Length == 2 && System.Array.TrueForAll(doors, dl => dl.exit != null && dl.exit.GetComponent<LifeInDowntown.World.DoorLink>() != null),
+                  $"street entrance and condo door are linked to each other ({doors.Length} doors)");
+
+            // the rest runs on the street
+            var street = PlayerSetup.StreetPoint(data, out float streetYaw);
+            var ccTp = player.GetComponent<CharacterController>();
+            ccTp.enabled = false; player.transform.position = street; ccTp.enabled = true;
+            player.SetLook(streetYaw, 0f);
+            Physics.SyncTransforms();
 
             // settle onto the ground
             for (int i = 0; i < 60; i++) Tick(player, rig, Vector2.zero, false, false);

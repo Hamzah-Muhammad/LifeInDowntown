@@ -158,6 +158,15 @@ Hamzah: "Make a map Grand Theft Auto style, and a circular on screen map on the 
 - Long names shrink to fit instead of being clipped. The full map also shows building names.
 - Real business names come from OSM; fine for a personal project, a commercial release needs parody names (section 9).
 
+## 3H. Tarik's condo: Pantages Tower, unit 3801 (2026-10-22)
+
+- **Where:** inside the real Pantages Tower (157.5 m, Victoria & Shuter), against its long south wall, floor 38 (y = 120 m). The tower's facade renders only from outside, so the condo's floor-to-ceiling glass looks out over the generated city. Built by `CityGenerator.Condo.cs` (`BuildCondo`), which checks every room corner lies inside the real footprint.
+- **Layout (10 m × 7.5 m, 2.75 m ceilings):** open living/kitchen along the glass, kitchen with island on the back wall, bedroom (right, by the window), bathroom (right, at the back) with vanity, toilet and a glass shower, front door on the back wall.
+- **View:** south over the Financial District. A seeded ring of ~300 distant lit towers (denser and taller to the south) and a floodlit **CN Tower at its real position** (~0.5 km west, 1.5 km south) with the pod ring and red beacon. Inside, a local volume turns the rain fog off (it washed the skyline into flat slabs) and sets an interior exposure (EV 4.2).
+- **Getting in/out:** a lit glass entrance on Shuter St; **[E]** at it rides the "elevator" up (fade to black), and **[E]** at the condo's front door rides down (`World.DoorLink` + `World.Interactor`). No rain indoors. **New Game starts in the condo**, facing the window; saves store the position, so loading puts you back inside.
+- **Gotcha:** HDRP tiles the emission map separately from the base map; with metre UVs it must get the same scale or windows glow as a flat sheet.
+- **Furniture:** photoreal Poly Haven CC0 models + floor/marble/tile/oak/fabric textures (93 MB) are waiting on Hamzah's download OK. Until then the finishes are plain materials and the living room has only the TV, media cabinet and rug.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

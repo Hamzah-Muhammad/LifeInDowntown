@@ -30,7 +30,14 @@ namespace LifeInDowntown.EditorTools
             var template = GameObject.Find("Main Camera");
             if (template != null) template.SetActive(false);
 
-            Vector3 spawn = SpawnPoint(data, out float yaw);
+            // the menu drifts up Yonge from the street point; a new game starts in Tarik's condo (DESIGN 3H)
+            Vector3 street = StreetPoint(data, out float streetYaw);
+            Vector3 spawn = street; float yaw = streetYaw;
+            if (CityGenerator.TryCondoFrame(data, out var condo))
+            {
+                spawn = condo.W(-1.6f, 3.3f, 0.3f);
+                yaw = Quaternion.LookRotation(-condo.inward).eulerAngles.y;   // facing the windows
+            }
             var body = new GameObject("Player");
             body.transform.SetPositionAndRotation(spawn, Quaternion.Euler(0f, yaw, 0f));
             var cc = body.AddComponent<CharacterController>();
@@ -68,9 +75,9 @@ namespace LifeInDowntown.EditorTools
 
             // main menu drift: from just behind the spawn, 60 m up Yonge, a little above head height
             var menuCam = camGo.AddComponent<MenuCamera>();
-            var fwd = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
-            menuCam.from = spawn + Vector3.up * 2.1f - fwd * 6f;
-            menuCam.to = spawn + Vector3.up * 2.1f + fwd * 60f;
+            var fwd = Quaternion.Euler(0f, streetYaw, 0f) * Vector3.forward;
+            menuCam.from = street + Vector3.up * 2.1f - fwd * 6f;
+            menuCam.to = street + Vector3.up * 2.1f + fwd * 60f;
             menuCam.enabled = false;
 
             SetupMenu(player, rig, menuCam);
@@ -109,6 +116,7 @@ namespace LifeInDowntown.EditorTools
             doc.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
             doc.sortingOrder = 10;   // menus draw over the phone HUD
             var menu = game.AddComponent<MenuController>();
+            game.AddComponent<LifeInDowntown.World.Interactor>().player = player.transform;
             var flow = game.AddComponent<GameFlow>();
             flow.player = player; flow.rig = rig; flow.menuCamera = menuCam; flow.menu = menu;
             menu.flow = flow;
@@ -149,7 +157,7 @@ namespace LifeInDowntown.EditorTools
         }
 
         // right-hand sidewalk of Yonge, ~40 m south of Dundas, facing north
-        static Vector3 SpawnPoint(CityData data, out float yaw)
+        public static Vector3 StreetPoint(CityData data, out float yaw)
         {
             Vector2 best = new Vector2(0f, -40f);
             float bestErr = float.MaxValue, width = 13f;
