@@ -1,0 +1,67 @@
+/* GTA-style minimap and full map (docs/DESIGN.md 3F). */
+
+.map-root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.map-image { position: absolute; left: 0; top: 0; -unity-background-scale-mode: stretch-to-fill; }
+
+/* ------------------------------------------------------------------ minimap */
+.minimap {
+    position: absolute;
+    left: 48px; bottom: 44px;
+    width: 300px; height: 300px;
+}
+
+.minimap-clip {
+    position: absolute; left: 0; top: 0; width: 300px; height: 300px;
+    border-radius: 150px;
+    overflow: hidden;
+    border-width: 5px;
+    border-color: rgba(10, 12, 16, 0.85);
+    background-color: rgb(24, 30, 38);
+}
+
+.minimap-arrow {
+    position: absolute; left: 136px; top: 134px; width: 28px; height: 28px;
+}
+
+.north {
+    position: absolute; width: 30px; height: 30px;
+    border-radius: 15px;
+    background-color: rgba(10, 12, 16, 0.9);
+    color: white; font-size: 16px; -unity-font-style: bold; -unity-text-align: middle-center;
+}
+
+/* --------------------------------------------------------------------- icons */
+.arrow { background-image: resource("UI/map_arrow"); -unity-background-scale-mode: scale-to-fit; }
+.blip { position: absolute; width: 18px; height: 18px; background-image: resource("UI/map_blip"); -unity-background-scale-mode: scale-to-fit; }
+.objective-blip { -unity-background-image-tint-color: rgb(255, 190, 110); }
+.big-blip { width: 26px; height: 26px; }
+
+/* -------------------------------------------------------------------- full map */
+.fullmap {
+    position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+    background-color: rgba(8, 10, 14, 0.94);
+    display: none;
+}
+
+.fullmap--open { display: flex; }
+
+.fullmap-view {
+    position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+    overflow: hidden;
+}
+
+.fullmap-arrow { position: absolute; width: 34px; height: 34px; }
+
+.fullmap-header { position: absolute; left: 70px; top: 50px; }
+.fullmap-title { font-size: 44px; color: rgb(255, 190, 110); -unity-font-style: bold; letter-spacing: 6px; text-shadow: 2px 2px 4px black; }
+.fullmap-objective { font-size: 22px; color: white; text-shadow: 1px 1px 3px black; }
+
+.legend {
+    position: absolute; right: 60px; bottom: 50px;
+    background-color: rgba(10, 12, 16, 0.85);
+    border-radius: 14px; padding: 14px 20px;
+}
+.legend-row { flex-direction: row; align-items: center; margin: 3px 0; }
+.legend-icon { position: relative; width: 22px; height: 22px; margin-right: 10px; }
+.legend-text { font-size: 18px; color: white; }
+.legend-hint { font-size: 14px; color: rgba(255, 255, 255, 0.55); margin-top: 8px; }

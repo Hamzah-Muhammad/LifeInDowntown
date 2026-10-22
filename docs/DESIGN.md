@@ -142,6 +142,14 @@ Hamzah: "pressing the phone button brings up an iPhone that you can use to call 
 - **First missions:** "Link Up" (Ty: meet at Sankofa Square, then Trinity Square), "Ma's Errand" (Ma: pick something up at the Atrium on Bay), "The Package" (Ty: drop a bag at the 300 Victoria Street garage, which you can refuse).
 - Tone and story follow section 1 (The Wire / Top Boy, real Toronto slang). Places are real; nothing here points at a real shelter, church or school as a crime location.
 
+## 3F. Map and minimap (built 2026-10-22)
+
+Hamzah: "Make a map Grand Theft Auto style, and a circular on screen map on the bottom left."
+- **Map image:** `Tools/osm/render_map.py` draws `Assets/Resources/City/map.png` (4 px/m, north up) from the city JSON: dark ground, light roads (major roads warmer), slate buildings (towers lighter), plazas, parks, street names along each street. `map_meta.json` holds its world bounds. Re-run it after the city data changes.
+- **Minimap:** bottom-left circle, ~300 m across, **rotates with the camera** (heading up), centre arrow, N marker on the rim, job blip clamped to the rim when off the disc.
+- **Full map (M):** pauses the game; drag to pan, scroll to zoom around the cursor, Space re-centres, M or Esc closes (Esc doesn't also open the pause menu). Shows the player arrow, the job blip, the active objective and a legend.
+- The objective line moved up above the minimap.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

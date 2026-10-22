@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Map.uss" />
+    <ui:VisualElement name="map-root" class="map-root" picking-mode="Ignore">
+
+        <ui:VisualElement name="minimap" class="minimap" picking-mode="Ignore">
+            <ui:VisualElement name="minimap-clip" class="minimap-clip" picking-mode="Ignore">
+                <ui:VisualElement name="minimap-image" class="map-image" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="minimap-blip" class="blip objective-blip" picking-mode="Ignore" />
+            <ui:Label name="minimap-north" text="N" class="north" picking-mode="Ignore" />
+            <ui:VisualElement name="minimap-arrow" class="arrow minimap-arrow" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="fullmap" class="fullmap">
+            <ui:VisualElement name="fullmap-view" class="fullmap-view">
+                <ui:VisualElement name="fullmap-image" class="map-image" picking-mode="Ignore">
+                    <ui:VisualElement name="fullmap-blip" class="blip objective-blip big-blip" picking-mode="Ignore" />
+                    <ui:VisualElement name="fullmap-arrow" class="arrow fullmap-arrow" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="fullmap-header" picking-mode="Ignore">
+                <ui:Label text="DOWNTOWN TORONTO" class="fullmap-title" picking-mode="Ignore" />
+                <ui:Label name="fullmap-objective" class="fullmap-objective" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement class="legend" picking-mode="Ignore">
+                <ui:VisualElement class="legend-row" picking-mode="Ignore"><ui:VisualElement class="arrow legend-icon" picking-mode="Ignore" /><ui:Label text="You" class="legend-text" picking-mode="Ignore" /></ui:VisualElement>
+                <ui:VisualElement class="legend-row" picking-mode="Ignore"><ui:VisualElement class="blip objective-blip legend-icon" picking-mode="Ignore" /><ui:Label text="Job" class="legend-text" picking-mode="Ignore" /></ui:VisualElement>
+                <ui:Label text="Drag to pan · Scroll to zoom · Space to centre · M / Esc to close" class="legend-hint" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

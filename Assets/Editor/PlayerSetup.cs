@@ -85,7 +85,7 @@ namespace LifeInDowntown.EditorTools
         // the Game object: UI Toolkit menu document + flow controller, plus an EventSystem for UI input
         static void SetupMenu(BodycamPlayer player, BodycamRig rig, MenuCamera menuCam)
         {
-            foreach (var n in new[] { "Game", "EventSystem", "Phone" })
+            foreach (var n in new[] { "Game", "EventSystem", "Phone", "Map" })
             {
                 var old = GameObject.Find(n);
                 if (old != null) Object.DestroyImmediate(old);
@@ -125,6 +125,23 @@ namespace LifeInDowntown.EditorTools
             phone.missions = missions;
             phone.player = player;
             phone.cam = rig.GetComponent<Camera>();
+
+            // GTA-style minimap + full map (docs/DESIGN.md 3F)
+            var mapTex = (TextureImporter)AssetImporter.GetAtPath("Assets/Resources/City/map.png");
+            if (mapTex != null && (mapTex.maxTextureSize < 4096 || mapTex.mipmapEnabled))
+            {
+                mapTex.maxTextureSize = 4096;   // 2735 x 2690: keep full detail
+                mapTex.mipmapEnabled = false;
+                mapTex.textureCompression = TextureImporterCompression.CompressedHQ;
+                mapTex.SaveAndReimport();
+            }
+            var mapGo = new GameObject("Map");
+            var mapDoc = mapGo.AddComponent<UIDocument>();
+            mapDoc.panelSettings = panel;
+            mapDoc.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/UI/Map.uxml");
+            mapDoc.sortingOrder = 5;   // over the phone HUD, under the menus
+            var map = mapGo.AddComponent<LifeInDowntown.Map.MapController>();
+            map.player = player; map.rig = rig; map.missions = missions;
 
             var es = new GameObject("EventSystem");
             es.AddComponent<UnityEngine.EventSystems.EventSystem>();

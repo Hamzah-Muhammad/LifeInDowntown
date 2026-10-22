@@ -72,6 +72,7 @@ namespace LifeInDowntown.Game
         {
             if (State == FlowState.Playing) playSeconds += Time.deltaTime;
             if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+            if (LifeInDowntown.Map.MapController.ConsumedEscThisFrame) return;   // Esc closes the map first
             if (State == FlowState.Playing) Pause();
             else menu.Back();   // sub-screen -> its menu; pause menu -> resume
         }

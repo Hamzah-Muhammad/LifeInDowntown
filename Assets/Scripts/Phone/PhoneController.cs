@@ -91,8 +91,9 @@ namespace LifeInDowntown.Phone
         void Update()
         {
             bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
-            root.style.display = playing ? DisplayStyle.Flex : DisplayStyle.None;
-            if (!playing) return;
+            bool mapOpen = LifeInDowntown.Map.MapController.IsOpen;
+            root.style.display = playing && !mapOpen ? DisplayStyle.Flex : DisplayStyle.None;
+            if (!playing || mapOpen) return;   // the full map owns the screen and input while open
             // the phone owns the cursor while playing (also right after resuming from pause)
             UnityEngine.Cursor.lockState = up ? CursorLockMode.None : CursorLockMode.Locked;
             UnityEngine.Cursor.visible = up;
