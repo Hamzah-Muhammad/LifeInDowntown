@@ -37,6 +37,7 @@ namespace LifeInDowntown.EditorTools
 
             WalkRoutes(player, line);
             Ride(player, line);
+            Riders(line);
 
             Debug.Log(fails == 0 ? "SUBWAY_RESULT all checks passed" : $"SUBWAY_RESULT {fails} check(s) failed");
             EditorApplication.Exit(fails == 0 ? 0 : 1);
@@ -253,6 +254,22 @@ namespace LifeInDowntown.EditorTools
             Check(loop.Contains("Dwell@Queen > Running > Dwell@TMU > Running > Dwell@College > Leaving > Hidden"), $"unattended northbound loop: {loop}");
 
             Check(doorViolations == 0 && doorChecks > 0, $"doors opened only at a standstill on a platform, platform side ({doorChecks} open-door steps, {doorViolations} violations{(firstViolation.Length > 0 ? ": " + firstViolation : "")})");
+        }
+
+        // the riders exist underground only (3N.6)
+        static void Riders(SubwayLine line)
+        {
+            var rc = line.GetComponent<SubwayRiders>();
+            Check(rc != null && rc.riders.Length > 0, $"subway riders placed ({rc?.riders.Length ?? 0})");
+            if (rc == null) return;
+            int onTrains = 0, onPlatforms = 0;
+            foreach (var r in rc.riders)
+                if (r.GetComponentInParent<TrainCar>(true) != null) onTrains++; else onPlatforms++;
+            rc.Apply(new Vector3(0f, 1.7f, 0f));
+            bool offUp = System.Array.TrueForAll(rc.riders, r => !r.activeSelf);
+            rc.Apply(new Vector3(0f, -7f, 0f));
+            bool onDown = System.Array.TrueForAll(rc.riders, r => r.activeSelf);
+            Check(offUp && onDown, $"{onTrains} riders on the trains and {onPlatforms} on the platforms: off on the street, on underground");
         }
     }
 }

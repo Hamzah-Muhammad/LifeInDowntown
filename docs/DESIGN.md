@@ -225,7 +225,7 @@ Hamzah: "Create an inventory system as well, where you can carry in game items, 
 - **Police** (same download): `CharacterImport` matches extra texture sets by slot name (his equipment belt, his pistol). Two officers are posted on a corner of Yonge & Dundas (one watches Tarik), and 2 of the 90 pooled walkers are officers on the beat. Their uniform is Rocketbox's generic grey-blue, not TPS navy.
 - **Limits:** the condo food and ammo pickups are placeholder shapes; no hands are drawn holding the pistol.
 
-## 3N. TTC subway: Line 1, Queen - TMU - College (design 2026-10-22, not built)
+## 3N. TTC subway: Line 1, Queen - TMU - College (designed and built 2026-10-22, branch `feature/ttc-subway`)
 
 Hamzah: "build the TTC subway system ... one you can physically ride to other stations around the map ... as accurate as possible to real life TTC subway stations." His answers: **Queen, TMU, College** first; the subway is **quick travel** between spots in the city; **free for now** (gates open); **real streets** above the new stations.
 
@@ -331,6 +331,10 @@ Game coordinates (same projection as the city):
 - The Pachter and Boyle murals are copyrighted: leave those walls plain or use our own art.
 - TR seat colour: unverified.
 - The PATH (Eaton Centre etc.) is not built, so PATH doors stay closed.
+- Wall tiles, floor tiles and seat fabric are neutral placeholders; the TMU panels are plain "TMU" lettering for now.
+- Not checked by eye in the running game (Hamzah forbade taking over his screen): the subtitle and next-train lines (OnGUI never shows in ShotTool renders), the zone-out fade, how the trains look moving, all the sounds, and frame rate with 837 buildings plus the subway.
+- "Entrance by 2 Queen Street East" is inside the tower in OSM, so it is not built.
+- Saving while on a train and loading puts Tarik back at the saved spot, but the trains restart at their hold points, so he lands on the track bed (untested edge case).
 
 ### 3N.10 Build order (one branch, one commit per task)
 1. Map extension (3N.3), regenerate, all tests and renders green.
@@ -339,7 +343,7 @@ Game coordinates (same projection as the city):
 4. Tunnels and track: box tunnel, rails, ties, third rail, tunnel lights.
 5. Train mesh + `TrainController` (schedule, doors, moving-platform ride, announcements, zone-out, short turn).
 6. Sound, riders, map overlay.
-7. `SubwayTest`:
+7. `SubwayTest` (all green 2026-10-22, plus the 4 older suites; exe rebuilt):
    - every street entrance reaches its platform (PlayerSimTest-style walk);
    - a simulated ride TMU → College arrives;
    - doors open only at platforms;
