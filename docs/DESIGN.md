@@ -171,7 +171,7 @@ Hamzah: "Make a map Grand Theft Auto style, and a circular on screen map on the 
 
 Hamzah: "Let's add sound. I want to build the world more before we start making specific missions." **Working order: world-building first, specific missions later.**
 
-- **Sources (his choice):** Freesound CC0 recordings (shortlist needs his OK; API key in `Tools/assets/freesound_key.txt`, gitignored, which he creates) + layers synthesized in code (`Tools/assets/make_sounds.py`, ours, CC0). Every Freesound file is listed in CREDITS.md with its ID and author.
+- **Sources:** **all sound is generated in code for now** (Hamzah 2026-10-22: "let's just generate our own sounds from code rn"): `Tools/assets/make_sounds.py` writes every clip, ours, CC0. Freesound CC0 recordings stay a later option (the key file `Tools/assets/freesound_key.txt` is already gitignored); a recording named like a synth clip replaces it with no code change.
 - **Ambience** (`Game/AudioDirector`): outdoor = rain bed + city hum (traffic swells) + occasional streetcar bells and distant sirens placed in 3D around the player; indoor (condo) = muffled rain on glass + room tone with a 60 Hz fridge/HVAC hum. Crossfades in about 1 s on the elevator ride.
 - **Player:** footsteps on each step (BodycamPlayer.Footstep), wet concrete outside / wood inside, random pitch and volume; heavier when sprinting. Synth placeholder until the Freesound set lands.
 - **Phone:** original ringtone and message ping (not any real phone's sounds); elevator chime on rides.
