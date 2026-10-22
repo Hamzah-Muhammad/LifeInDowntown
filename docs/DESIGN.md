@@ -187,7 +187,7 @@ docs/                     this file
 | 5d | Look pass L5 + L6 (lit windows, neon, square billboards) | todo |
 | 5e | Look pass L7 + L9 (building trim, street props) | todo |
 | 6 | Bodycam first-person player (3B.1) + rain follow | done 2026-10-22: `Assets/Scripts/Player/` (BodycamPlayer, BodycamRig, RainFollow, BodycamOverlay), `Assets/Editor/PlayerSetup.cs` (spawn on the Yonge sidewalk south of Dundas, `Bodycam.asset` volume: barrel lens, motion blur, heavy vignette/CA/grain/bloom), `PlayerSimTest` 7/7 pass (grounded, jog 3.20, sprint 5.50, bob 4.0 cm, never crosses a wall). Not yet: live play-mode feel check by Hamzah, compression-artefact post process, auto exposure (fixed EV kept so shots stay comparable) |
-| 7 | Rocketbox NPCs (3B.2) | todo (download list needs OK) |
+| 7 | Rocketbox NPCs (3B.2) | done 2026-10-22: 10 adults + 8 clips (831 MB raw, 79 MB converted), `CharacterImport` (humanoid, gendered controllers, HDRP materials), `NpcSetup` 24 walkers on 27 real sidewalk lines + 8 standers outside shops, walk speeds measured from the clips (1.16 / 0.85 m/s). Clip root settings matter: keeping the original root or baking XZ displaced bodies; see `NpcDiagnostic` |
 | 8 | Audio + body-mic mix (3B.3) | todo (download list needs OK) |
 | 9 | Playtest pass with Hamzah | todo |
 | 5d/5e | Remaining look passes (neon, lit windows, trim, props) | after 6-8 |

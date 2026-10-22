@@ -36,6 +36,26 @@ namespace LifeInDowntown.Game
             EnterMainMenu();
             // verification hook: skip the menu straight into a new game (capture scripts)
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-autostart") >= 0) NewGame();
+            if (HasArg("-lookatnpc")) LookAtNearestNpc();
+        }
+
+        // verification hook: stand ~5 m from the nearest pedestrian, facing them
+        void LookAtNearestNpc()
+        {
+            LifeInDowntown.NPC.Pedestrian best = null;
+            float bd = float.MaxValue;
+            foreach (var p in FindObjectsByType<LifeInDowntown.NPC.Pedestrian>(FindObjectsSortMode.None))
+            {
+                float d = (p.transform.position - spawnPosition).sqrMagnitude;
+                if (d < bd) { bd = d; best = p; }
+            }
+            if (best == null) { Debug.Log("NPC_HOOK no pedestrians"); return; }
+            best.mode = LifeInDowntown.NPC.Pedestrian.Mode.Phone;   // hold still for the capture
+            best.GetComponentInChildren<Animator>()?.SetInteger("Mode", (int)best.mode);
+            Vector3 at = best.transform.position + best.transform.forward * 3.5f;
+            Vector3 to = best.transform.position - at;
+            PlaceAt(new Vector3(at.x, best.transform.position.y + 0.2f, at.z), Mathf.Atan2(to.x, to.z) * Mathf.Rad2Deg, 0f);
+            Debug.Log($"NPC_HOOK facing {best.name} at {best.transform.position}");
         }
 
         // value after a command-line switch, e.g. -startmission link_up

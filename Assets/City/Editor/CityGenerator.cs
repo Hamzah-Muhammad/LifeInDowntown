@@ -53,6 +53,7 @@ namespace LifeInDowntown.City
             PlaceMainCamera();
             NightLook.Apply();
             LifeInDowntown.EditorTools.PlayerSetup.Setup(data);
+            LifeInDowntown.EditorTools.NpcSetup.Setup(data);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log($"CITY_OK buildings={built} roads={data.roads.Length} paths={data.paths.Length} " +
@@ -174,7 +175,7 @@ namespace LifeInDowntown.City
             AddObject("Sidewalks", parent, swMb.ToMesh("Sidewalks"), mats.Concrete, meshes, collider: true);
         }
 
-        static bool OnAnyRoad(Vector2 pt, List<(Vector2 a, Vector2 b, float halfW, long id)> segs, long ownId, float margin)
+        internal static bool OnAnyRoad(Vector2 pt, List<(Vector2 a, Vector2 b, float halfW, long id)> segs, long ownId, float margin)
         {
             foreach (var s in segs)
             {
@@ -357,7 +358,7 @@ namespace LifeInDowntown.City
             }
         }
 
-        static bool PointInPolygon(Vector2 pt, List<Vector2> poly)
+        internal static bool PointInPolygon(Vector2 pt, List<Vector2> poly)
         {
             bool inside = false;
             for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++)
