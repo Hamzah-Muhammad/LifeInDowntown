@@ -39,6 +39,7 @@ namespace LifeInDowntown.World
             for (float t = 0; t < fadeSeconds; t += Time.unscaledDeltaTime) { fade = t / fadeSeconds; yield return null; }
             fade = 1f;
             if (door.exit != null) GameFlow.Instance.Teleport(door.exit.position, door.exit.eulerAngles.y);
+            AudioDirector.Instance?.ElevatorDing();
             yield return new WaitForSecondsRealtime(0.35f);
             for (float t = 0; t < fadeSeconds; t += Time.unscaledDeltaTime) { fade = 1f - t / fadeSeconds; yield return null; }
             fade = 0f;
