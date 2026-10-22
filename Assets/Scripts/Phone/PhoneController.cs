@@ -67,7 +67,7 @@ namespace LifeInDowntown.Phone
 
             missions.IncomingCall += Ring;
             missions.Notify += Banner;
-            missions.MessagesChanged += () => { if (view == View.Messages) FillMessages(); };
+            missions.MessagesChanged += () => { LifeInDowntown.Game.AudioDirector.Instance?.MessagePing(); if (view == View.Messages) FillMessages(); };
             Open(View.Home);
         }
 
@@ -229,6 +229,7 @@ namespace LifeInDowntown.Phone
             incomingAvatar.style.backgroundColor = ContactColor(c);
             if (!up) SetUp(true);
             Open(View.Incoming);
+            LifeInDowntown.Game.AudioDirector.Instance?.PhoneRinging(true);
         }
 
         void Answer()
@@ -241,6 +242,7 @@ namespace LifeInDowntown.Phone
         void Decline()
         {
             if (view != View.Incoming) return;
+            LifeInDowntown.Game.AudioDirector.Instance?.PhoneRinging(false);
             GameState.Current.callLog.Add($"missed:{callerId}");
             ringingMission = null;
             missions.CallEnded(declined: true);
@@ -250,6 +252,7 @@ namespace LifeInDowntown.Phone
 
         void StartCall(Contact c, Dialogue dlg)
         {
+            LifeInDowntown.Game.AudioDirector.Instance?.PhoneRinging(false);
             callerId = c?.id;
             callName.text = c != null ? c.name : "Unknown";
             callAvatar.text = c != null ? c.name.Substring(0, 1) : "?";
@@ -265,6 +268,7 @@ namespace LifeInDowntown.Phone
         // New Game / Load: drop any call in progress and put the phone away
         public void ResetPhone()
         {
+            LifeInDowntown.Game.AudioDirector.Instance?.PhoneRinging(false);
             ringingMission = null;
             if (InCall) runner.Stop();
             Open(View.Home);

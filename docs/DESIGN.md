@@ -167,6 +167,16 @@ Hamzah: "Make a map Grand Theft Auto style, and a circular on screen map on the 
 - **Gotcha:** HDRP tiles the emission map separately from the base map; with metre UVs it must get the same scale or windows glow as a flat sheet.
 - **Furniture (2026-10-22, approved):** 12 Poly Haven CC0 models + oak laminate, marble, tile, black oak and fabric textures. The download was **215 MB, not the 93 MB quoted**: the estimate used glTF sizes, the FBX bundles carry EXR normal maps. `CondoFurnitureImport` packs HDRP masks in Unity (it reads the EXR maps), folds leaf opacity into the colour map, builds HDRP materials per slot, and saves `Assets/Condo/Prefabs/`. `CityGenerator.Condo.Furniture` places each piece from its measured bounds (floor / ceiling / wall height). All seating faces +Z; `ReportFacing` measures that from the highest backrest vertex.
 
+## 3I. Sound (2026-10-22)
+
+Hamzah: "Let's add sound. I want to build the world more before we start making specific missions." **Working order: world-building first, specific missions later.**
+
+- **Sources (his choice):** Freesound CC0 recordings (shortlist needs his OK; API key in `Tools/assets/freesound_key.txt`, gitignored, which he creates) + layers synthesized in code (`Tools/assets/make_sounds.py`, ours, CC0). Every Freesound file is listed in CREDITS.md with its ID and author.
+- **Ambience** (`Game/AudioDirector`): outdoor = rain bed + city hum (traffic swells) + occasional streetcar bells and distant sirens placed in 3D around the player; indoor (condo) = muffled rain on glass + room tone with a 60 Hz fridge/HVAC hum. Crossfades in about 1 s on the elevator ride.
+- **Player:** footsteps on each step (BodycamPlayer.Footstep), wet concrete outside / wood inside, random pitch and volume; heavier when sprinting. Synth placeholder until the Freesound set lands.
+- **Phone:** original ringtone and message ping (not any real phone's sounds); elevator chime on rides.
+- **Body-mic sound** (`Player/BodyMicFilter` on the listener): the whole mix goes through a chest-mic chain: high-pass ~150 Hz, low-pass ~8 kHz, compressor, light saturation, and wind buffet that grows with speed outdoors. Strength is a setting (later).
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

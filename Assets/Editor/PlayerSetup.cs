@@ -53,6 +53,7 @@ namespace LifeInDowntown.EditorTools
             cam.farClipPlane = 3000f;
             camGo.AddComponent<HDAdditionalCameraData>();
             camGo.AddComponent<AudioListener>();
+            camGo.AddComponent<BodyMicFilter>().player = player;   // chest-mic sound on the whole mix (DESIGN 3I)
             var rig = camGo.AddComponent<BodycamRig>();
             rig.player = player;
             rig.Tick(1f / 60f);   // place it at the mount now so the scene opens at the right pose
@@ -117,6 +118,8 @@ namespace LifeInDowntown.EditorTools
             doc.sortingOrder = 10;   // menus draw over the phone HUD
             var menu = game.AddComponent<MenuController>();
             game.AddComponent<LifeInDowntown.World.Interactor>().player = player.transform;
+            var audio = game.AddComponent<AudioDirector>();
+            audio.player = player; audio.listener = rig.transform;
             var flow = game.AddComponent<GameFlow>();
             flow.player = player; flow.rig = rig; flow.menuCamera = menuCam; flow.menu = menu;
             menu.flow = flow;
