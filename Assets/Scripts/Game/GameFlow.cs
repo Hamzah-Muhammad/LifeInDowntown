@@ -73,6 +73,7 @@ namespace LifeInDowntown.Game
             if (State == FlowState.Playing) playSeconds += Time.deltaTime;
             if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
             if (LifeInDowntown.Map.MapController.ConsumedEscThisFrame) return;   // Esc closes the map first
+            if (LifeInDowntown.Items.InventoryUI.ConsumedEscThisFrame) return;    // ... and the backpack / shop
             if (State == FlowState.Playing) Pause();
             else menu.Back();   // sub-screen -> its menu; pause menu -> resume
         }
@@ -102,6 +103,7 @@ namespace LifeInDowntown.Game
             var data = SaveSystem.Read(slot);
             if (data == null) return false;
             GameState.Current = data.state ?? new GameState();
+            LifeInDowntown.Items.Inventory.EnsureKeyItems(GameState.Current);   // saves from before the backpack
             playSeconds = data.playSeconds;
             ResetPhone();
             PlaceAt(data.position, data.yaw, data.pitch);
@@ -113,6 +115,9 @@ namespace LifeInDowntown.Game
 
         // doors / elevators (World.Interactor)
         public void Teleport(Vector3 position, float yaw) => PlaceAt(position + Vector3.up * 0.1f, yaw, 0f);
+
+        // collapsing (PlayerStats): back in the condo where a new game starts
+        public void WakeAtHome() => PlaceAt(spawnPosition, spawnYaw, 0f);
 
         public void Pause()
         {

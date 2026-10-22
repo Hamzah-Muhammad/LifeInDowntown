@@ -263,6 +263,11 @@ namespace LifeInDowntown.City
                     var ped = clerk.GetComponent<LifeInDowntown.NPC.Pedestrian>();
                     ped.mode = LifeInDowntown.NPC.Pedestrian.Mode.Idle;
                 }
+                // E at the counter opens the shop (docs/DESIGN.md 3M); the customer side of the till
+                var till = new GameObject("ShopCounter").transform;
+                till.SetParent(root, false);
+                till.position = s.W(2.75f, 1.3f, F);
+                till.gameObject.AddComponent<LifeInDowntown.World.ShopCounter>().shopId = "rabba";
                 Debug.Log($"SHOP_OK {s.name} building={s.building} door={s.W(-0.2f, 0f, 0f)}");
             }
         }

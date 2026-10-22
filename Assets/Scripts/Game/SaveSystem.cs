@@ -10,7 +10,7 @@ namespace LifeInDowntown.Game
     [Serializable]
     public class SaveData
     {
-        public int version = 1;
+        public int version = 2;          // 2: cash in dollars and cents, body stats, inventory
         public string savedAtUtc;          // ISO 8601
         public float playSeconds;
         public Vector3 position;
@@ -83,7 +83,7 @@ namespace LifeInDowntown.Game
             string name = slot == AutoSlot ? "Autosave" : $"Slot {slot + 1}";
             if (d == null) return $"{name}  —  empty";
             var t = TimeSpan.FromSeconds(d.playSeconds);
-            return $"{name}  —  {d.SavedAt:MMM d, HH:mm}  ·  played {(int)t.TotalHours}h {t.Minutes:00}m  ·  ${d.state.cash}";
+            return $"{name}  —  {d.SavedAt:MMM d, HH:mm}  ·  played {(int)t.TotalHours}h {t.Minutes:00}m  ·  {LifeInDowntown.Items.ItemCatalog.Money(d.state.cash)}";
         }
     }
 }

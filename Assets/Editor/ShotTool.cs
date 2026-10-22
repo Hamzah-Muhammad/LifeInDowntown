@@ -53,6 +53,11 @@ namespace LifeInDowntown.EditorTools
                 poses.Add(("bodycam_spawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));
 
             AddCrowdPoses(poses, CityGenerator.TryCondoFrame(data, out var cf) ? cf : (CityGenerator.CondoFrame?)null);
+            foreach (var (shot, id) in new[] { ("items_nightstand", "condo_pistol"), ("items_coffee_table", "condo_chips") })   // DESIGN 3M
+            {
+                var pick = GameObject.Find("Pickups/Pickup_" + id);
+                if (pick != null) poses.Add((shot, pick.transform.position + new Vector3(0.9f, 0.75f, 0.6f), pick.transform.position));
+            }
             // -shots a,b,c renders only those poses
             var only = LifeInDowntown.Game.GameFlow.Arg("-shots");
             if (only != null) poses = poses.FindAll(p => System.Array.IndexOf(only.Split(','), p.name) >= 0);

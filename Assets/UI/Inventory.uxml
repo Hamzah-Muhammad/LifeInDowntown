@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Inventory.uss" />
+    <!-- filled by Items/InventoryUI.cs (docs/DESIGN.md 3M) -->
+    <ui:VisualElement name="inv-root" class="inv-root" />
+</ui:UXML>

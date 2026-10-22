@@ -210,6 +210,20 @@ Hamzah: "there should be normal people walking around, drug dealers at corners, 
 - **Animations:** 14 more Rocketbox in-place clips (60 MB, approved 2026-10-22). The female controller uses the male clip where no female file exists.
 - **Limits:** Rocketbox has no hoodies (one male model has a hood) and no lying-down clip; the sleeping-bag mound is primitives. Edit-mode renders preview the pool with `ShotTool.PreviewCrowd`; runtime frame rate is logged every 15 s as `CROWD walkers=.. statics=.. fps=..` in Player.log.
 
+## 3M. Inventory, shop, body stats, weapons (2026-10-22)
+
+Hamzah: "Create an inventory system as well, where you can carry in game items, food, guns." Design approved 2026-10-22 ("go, build the inventory as designed").
+- **Backpack** (`Items/Inventory.cs`, rules in one place): 20 slots, per-item stacks, carried weight. Over **25 kg** Tarik walks at 65% and can't sprint; nothing more goes in past **35 kg**. Key items (phone, condo keys) can't be dropped or used up. Start kit: phone, keys, lighter, **$60.00** (cash is now dollars and cents).
+- **Items** (`Resources/Items/items.json`): 18 items in 8 categories (food, drink, medical, weapon, ammo, key, tool, misc) with Toronto convenience-store prices, tax in. Missions can hand out items (`item:<id>:<n>`).
+- **Screen** (`Items/InventoryUI.cs`, `UI/Inventory.uxml/.uss`): **Tab** opens, Tab/Esc closes. 5 × 4 grid; cash, carry weight and health/food/water bars on top; details and Eat/Drink/Use, Equip, Draw, Drop on the right. Tarik stands still while it's open.
+- **Shops** (`World/ShopCounter`): **E** at the till of either Rabba opens the stock beside the backpack, with Buy buttons greyed out when you can't afford it or have no room.
+- **Pickups** (`World/WorldPickup`, placed by `EditorTools/ItemSetup`): water and ketchup chips on the coffee table; a 9mm pistol and 30 rounds on the bedroom nightstand. Taken pickups stay gone (`picked:<id>` flags). Dropped items land as a bag in front of Tarik.
+- **Body** (`Items/PlayerStats.cs`), real time while playing: hunger empties in ~2 h, thirst in ~1.5 h, 2.5× faster sprinting. Empty hunger or thirst drains 6 health a minute; both above half heals 3 a minute. Low stats wash the colour out and close the vignette in (a runtime volume over the bodycam look); warnings show as phone banners. At zero health Tarik **collapses and wakes up at home** with 35 health and 15% of his cash gone. Stats show on the phone's home screen.
+- **Weapons** (`Items/WeaponHolder.cs`), carry and draw only: equip from the backpack (loads the magazine from loose rounds), **Q** draws/holsters, **R** reloads. Drawn, the pistol comes up into the bottom of the chest-cam frame. **No firing yet**: combat is its own milestone. The pistol is a stand-in built from boxes until a real model is approved (candidate: Rocketbox `Police_Male_01`, MIT, 90 MB raw, whose duty pistol has its own textures).
+- **Saves:** version 2; backpack, stats, cash and the equipped weapon ride in `GameState`. Older saves load with the phone and keys added back.
+- **Test:** `InventoryTest` (24 checks): start kit, stacking, slot/weight limits, buying (cash, not sold, full), eating caps, the body clock, starving and collapsing, equip and reload, unequip on removal, save round trip, old-save repair, and the scene wiring (2 counters, 4 condo pickups, the components).
+- **Limits:** pickups and the pistol are placeholder shapes; no hands are drawn holding the pistol.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.
