@@ -76,6 +76,7 @@ namespace LifeInDowntown.City
             BuildTrack(root, lineComp, sm, meshes);
             root.gameObject.AddComponent<SubwayAnnouncer>();
             BuildTrains(root, sm, meshes);
+            root.gameObject.AddComponent<SubwayAudio>();
             CutGroundHoles(parent, holes);
             int nRoutes = 0; foreach (var c in comps) nRoutes += c.routes.Length;
             Debug.Log($"SUBWAY_OK stations={comps.Count} streetOpenings={holes.Count} routes={nRoutes}");

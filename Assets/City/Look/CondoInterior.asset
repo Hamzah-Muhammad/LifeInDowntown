@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6842909774743842333
+--- !u!114 &-5659013202392487280
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -104,9 +104,9 @@ MonoBehaviour:
   m_Name: CondoInterior
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.VolumeProfile
   components:
-  - {fileID: -6842909774743842333}
-  - {fileID: 3299114954218492988}
---- !u!114 &3299114954218492988
+  - {fileID: -5659013202392487280}
+  - {fileID: 3713081037972216133}
+--- !u!114 &3713081037972216133
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}

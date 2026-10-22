@@ -34,6 +34,7 @@ namespace LifeInDowntown.City
             };
             var mats = new[] { tm.steel, tm.glass, tm.inside, tm.floor, tm.seat, tm.led, tm.head, tm.tail, tm.signs, tm.rubber, tm.dark };
             var leafMesh = LeafMesh(meshes);
+            var riders = new List<GameObject>();
             var cache = new Dictionary<string, Mesh>();
             foreach (int dir in new[] { 1, -1 })
             {
@@ -102,8 +103,76 @@ namespace LifeInDowntown.City
                 ctl.cars = cars.ToArray();
                 ctl.trainLength = offset;
                 ctl.Init();      // parks it at its hold point in the tunnel
+                AddTrainRiders(ctl, riders, dir > 0 ? 11 : 23);
             }
+            AddPlatformRiders(root, riders);
+            var rc = root.gameObject.AddComponent<SubwayRiders>();
+            rc.riders = riders.ToArray();
+            rc.Apply(Vector3.zero);     // saved switched off: the game starts on the street
             Debug.Log($"TRAIN_OK trains=2 cars={CarLengths.Length} length={SumLengths():F2} m width={2 * CarHalfW:F3} m height={RoofTop} m doors/side/car=4");
+        }
+
+        static List<GameObject> RiderPrefabs()
+        {
+            var list = new List<GameObject>();
+            string dir = LifeInDowntown.EditorTools.CharacterImport.Root + "/Prefabs";
+            if (!System.IO.Directory.Exists(dir)) return list;
+            foreach (var f in System.IO.Directory.GetFiles(dir, "*.prefab"))
+                if (!System.IO.Path.GetFileName(f).StartsWith("Police_"))
+                    list.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(f.Replace('\\', '/')));
+            return list;
+        }
+
+        static GameObject Rider(List<GameObject> prefabs, System.Random rnd, Transform parent, Vector3 localPos, Vector3 localFace, LifeInDowntown.NPC.Pedestrian.Mode mode)
+        {
+            var go = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefabs[rnd.Next(prefabs.Count)], parent);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.LookRotation(localFace);
+            var p = go.GetComponent<LifeInDowntown.NPC.Pedestrian>();
+            if (p != null) { p.mode = mode; p.path = null; p.watchPlayer = false; }
+            return go;
+        }
+
+        // a few people per train: sitting on the side seats, standing by the doors on their phones
+        static void AddTrainRiders(TrainController ctl, List<GameObject> riders, int seed)
+        {
+            var prefabs = RiderPrefabs();
+            if (prefabs.Count == 0) return;
+            var rnd = new System.Random(seed);
+            foreach (var car in ctl.cars)
+            {
+                int n = 1 + rnd.Next(2);
+                for (int i = 0; i < n; i++)
+                {
+                    int s = rnd.NextDouble() < 0.5 ? -1 : 1;
+                    int k = rnd.Next(3);         // the seat run between doors k and k+1
+                    float z = (car.doorZ[k] + car.doorZ[k + 1]) * 0.5f + (float)(rnd.NextDouble() - 0.5) * 1.6f;
+                    if (rnd.NextDouble() < 0.7)   // seated, facing across the car
+                        riders.Add(Rider(prefabs, rnd, car.transform, new Vector3(s * (Inner - 0.5f), Floor, z), new Vector3(-s, 0, 0), LifeInDowntown.NPC.Pedestrian.Mode.Sit));
+                    else                          // standing near a door, on the phone
+                        riders.Add(Rider(prefabs, rnd, car.transform, new Vector3(s * 0.75f, Floor, car.doorZ[rnd.Next(4)] + 1.1f), new Vector3(0, 0, s), LifeInDowntown.NPC.Pedestrian.Mode.Phone));
+                }
+            }
+        }
+
+        // people waiting on every platform, back to the wall
+        static void AddPlatformRiders(Transform root, List<GameObject> riders)
+        {
+            var prefabs = RiderPrefabs();
+            if (prefabs.Count == 0) return;
+            var rnd = new System.Random(416);
+            foreach (var st in root.GetComponentsInChildren<SubwayStation>())
+                foreach (int side in new[] { -1, 1 })
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float u = -55f + 50f * i + (float)rnd.NextDouble() * 12f;
+                        var pos = st.W(u, side * 6.3f, PlatFloor);
+                        var go = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefabs[rnd.Next(prefabs.Count)], st.transform);
+                        go.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(st.Right * -side));
+                        var p = go.GetComponent<LifeInDowntown.NPC.Pedestrian>();
+                        if (p != null) { p.mode = rnd.NextDouble() < 0.5 ? LifeInDowntown.NPC.Pedestrian.Mode.Phone : LifeInDowntown.NPC.Pedestrian.Mode.Waiting; p.path = null; p.watchPlayer = false; }
+                        riders.Add(go);
+                    }
         }
 
         static float SumLengths() { float s = 0; foreach (var l in CarLengths) s += l; return s; }

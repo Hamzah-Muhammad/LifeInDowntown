@@ -10,6 +10,8 @@ Writes 48 kHz 16-bit WAVs to Assets/Resources/Audio/:
   elevator_ding.wav  two-tone chime
   streetcar_bell.wav double "ding-ding"
   siren_wail.wav     12 s police-style wail (played far away, 3D)
+  subway_*.wav       the TTC subway (docs/DESIGN.md 3N.8): station hum, tunnel rumble, motor whine, wheels,
+                     wind push, the car's interior bed, door chime, brake hiss, door slide
 """
 import pathlib
 import wave
@@ -190,10 +192,110 @@ def footsteps():
         write(f"step_wood_{i + 1}.wav", thump + board * 0.5 + scuff * 0.6)
 
 
+# ---------------------------------------------------------------- TTC subway (docs/DESIGN.md 3N.8)
+def subway_hum():
+    """station bed: ventilation fans (low broadband), 120 Hz transformer hum, slow distant rumble swells"""
+    sec = 30.0
+    t = np.arange(int(sec * SR)) / SR
+    chans = []
+    for c in range(2):
+        fans = fft_band(rng.standard_normal(len(t)), 60, 420) * 0.6
+        hiss = fft_band(rng.standard_normal(len(t)), 1500, 6000) * 0.05
+        hum = 0.10 * np.sin(2 * np.pi * 120 * t + c) + 0.04 * np.sin(2 * np.pi * 240 * t)
+        swell = fft_band(rng.standard_normal(len(t)), 25, 90) * (0.4 + 0.6 * np.sin(2 * np.pi * t / 15.0 + c) ** 2) * 0.7
+        chans.append(fans + hiss + hum + swell)
+    write("subway_hum.wav", loopable(np.stack(chans, 1)))
+
+
+def subway_rumble():
+    """the train in the tunnel: heavy low rumble with a slow wobble (played 3D, louder with speed)"""
+    sec = 6.0
+    t = np.arange(int(sec * SR)) / SR
+    x = fft_band(rng.standard_normal(len(t)), 25, 220) * (0.75 + 0.25 * np.sin(2 * np.pi * 1.7 * t))
+    x += fft_band(rng.standard_normal(len(t)), 220, 900) * 0.2
+    write("subway_rumble.wav", loopable(x, 0.8))
+
+
+def subway_motor():
+    """traction motor / inverter whine: a tonal stack, pitched up with speed at runtime (the TR's rising whine)"""
+    sec = 4.0
+    t = np.arange(int(sec * SR)) / SR
+    f0 = 330.0
+    x = sum(a * np.sin(2 * np.pi * f0 * m * t + m) for m, a in ((1, 1.0), (2, 0.5), (3, 0.35), (4.5, 0.18), (6, 0.12)))
+    x *= 0.8 + 0.2 * np.sin(2 * np.pi * 3.1 * t)
+    x += fft_band(rng.standard_normal(len(t)), 800, 3000) * 0.15
+    write("subway_motor.wav", loopable(x, 0.5))
+
+
+def subway_wheels():
+    """steel wheels on rail: rolling roar plus the double click of rail joints under each truck"""
+    sec = 4.0
+    n = int(sec * SR)
+    t = np.arange(n) / SR
+    x = fft_band(rng.standard_normal(n), 300, 3500) * 0.35
+    for start in np.arange(0.2, sec - 0.2, 0.95):
+        for off in (0.0, 0.11):
+            s = int((start + off) * SR)
+            L = int(0.05 * SR)
+            k = fft_band(rng.standard_normal(L), 400, 5000) * np.exp(-np.arange(L) / (0.008 * SR))
+            x[s:s + L] += k * 2.2
+    write("subway_wheels.wav", loopable(x, 0.3))
+
+
+def subway_wind():
+    """wind pushed down the tunnel ahead of an arriving train"""
+    sec = 6.0
+    t = np.arange(int(sec * SR)) / SR
+    x = fft_band(rng.standard_normal(len(t)), 80, 1600) * (0.7 + 0.3 * np.sin(2 * np.pi * 0.4 * t) ** 2)
+    write("subway_wind.wav", loopable(x, 1.0))
+
+
+def subway_interior():
+    """inside a moving car: the rumble heard through the floor, muffled, with a little body rattle"""
+    sec = 8.0
+    t = np.arange(int(sec * SR)) / SR
+    x = fft_band(rng.standard_normal(len(t)), 30, 400) * (0.8 + 0.2 * np.sin(2 * np.pi * 0.7 * t))
+    x += fft_band(rng.standard_normal(len(t)), 900, 2500) * 0.06 * (rng.random(len(t)) < 0.002).cumsum() % 2
+    write("subway_interior.wav", loopable(x, 1.0))
+
+
+def subway_chime():
+    """door chime: our own three falling notes (not a recording of the TTC's)"""
+    notes = [(1174.7, 0.0), (987.8, 0.22), (784.0, 0.44)]
+    out = np.zeros(int(1.6 * SR))
+    for f, at in notes:
+        v = tone(f, 1.0, 0.35, ((1, 1), (2, 0.2), (3, 0.08)))
+        s = int(at * SR)
+        out[s:s + len(v)] += v[: len(out) - s]
+    write("subway_chime.wav", out)
+
+
+def subway_brake():
+    """air brake release: a falling hiss"""
+    sec = 1.6
+    t = np.arange(int(sec * SR)) / SR
+    x = fft_band(rng.standard_normal(len(t)), 2000, 9000) * np.exp(-t / 0.5) * np.minimum(1, t / 0.02)
+    write("subway_brake.wav", x)
+
+
+def subway_doors():
+    """doors sliding (a short rumble) and the leaves meeting"""
+    sec = 1.1
+    n = int(sec * SR)
+    t = np.arange(n) / SR
+    slide = fft_band(rng.standard_normal(n), 150, 1200) * np.sin(np.pi * np.clip(t / 0.8, 0, 1)) * 0.6
+    thunk = np.zeros(n)
+    s = int(0.82 * SR)
+    L = n - s
+    thunk[s:] = np.sin(2 * np.pi * 85 * np.arange(L) / SR) * np.exp(-np.arange(L) / (0.04 * SR))
+    write("subway_doors.wav", slide + thunk)
+
+
 if __name__ == "__main__":
     import sys
     ALL = [rain_outdoor, rain_indoor, city_hum, room_tone, phone_ring, phone_ping, elevator_ding,
-           streetcar_bell, siren_wail, footsteps]
+           streetcar_bell, siren_wail, footsteps, subway_hum, subway_rumble, subway_motor, subway_wheels,
+           subway_wind, subway_interior, subway_chime, subway_brake, subway_doors]
     pick = sys.argv[1:]                     # e.g. `python make_sounds.py rain_indoor`; none = everything
     for fn in ALL:
         if not pick or fn.__name__ in pick:

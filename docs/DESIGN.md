@@ -322,6 +322,9 @@ Game coordinates (same projection as the city):
   - the door chime;
   - brake hiss.
 - **In the car:** a muffled interior bed.
+- **Built (task 6):** nine `subway_*.wav` clips from `make_sounds.py`, mixed by `SubwayAudio`: station hum below the street, 3D rumble/wheels/whine on each train's front car (the whine's pitch rises with speed), wind before an arriving train, chime/doors/brake hiss from the train's own cues, the interior bed while riding. Underground no longer plays the condo's rain-on-glass and room tone, and footsteps there are concrete. **Never listened to by me**: Hamzah to judge.
+- **Riders (task 6):** 9 people per train (seated on the side benches with the chair-sit clip, or standing by a door on the phone) and 3 waiting on each platform, Rocketbox. `SubwayRiders` switches them on only while the camera is underground.
+- **Map (task 6):** `render_map.py` draws Line 1 in yellow with a "1" roundel and name at each station and red squares at the street entrances. The minimap uses the same image, so it shows the line everywhere, not only underground (simpler than the design said).
 
 ### 3N.9 Open items
 - Per-station wall colours and the TMU 2025 panel look: needs reference photos (Hamzah supplies them, or I search images) before the finish pass.
