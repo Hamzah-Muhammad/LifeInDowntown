@@ -136306,7 +136306,7 @@ MonoBehaviour:
   listener: {fileID: 465385231}
   rainOutdoor: 0.55
   cityHum: 0.32
-  rainIndoor: 0.22
+  rainIndoor: 0.12
   roomTone: 0.12
   footsteps: 0.5
   phone: 0.6

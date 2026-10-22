@@ -15,14 +15,14 @@ namespace LifeInDowntown.Game
         public Transform listener;
 
         [Header("Mix (0-1)")]
-        public float rainOutdoor = 0.55f, cityHum = 0.32f, rainIndoor = 0.22f, roomTone = 0.12f;
+        public float rainOutdoor = 0.55f, cityHum = 0.32f, rainIndoor = 0.12f, roomTone = 0.12f;
         public float footsteps = 0.5f, phone = 0.6f;
         public float indoorAbove = 60f;         // same rule as RainFollow: the condo is ~120 m up
 
         AudioSource rainOut, hum, rainIn, room, ring, oneShot;
         readonly Dictionary<string, AudioClip[]> steps = new Dictionary<string, AudioClip[]>();
         AudioClip bell, siren, ping, ding;
-        float indoorMix, nextBell = 20f, nextSiren = 60f;
+        float indoorMix, startFade, nextBell = 20f, nextSiren = 60f;
         int lastStep = -1;
 
         public bool Indoors => listener != null && LifeInDowntown.World.IndoorZone.IsIndoors(listener.position);
@@ -64,7 +64,9 @@ namespace LifeInDowntown.Game
         {
             indoorMix = Mathf.MoveTowards(indoorMix, Indoors ? 1f : 0f, Time.unscaledDeltaTime);   // ~1 s crossfade
             bool paused = GameFlow.Instance != null && GameFlow.Instance.State == GameFlow.FlowState.Paused;
-            float duck = paused || LifeInDowntown.Map.MapController.IsOpen ? 0.45f : 1f;
+            // beds fade in over the first seconds so load hitches (audio thread starved) can't pop at full level
+            startFade = Mathf.MoveTowards(startFade, 1f, Time.unscaledDeltaTime / 2.5f);
+            float duck = (paused || LifeInDowntown.Map.MapController.IsOpen ? 0.45f : 1f) * startFade;
             rainOut.volume = rainOutdoor * (1f - indoorMix) * duck;
             hum.volume = cityHum * (1f - indoorMix * 0.85f) * duck;    // the city is still faintly audible upstairs
             rainIn.volume = rainIndoor * indoorMix * duck;
