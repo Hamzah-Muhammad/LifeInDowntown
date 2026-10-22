@@ -69,7 +69,7 @@ namespace LifeInDowntown.EditorTools
         static void AddStreetPose(List<(string, Vector3, Vector3)> poses, CityData data, string street, string name, bool southToNorth)
         {
             Vector2 best = Vector2.zero, other = Vector2.zero;
-            float bestDist = float.MaxValue;
+            float bestDist = float.MaxValue, roadWidth = 10f;
             foreach (var r in data.roads)
             {
                 if (r.name != street) continue;
@@ -77,15 +77,15 @@ namespace LifeInDowntown.EditorTools
                 for (int i = 0; i + 1 < p.Count; i++)
                 {
                     float d = p[i].magnitude;
-                    if (d < bestDist) { bestDist = d; best = p[i]; other = p[i + 1]; }
+                    if (d < bestDist) { bestDist = d; best = p[i]; other = p[i + 1]; roadWidth = r.width; }
                 }
             }
             if (bestDist == float.MaxValue) { Debug.LogWarning($"SHOT_SKIP no road named {street}"); return; }
             Vector2 dir = (other - best).normalized;
             if (southToNorth && dir.y < 0) dir = -dir;      // point north
             if (!southToNorth && dir.x > 0) dir = -dir;     // point west
-            // stand on the sidewalk-side lane, 70 m behind the origin
-            Vector2 eye = -dir * 70f + new Vector2(dir.y, -dir.x) * 4f;
+            // stand on the right-hand sidewalk, 70 m behind the origin
+            Vector2 eye = -dir * 70f + new Vector2(dir.y, -dir.x) * (roadWidth * 0.5f + 1.5f);
             poses.Add((name, new Vector3(eye.x, 1.7f, eye.y), new Vector3(dir.x * 120f, 8f, dir.y * 120f)));
         }
     }

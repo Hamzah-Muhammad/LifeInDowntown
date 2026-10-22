@@ -51,6 +51,7 @@ namespace LifeInDowntown.City
     {
         public long id;
         public string name;
+        public string kind;   // "road" (area:highway road surface) or "pedestrian"
         public float[] pts;
     }
 

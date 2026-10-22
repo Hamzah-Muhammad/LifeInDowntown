@@ -12,9 +12,19 @@ namespace LifeInDowntown.City
         readonly List<Vector3> verts = new List<Vector3>();
         readonly List<Vector3> normals = new List<Vector3>();
         readonly List<Vector2> uvs = new List<Vector2>();
-        readonly List<int> tris = new List<int>();
+        readonly List<List<int>> submeshes = new List<List<int>> { new List<int>() };
+        List<int> tris;
+
+        public MeshBuilder() { tris = submeshes[0]; }
 
         public int VertexCount => verts.Count;
+
+        // Following triangles go to this submesh (one material per submesh).
+        public void UseSubmesh(int index)
+        {
+            while (submeshes.Count <= index) submeshes.Add(new List<int>());
+            tris = submeshes[index];
+        }
 
         public void Tri(Vector3 a, Vector3 b, Vector3 c, Vector3 facing, Vector2 ua, Vector2 ub, Vector2 uc)
         {
@@ -57,7 +67,8 @@ namespace LifeInDowntown.City
             m.SetVertices(verts);
             m.SetNormals(normals);
             m.SetUVs(0, uvs);
-            m.SetTriangles(tris, 0);
+            m.subMeshCount = submeshes.Count;
+            for (int i = 0; i < submeshes.Count; i++) m.SetTriangles(submeshes[i], i);
             m.RecalculateBounds();
             m.RecalculateTangents();
             return m;

@@ -104,11 +104,13 @@ namespace LifeInDowntown.City
                             new Vector3(q.x, y1, q.y), new Vector3(p.x, y1, p.y), outward,
                             new Vector2(0, y0), new Vector2(len, y0), new Vector2(len, y1), new Vector2(0, y1));
                 }
+                mb.UseSubmesh(1);                               // roof and underside: roof material
                 mb.Polygon(ring, y1, true);
                 if (y0 > 0.01f) mb.Polygon(ring, y0, false);   // underside of podium overhangs
 
                 string label = string.IsNullOrEmpty(bd.name) ? bd.id.ToString() : bd.name;
-                AddObject($"Bldg_{label}", group, mb.ToMesh($"Bldg_{bd.id}"), mats.Facade(bd.h), meshes, collider: true);
+                AddObject($"Bldg_{label}", group, mb.ToMesh($"Bldg_{bd.id}"),
+                          new[] { mats.Facade(bd.h, bd.id), mats.Roof }, meshes, collider: true);
                 count++;
             }
             return count;
@@ -233,25 +235,32 @@ namespace LifeInDowntown.City
         static void BuildPaths(CityData d, Transform parent, Materials mats, List<Mesh> meshes)
         {
             var mb = new MeshBuilder();
+            var roadAreas = new MeshBuilder();
             foreach (var pz in d.plazas)
             {
                 var ring = CityDataUtil.Points(pz.pts);
-                if (ring.Count >= 3) mb.Polygon(ring, 0.08f, true);
+                if (ring.Count < 3) continue;
+                if (pz.kind == "road") roadAreas.Polygon(ring, 0.07f, true);
+                else mb.Polygon(ring, 0.08f, true);
             }
             foreach (var p in d.paths)
                 Ribbon(mb, CityDataUtil.Points(p.pts), p.width, 0.09f);
             AddObject("PlazasAndPaths", parent, mb.ToMesh("PlazasAndPaths"), mats.Paving, meshes, collider: false);
+            AddObject("RoadAreas", parent, roadAreas.ToMesh("RoadAreas"), mats.Asphalt, meshes, collider: false);
         }
 
         // ------------------------------------------------------------- helpers
         static Vector3 V(Vector2 p, float y) => new Vector3(p.x, y, p.y);
 
-        static void AddObject(string name, Transform parent, Mesh mesh, Material mat, List<Mesh> meshes, bool collider)
+        static void AddObject(string name, Transform parent, Mesh mesh, Material mat, List<Mesh> meshes, bool collider) =>
+            AddObject(name, parent, mesh, new[] { mat }, meshes, collider);
+
+        static void AddObject(string name, Transform parent, Mesh mesh, Material[] mats, List<Mesh> meshes, bool collider)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            go.AddComponent<MeshRenderer>().sharedMaterial = mat;
+            go.AddComponent<MeshRenderer>().sharedMaterials = mats;
             if (collider) go.AddComponent<MeshCollider>().sharedMesh = mesh;
             GameObjectUtility.SetStaticEditorFlags(go, StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccluderStatic |
                                                        StaticEditorFlags.OccludeeStatic | StaticEditorFlags.ContributeGI);
@@ -267,36 +276,87 @@ namespace LifeInDowntown.City
         }
 
         // Placeholder HDRP Lit materials (grey-box pass). The CC0 texture pass replaces these.
+        // HDRP Lit materials from the approved CC0 sets (docs/DESIGN.md 3A.1). Mesh UVs are in metres,
+        // so each material's tiling is 1 / (real-world size of one texture tile).
         class Materials
         {
-            public readonly Material Ground, Asphalt, Concrete, Paving, Glass, Brick, Storefront;
+            const string TexDir = "Assets/City/Textures";
+            public readonly Material Ground, Asphalt, Concrete, Paving, Roof;
+            readonly Material[] towers, midRise, lowRise;
 
             public Materials()
             {
                 Directory.CreateDirectory(MaterialDir);
-                Ground = Get("Ground", new Color(0.22f, 0.22f, 0.21f), 0.2f, 0f);
-                Asphalt = Get("Asphalt", new Color(0.09f, 0.09f, 0.10f), 0.35f, 0f);
-                Concrete = Get("Sidewalk", new Color(0.55f, 0.54f, 0.52f), 0.25f, 0f);
-                Paving = Get("Paving", new Color(0.45f, 0.42f, 0.40f), 0.3f, 0f);
-                Glass = Get("FacadeGlass", new Color(0.20f, 0.27f, 0.33f), 0.9f, 0.6f);
-                Brick = Get("FacadeBrick", new Color(0.45f, 0.25f, 0.18f), 0.2f, 0f);
-                Storefront = Get("FacadeStorefront", new Color(0.62f, 0.58f, 0.50f), 0.3f, 0f);
+                Asphalt = Lit("Asphalt", "asphalt_02", 3f, Color.white);
+                Concrete = Lit("Sidewalk", "brushed_concrete_03", 2f, new Color(0.85f, 0.85f, 0.85f));
+                // PavingStones138 turned out to be mossy cobblestone; Yonge-Dundas Square is granite slabs.
+                // Concrete stands in until a granite-slab set is approved.
+                Paving = Lit("Paving", "brushed_concrete_03", 2f, new Color(0.7f, 0.7f, 0.72f));
+                // downtown, everything off the road is pavement: the ground matches the sidewalk slabs
+                Ground = Lit("Ground", "brushed_concrete_03", 2f, new Color(0.85f, 0.85f, 0.85f));
+                Roof = Lit("Roof", "brushed_concrete_03", 2f, new Color(0.35f, 0.35f, 0.36f));
+                var f009 = Lit("FacadeOfficeNight", "Facade009", 24f, Color.white);
+                var f001 = Lit("FacadeGlassPanels", "Facade001", 14f, Color.white);
+                var f005 = Lit("FacadeGlassGrid", "Facade005", 24f, Color.white);
+                var f006 = Lit("FacadeOfficeBands", "Facade006", 30f, Color.white);
+                var brick = Lit("FacadeBrickRed", "brick_wall_001", 3f, Color.white);
+                var brown = Lit("FacadeBrickBuff", "brown_brick_02", 1.5f, Color.white);
+                towers = new[] { f009, f009, f001, f005 };
+                midRise = new[] { f006, f006, brick, f009 };
+                lowRise = new[] { brick, brick, brown };
             }
 
-            public Material Facade(float height) => height > 60f ? Glass : height > 15f ? Brick : Storefront;
+            // stable per building: the same OSM id always gets the same facade
+            public Material Facade(float height, long id)
+            {
+                var set = height > 60f ? towers : height > 18f ? midRise : lowRise;
+                return set[(int)((id * 2654435761L & 0x7fffffff) % set.Length)];
+            }
 
-            static Material Get(string name, Color color, float smoothness, float metallic)
+            static Material Lit(string name, string texSet, float tileMetres, Color tint)
             {
                 string path = $"{MaterialDir}/{name}.mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
-                if (mat != null) return mat;   // keep hand-tuned or textured materials
-                mat = new Material(Shader.Find("HDRP/Lit")) { name = name };
-                mat.SetColor("_BaseColor", color);
-                mat.SetFloat("_Smoothness", smoothness);
-                mat.SetFloat("_Metallic", metallic);
+                if (mat == null)
+                {
+                    mat = new Material(Shader.Find("HDRP/Lit")) { name = name };
+                    AssetDatabase.CreateAsset(mat, path);
+                }
+                string dir = $"{TexDir}/{texSet}";
+                mat.SetColor("_BaseColor", tint);
+                mat.SetTexture("_BaseColorMap", LoadMap(dir, "_Color", TextureImporterType.Default, true));
+                mat.SetTexture("_NormalMap", LoadMap(dir, "_NormalGL", TextureImporterType.NormalMap, false));
+                mat.SetFloat("_NormalScale", 1f);
+                mat.SetTexture("_MaskMap", LoadMap(dir, "_MaskMap", TextureImporterType.Default, false));
+                mat.SetFloat("_MetallicRemapMin", 0f); mat.SetFloat("_MetallicRemapMax", 1f);
+                mat.SetFloat("_SmoothnessRemapMin", 0f); mat.SetFloat("_SmoothnessRemapMax", 1f);
+                mat.SetFloat("_AORemapMin", 0f); mat.SetFloat("_AORemapMax", 1f);
+                float s = 1f / tileMetres;
+                mat.SetTextureScale("_BaseColorMap", new Vector2(s, s));
                 UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
-                AssetDatabase.CreateAsset(mat, path);
+                EditorUtility.SetDirty(mat);
                 return mat;
+            }
+
+            // finds <dir>/*<suffix>.(jpg|png) and fixes its import type / colour space
+            static Texture2D LoadMap(string dir, string suffix, TextureImporterType type, bool srgb)
+            {
+                foreach (var guid in AssetDatabase.FindAssets("t:Texture2D", new[] { dir }))
+                {
+                    string p = AssetDatabase.GUIDToAssetPath(guid);
+                    if (!Path.GetFileNameWithoutExtension(p).EndsWith(suffix)) continue;
+                    var imp = (TextureImporter)AssetImporter.GetAtPath(p);
+                    if (imp.textureType != type || imp.sRGBTexture != srgb || imp.maxTextureSize != 2048)
+                    {
+                        imp.textureType = type;
+                        imp.sRGBTexture = srgb;
+                        imp.maxTextureSize = 2048;
+                        imp.SaveAndReimport();
+                    }
+                    return AssetDatabase.LoadAssetAtPath<Texture2D>(p);
+                }
+                Debug.LogWarning($"CITY_WARN missing map {dir}/*{suffix}");
+                return null;
             }
         }
     }

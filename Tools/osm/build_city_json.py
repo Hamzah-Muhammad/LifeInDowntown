@@ -230,7 +230,10 @@ def main():
             continue
         pts = ring(w["nodes"])
         if pts and in_box(centroid(pts)):
-            plazas.append({"id": w["id"], "name": tags.get("name", ""),
+            # area:highway=primary/secondary/... is a road surface polygon, not walkable paving
+            ah = tags.get("area:highway", "")
+            kind = "road" if ah in ROAD_WIDTHS else "pedestrian"
+            plazas.append({"id": w["id"], "name": tags.get("name", ""), "kind": kind,
                            "pts": flat(pts)})
 
     out = {
