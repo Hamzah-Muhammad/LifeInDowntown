@@ -52,6 +52,11 @@ namespace LifeInDowntown.EditorTools
             if (bodycam != null)   // what the player sees at spawn: chest height, wide lens
                 poses.Add(("bodycam_spawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));
 
+            AddCrowdPoses(poses, CityGenerator.TryCondoFrame(data, out var cf) ? cf : (CityGenerator.CondoFrame?)null);
+            // -shots a,b,c renders only those poses
+            var only = LifeInDowntown.Game.GameFlow.Arg("-shots");
+            if (only != null) poses = poses.FindAll(p => System.Array.IndexOf(only.Split(','), p.name) >= 0);
+
             var go = new GameObject("ShotCamera");
             var cam = go.AddComponent<Camera>();
             cam.nearClipPlane = 0.1f;
@@ -81,6 +86,7 @@ namespace LifeInDowntown.EditorTools
                     rain.SetActive(pos.y < 30f);
                     rain.transform.position = new Vector3(pos.x, 0f, pos.z);
                 }
+                var preview = PreviewCrowd(pos);
                 for (int i = 0; i < WarmupFrames; i++) Render(cam, rt);   // lets auto-exposure and sky settle
                 var prev = RenderTexture.active;
                 RenderTexture.active = rt;
@@ -94,10 +100,91 @@ namespace LifeInDowntown.EditorTools
                 var stack = UnityEngine.Rendering.HighDefinition.HDCamera.GetOrCreate(cam).volumeStack;   // the camera's own stack
                 var fogNow = stack.GetComponent<UnityEngine.Rendering.HighDefinition.Fog>();
                 var expNow = stack.GetComponent<UnityEngine.Rendering.HighDefinition.Exposure>();
-                Debug.Log($"SHOT_OK {file} pos={pos} fog={fogNow.enabled.value}/{fogNow.meanFreePath.value:0} exposureEV={expNow.fixedExposure.value:0.0}");
+                Debug.Log($"SHOT_OK {file} pos={pos} fog={fogNow.enabled.value}/{fogNow.meanFreePath.value:0} exposureEV={expNow.fixedExposure.value:0.0} crowd={preview.Count}");
+                foreach (var w in preview) Object.DestroyImmediate(w);
             }
+            AnimationMode.StopAnimationMode();
             Object.DestroyImmediate(go);
             rt.Release();
+        }
+
+        // close-ups of the placed street people (docs/DESIGN.md 3L) and the street outside the condo lobby
+        static void AddCrowdPoses(List<(string, Vector3, Vector3)> poses, CityGenerator.CondoFrame? frame)
+        {
+            var crowd = Object.FindFirstObjectByType<LifeInDowntown.NPC.CrowdDirector>();
+            if (crowd == null) return;
+            if (frame is CityGenerator.CondoFrame condo)
+                poses.Add(("crowd_condo_street", condo.outwardGround - condo.inward * 3f + condo.along * 4f + Vector3.up * 1.6f,
+                           condo.outwardGround - condo.inward * 3f + condo.along * 60f + Vector3.up * 1.2f));
+            LifeInDowntown.NPC.Pedestrian corner = null, homeless = null, sitter = null;
+            foreach (var p in crowd.statics)
+            {
+                if (sitter == null && (p.mode == LifeInDowntown.NPC.Pedestrian.Mode.Sit || p.mode == LifeInDowntown.NPC.Pedestrian.Mode.SitLook)) sitter = p;
+                if (corner == null && p.watchPlayer) corner = p;
+                if (homeless == null && p.transform.parent != null && p.transform.parent.name == "Homeless") homeless = p;
+            }
+            void Face(string name, Transform t, float dist, float side)
+            {
+                var eye = t.position + t.forward * dist + t.right * side + Vector3.up * 1.55f;
+                poses.Add((name, eye, t.position + Vector3.up * 0.8f));
+            }
+            if (corner != null) Face("crowd_corner_crew", corner.transform, 6f, 2f);
+            if (homeless != null) Face("crowd_homeless", homeless.transform, 3.5f, 1.2f);
+            if (sitter != null) Face("crowd_sitter", sitter.transform, 3.2f, -1.2f);
+            Transform sleeper = null;
+            foreach (var t in crowd.GetComponentsInChildren<Transform>()) if (t.name == "SleepingBag") { sleeper = t; break; }
+            if (sleeper != null) Face("crowd_sleeper", sleeper.transform.parent, 3.2f, 1.5f);
+        }
+
+        // what the runtime crowd looks like around a camera: fill the walker pool on the baked sidewalk lines
+        // (same ring and street weights as CrowdDirector) and pose every person on a frame of their clip
+        static List<GameObject> PreviewCrowd(Vector3 at)
+        {
+            var made = new List<GameObject>();
+            var crowd = Object.FindFirstObjectByType<LifeInDowntown.NPC.CrowdDirector>();
+            if (crowd == null) return made;
+            if (!AnimationMode.InAnimationMode()) AnimationMode.StartAnimationMode();
+            var rnd = new System.Random(5);
+            if (at.y < 30f)
+            {
+                var near = new List<int>(); var cum = new List<float>(); float total = 0f;
+                int line = 0;
+                for (int i = 0; i < crowd.points.Length; i++)
+                {
+                    while (line + 1 < crowd.lineStart.Length && crowd.lineStart[line + 1] <= i) line++;
+                    var d = crowd.points[i] - at; d.y = 0f;
+                    if (d.magnitude < 3f || d.magnitude > crowd.spawnMax) continue;
+                    near.Add(i); total += crowd.lineWeight[line]; cum.Add(total);
+                }
+                for (int n = 0; n < crowd.walkers && near.Count > 0; n++)
+                {
+                    float x = (float)rnd.NextDouble() * total;
+                    int k = cum.BinarySearch(x); if (k < 0) k = ~k; k = Mathf.Min(k, near.Count - 1);
+                    int i = near[k];
+                    var prefab = crowd.walkerPrefabs[rnd.Next(crowd.walkerPrefabs.Length)];
+                    var w = (GameObject)Object.Instantiate(prefab);
+                    var next = crowd.points[Mathf.Min(i + 1, crowd.points.Length - 1)] - crowd.points[i]; next.y = 0f;
+                    if (rnd.NextDouble() < 0.5) next = -next;
+                    w.transform.SetPositionAndRotation(crowd.points[i] + new Vector3(next.z, 0, -next.x).normalized * ((float)rnd.NextDouble() - 0.5f) * 1.2f,
+                                                       next.sqrMagnitude > 1e-4f ? Quaternion.LookRotation(next) : Quaternion.identity);
+                    made.Add(w);
+                }
+            }
+            foreach (var p in Object.FindObjectsByType<LifeInDowntown.NPC.Pedestrian>(FindObjectsSortMode.None))
+            {
+                var anim = p.GetComponentInChildren<Animator>();
+                var ctrl = anim != null ? anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController : null;
+                if (ctrl == null) continue;
+                foreach (var st in ctrl.layers[0].stateMachine.states)
+                    if (st.state.name == p.mode.ToString() && st.state.motion is AnimationClip clip)
+                    {
+                        var root = p.transform.position; var rot = p.transform.rotation;
+                        AnimationMode.SampleAnimationClip(anim.gameObject, clip, (float)rnd.NextDouble() * clip.length);
+                        p.transform.SetPositionAndRotation(root, rot);   // clips carry travel; keep the body where it was placed
+                        anim.transform.localPosition = Vector3.zero; anim.transform.localRotation = Quaternion.identity;
+                    }
+            }
+            return made;
         }
 
         static void Render(Camera cam, RenderTexture rt)

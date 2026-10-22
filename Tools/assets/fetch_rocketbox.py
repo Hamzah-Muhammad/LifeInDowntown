@@ -26,6 +26,11 @@ ANIMATIONS = ["all_animations_max_motextr_xy/f_walk_neutral_01", "all_animations
               "all_animations_max_motextr_xy/f_walk_slow_01", "all_animations_max_motextr_xy/m_walk_slow_01",
               "all_animations_max_motextr_static/f_idle_neutral_01", "all_animations_max_motextr_static/m_idle_neutral_01",
               "all_animations_max_motextr_static/m_cell_phone_talk_01", "all_animations_max_motextr_static/f_cell_phone_textmessage"]
+# street crowd (docs/DESIGN.md 3L), approved 2026-10-22: 14 in-place clips, 60 MB
+ANIMATIONS += [f"all_animations_max_motextr_static/{a}" for a in (
+    "m_crouch_idle", "m_sit_chair_idle_neutral_01", "m_sit_chair_idle_look_around", "f_sit_chair_idle_neutral_01",
+    "m_idle_drunk_01", "m_idle_cough_01", "m_idle_shake_arms_01", "m_idle_nervous_03", "m_idle_look_around_01",
+    "m_gestic_talk_cool", "m_gestic_listen_nervous_01", "m_idle_waiting_01", "f_idle_waiting_01", "f_idle_look_around_01")]
 
 
 def get(url, timeout=120):

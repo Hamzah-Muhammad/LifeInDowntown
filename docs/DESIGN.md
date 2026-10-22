@@ -199,6 +199,17 @@ Hamzah: "make a couple rabba stores, make them enterable." Rabba is a real Toron
 - **Indoor zones** (`World/IndoorZone`): no rain, indoor ambience and no wind inside the stores (the condo keeps the height rule). Interior volume: fog off, EV 5.5.
 - **Test:** `PlayerSimTest` walks in from the sidewalk at both stores (6+ m inside). The wall test now runs from both the post-speed-run spot and the street spawn; the plane check applies to near walls only.
 
+## 3L. Street crowd: walkers, corner crews, homeless (2026-10-22)
+
+Hamzah: "there should be normal people walking around, drug dealers at corners, homeless people. Realistic downtown toronto." The first NPC pass (3B.2) only placed 32 people within 170 m of Yonge & Dundas, and Tarik's condo is ~200 m out, so his streets were empty.
+- **Walkers follow the player** (`NPC/CrowdDirector`): a pool of **90**, kept on the real sidewalk lines of the **whole map** (baked by `NpcSetup`: 109 lines, 1,906 points). New walkers appear 35-140 m away and outside the camera view; anyone past 165 m is recycled. Street weights: Yonge 3, primary 2, secondary 1.5, others 1. Upstairs in the condo (y > 60) the crowd sleeps; back on the street it refills at once.
+- **Placed people** (seeded, `NpcSetup`), switched off past 150 m:
+  - **Corner crews (10):** ones, twos (talking + listening) or threes (lookout, talker, someone on the phone) on the inside of junction corners, one per few blocks. The lookout (`Pedestrian.watchPlayer`) turns to watch Tarik within 5 m.
+  - **Crosswalks (9 people):** waiting or on the phone, facing the crossing.
+  - **Homeless (16 spots):** against walls outside real OSM shops, 35 m apart, at least 12 m from the lobby and Rabba doors. Variants: on a milk crate with cardboard, cup and backpack; crouched on cardboard with a cup; asleep in a sleeping bag on flattened boxes (no lying animation exists, so the body is a shaped mound); standing (drunk, coughing, shaking off the cold). Their outfits use a faded, dirtier copy of the body material.
+- **Animations:** 14 more Rocketbox in-place clips (60 MB, approved 2026-10-22). The female controller uses the male clip where no female file exists.
+- **Limits:** Rocketbox has no hoodies (one male model has a hood) and no lying-down clip; the sleeping-bag mound is primitives. Edit-mode renders preview the pool with `ShotTool.PreviewCrowd`; runtime frame rate is logged every 15 s as `CROWD walkers=.. statics=.. fps=..` in Player.log.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

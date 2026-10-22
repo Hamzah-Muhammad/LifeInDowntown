@@ -17,9 +17,9 @@ namespace LifeInDowntown.City
         // above the road-area polygons (0.07 m), below plazas (0.08 m): paint at RoadY sat under them, invisible
         const float PaintY = 0.075f;
 
-        class Junction { public Vector2 p; public List<(Way road, Vector2 dir)> arms = new List<(Way, Vector2)>(); public float clear; }
+        internal class Junction { public Vector2 p; public List<(Way road, Vector2 dir)> arms = new List<(Way, Vector2)>(); public float clear; }
 
-        static List<Junction> FindJunctions(CityData d)
+        internal static List<Junction> FindJunctions(CityData d)
         {
             var byNode = new Dictionary<Vector2Int, Junction>();
             foreach (var r in d.roads)
