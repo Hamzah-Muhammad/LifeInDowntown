@@ -31,7 +31,7 @@ namespace LifeInDowntown.Player
             if (target == null) target = Camera.main != null ? Camera.main.transform : null;
             if (target == null) return;
             // no rain indoors: everything above street level is inside (Tarik's condo is at ~120 m)
-            bool indoors = target.position.y > IndoorAbove;
+            bool indoors = LifeInDowntown.World.IndoorZone.IsIndoors(target.position);
             foreach (var r in GetComponentsInChildren<MeshRenderer>()) r.enabled = !indoors;
             float scroll = -Mathf.Repeat(Time.time * fallSpeed, boxHeight);
             var p = target.position;

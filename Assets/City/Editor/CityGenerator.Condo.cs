@@ -401,7 +401,7 @@ namespace LifeInDowntown.City
             Debug.Log($"SKYLINE_OK towers={count} cnTower={b0}");
         }
 
-        public const float WindowNits = 45f;
+        public const float WindowNits = 18f;   // 45 and 30 made large ribbon windows read as white panels
 
         // box with metre-based UVs on the sides (facade texture tiles correctly), flat roof
         static void TowerBox(MeshBuilder mb, Vector3 c, Vector3 x, Vector3 y, Vector3 z)

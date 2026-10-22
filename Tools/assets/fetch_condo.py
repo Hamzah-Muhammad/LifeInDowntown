@@ -62,6 +62,8 @@ def main():
         files = get_json(f"https://api.polyhaven.com/files/{tid}")
         for key, suffix in TEX_MAPS.items():
             entry = files.get(key, {}).get("2k", {}).get("jpg")
+            if entry is None and key == "Diffuse":                 # fabric sets name colour variants col_1, col_2...
+                entry = files.get("col_1", {}).get("2k", {}).get("jpg")
             if entry:
                 total += download(entry["url"], TEX_DIR / tid / f"{tid}_{suffix}.jpg")
         print(f"texture {tid} ok")

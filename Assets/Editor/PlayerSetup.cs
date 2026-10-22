@@ -35,7 +35,7 @@ namespace LifeInDowntown.EditorTools
             Vector3 spawn = street; float yaw = streetYaw;
             if (CityGenerator.TryCondoFrame(data, out var condo))
             {
-                spawn = condo.W(-1.6f, 3.3f, 0.3f);
+                spawn = condo.W(-0.4f, 3.3f, 0.3f);   // clear floor between the sofa and the armchair
                 yaw = Quaternion.LookRotation(-condo.inward).eulerAngles.y;   // facing the windows
             }
             var body = new GameObject("Player");

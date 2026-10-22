@@ -52,7 +52,7 @@ namespace LifeInDowntown.Player
 
         void Update()
         {
-            bool indoors = transform.position.y > 60f;
+            bool indoors = LifeInDowntown.World.IndoorZone.IsIndoors(transform.position);
             float speed = player != null && player.enabled ? player.HorizontalSpeed : 0f;
             windAmount = indoors ? 0f : Mathf.Clamp01((speed - 1.5f) / 4f) * 0.06f;
         }

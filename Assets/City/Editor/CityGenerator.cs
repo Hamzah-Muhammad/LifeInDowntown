@@ -42,6 +42,8 @@ namespace LifeInDowntown.City
             BuildPaths(data, root.transform, mats, meshes);
             int lights = BuildStreetlights(data, root.transform, mats, meshes);
             int signs = BuildSigns(root.transform, mats, meshes);
+            BuildShops(data, root.transform, mats, meshes);
+            BuildStreetDetail(data, root.transform, mats, meshes);
             BuildCondo(data, root.transform, mats, meshes);
             BuildSkyline(root.transform, mats, meshes);
             int puddles = RainLook.BuildPuddles(data, root.transform);
@@ -94,7 +96,16 @@ namespace LifeInDowntown.City
         {
             var group = new GameObject("Buildings").transform;
             group.SetParent(parent, false);
-            int count = 0;
+            var roadSegs = new List<(Vector2 a, Vector2 b)>();
+            foreach (var r in d.roads)
+            {
+                var rp = CityDataUtil.Points(r.pts);
+                for (int i = 0; i + 1 < rp.Count; i++) roadSegs.Add((rp[i], rp[i + 1]));
+            }
+            shopSitesCache = null;
+            var shopSites = ShopSites(d);   // Rabba stores: their walls get an opening (DESIGN 3K)
+            var balc = new MeshBuilder();
+            int count = 0, shopfronts = 0, balconies = 0;
             foreach (var bd in d.buildings)
             {
                 var ring = CityDataUtil.Points(bd.pts);
@@ -103,6 +114,11 @@ namespace LifeInDowntown.City
 
                 var mb = new MeshBuilder();
                 float y0 = bd.minH, y1 = bd.h;
+                // U runs continuously round the building from a per-building offset, so the lit-window
+                // pattern differs from one building to the next and wraps the corners
+                float u = (bd.id * 2654435761L & 0xffff) % 211;
+                bool groundFloor = y0 < 0.5f && y1 > StoreTop + 2.5f;
+                bool residential = IsResidential(bd) && y1 > 20f;
                 for (int i = 0; i < ring.Count; i++)
                 {
                     Vector2 p = ring[i], q = ring[(i + 1) % ring.Count];
@@ -110,9 +126,37 @@ namespace LifeInDowntown.City
                     float len = e.magnitude;
                     if (len < 0.01f) continue;
                     var outward = new Vector3(e.y, 0f, -e.x);   // CCW ring: right-hand side is outside
-                    mb.Quad(new Vector3(p.x, y0, p.y), new Vector3(q.x, y0, q.y),
-                            new Vector3(q.x, y1, q.y), new Vector3(p.x, y1, p.y), outward,
-                            new Vector2(0, y0), new Vector2(len, y0), new Vector2(len, y1), new Vector2(0, y1));
+                    Vector3 P(float y) => new Vector3(p.x, y, p.y);
+                    Vector3 Q(float y) => new Vector3(q.x, y, q.y);
+                    float wallBottom = y0;
+                    void Seg(float t0, float t1, float ya, float yb)
+                    {
+                        Vector2 a2 = p + e * (t0 / len), b2 = p + e * (t1 / len);
+                        mb.Quad(new Vector3(a2.x, ya, a2.y), new Vector3(b2.x, ya, b2.y), new Vector3(b2.x, yb, b2.y), new Vector3(a2.x, yb, a2.y), outward,
+                                new Vector2(u + t0, ya), new Vector2(u + t1, ya), new Vector2(u + t1, yb), new Vector2(u + t0, yb));
+                    }
+                    if (ShopOpening(shopSites, bd.id, p, q, out float sf, out float st))
+                    {
+                        // storefront band either side of the store, and a lintel over its opening
+                        mb.UseSubmesh(2);
+                        Seg(0f, sf, y0, StoreTop); Seg(st, len, y0, StoreTop); Seg(sf, st, ShopCeiling + 0.12f, StoreTop);
+                        mb.UseSubmesh(0);
+                        wallBottom = StoreTop;
+                    }
+                    // street-facing walls get a lit storefront ground floor (submesh 2)
+                    else if (groundFloor && len > 3f && NearAnyRoad((p + q) * 0.5f, roadSegs, 14f))
+                    {
+                        mb.UseSubmesh(2);
+                        mb.Quad(P(y0), Q(y0), Q(StoreTop), P(StoreTop), outward,
+                                new Vector2(u, 0f), new Vector2(u + len, 0f), new Vector2(u + len, StoreTop), new Vector2(u, StoreTop));
+                        mb.UseSubmesh(0);
+                        wallBottom = StoreTop;
+                        shopfronts++;
+                    }
+                    mb.Quad(P(wallBottom), Q(wallBottom), Q(y1), P(y1), outward,
+                            new Vector2(u, wallBottom), new Vector2(u + len, wallBottom), new Vector2(u + len, y1), new Vector2(u, y1));
+                    if (residential && len > 7f) balconies += Balconies(balc, p, q, outward.normalized, y1);
+                    u += len;
                 }
                 mb.UseSubmesh(1);                               // roof and underside: roof material
                 mb.Polygon(ring, y1, true);
@@ -120,10 +164,58 @@ namespace LifeInDowntown.City
 
                 string label = string.IsNullOrEmpty(bd.name) ? bd.id.ToString() : bd.name;
                 AddObject($"Bldg_{label}", group, mb.ToMesh($"Bldg_{bd.id}"),
-                          new[] { mats.Facade(bd.h, bd.id), mats.Roof }, meshes, collider: true);
+                          // thin slabs (canopies, roof parts) are not facades: no windows on them
+                          new[] { y1 - y0 < 2.5f ? mats.Roof : mats.Facade(bd.h, bd.id), mats.Roof, mats.Storefront }, meshes, collider: true);
                 count++;
             }
+            if (balc.VertexCount > 0)
+                AddObject("Balconies", group, balc.ToMesh("Balconies"), new[] { mats.Concrete, mats.BalconyGlass, mats.Pole }, meshes, collider: false);
+            Debug.Log($"CITY_DETAIL storefront walls={shopfronts} balconies={balconies}");
             return count;
+        }
+
+        public const float StorefrontNits = 12f;    // shop interiors; 120 and 40 still blew the glass out white at EV 1.5
+        public const float StoreTop = 4.5f;   // storefront band height (m), matches the storefront texture tile
+
+        static bool IsResidential(Building b) =>
+            b.kind == "apartments" || b.kind == "residential" || b.kind == "hotel" || b.kind == "dormitory" ||
+            (b.name != null && (b.name.Contains("Condo") || b.name.Contains("Residence")));
+
+        static bool NearAnyRoad(Vector2 pt, List<(Vector2 a, Vector2 b)> segs, float dist)
+        {
+            foreach (var s in segs) if (DistToSegment(pt, s.a, s.b) < dist) return true;
+            return false;
+        }
+
+        // stacked balconies (concrete slab, glass railing, metal top rail) in every other 4.5 m bay,
+        // one per floor (3 m) from the 3rd floor up; submeshes: 0 slab, 1 glass, 2 rail
+        static int Balconies(MeshBuilder mb, Vector2 p, Vector2 q, Vector3 outward, float top)
+        {
+            Vector2 e = q - p; float len = e.magnitude;
+            var along = new Vector3(e.x, 0f, e.y) / len;
+            int n = 0;
+            for (float t = 2.6f; t + 2.6f < len; t += 9f)       // every other bay: 4.5 m bays, stacked columns
+                for (float y = 6f; y < top - 4f; y += 3f)
+                {
+                    var b = new Vector3(p.x, y, p.y) + along * t;
+                    var c = b + outward * 0.7f;
+                    mb.UseSubmesh(0);
+                    Box(mb, c - Vector3.up * 0.09f, along * 1.4f, Vector3.up * 0.09f, outward * 0.7f);
+                    mb.UseSubmesh(1);
+                    Vector3 f0 = b - along * 1.4f + outward * 1.38f, f1 = b + along * 1.4f + outward * 1.38f, up = Vector3.up * 1.05f;
+                    mb.Quad(f0, f1, f1 + up, f0 + up, outward, Vector2.zero, Vector2.right, Vector2.one, Vector2.up);
+                    mb.Quad(f0, f1, f1 + up, f0 + up, -outward, Vector2.zero, Vector2.right, Vector2.one, Vector2.up);
+                    foreach (float sgn in new[] { -1f, 1f })
+                    {
+                        Vector3 s0 = b + along * (1.38f * sgn), s1 = s0 + outward * 1.38f;
+                        mb.Quad(s0, s1, s1 + up, s0 + up, along * sgn, Vector2.zero, Vector2.right, Vector2.one, Vector2.up);
+                        mb.Quad(s0, s1, s1 + up, s0 + up, -along * sgn, Vector2.zero, Vector2.right, Vector2.one, Vector2.up);
+                    }
+                    mb.UseSubmesh(2);
+                    Box(mb, (f0 + f1) * 0.5f + up, along * 1.42f, Vector3.up * 0.025f, outward * 0.03f);
+                    n++;
+                }
+            return n;
         }
 
         // ------------------------------------------------- roads and sidewalks
@@ -276,6 +368,10 @@ namespace LifeInDowntown.City
             int n = 0;
             foreach (var s in list.signs)
             {
+                // a Rabba front replaces whatever OSM shop sign sat on that wall
+                if (s.style == "neon" && shopSitesCache != null &&
+                    shopSitesCache.Exists(site => { var c = site.W(0f, 0f, 0f); return new Vector2(c.x - s.x, c.z - s.z).magnitude < 6f; }))
+                    continue;
                 var normal = new Vector3(s.nx, 0f, s.nz).normalized;
                 var right = new Vector3(-s.nz, 0f, s.nx).normalized;     // reads left-to-right for a viewer facing the wall
                 var c = new Vector3(s.x, s.y, s.z) + normal * 0.06f;
@@ -456,7 +552,7 @@ namespace LifeInDowntown.City
         class Materials
         {
             const string TexDir = "Assets/City/Textures";
-            public readonly Material Ground, Asphalt, Concrete, Paving, Roof, Pole, Lamp, Signs;
+            public readonly Material Ground, Asphalt, Concrete, Paving, Roof, Pole, Lamp, Signs, Storefront, BalconyGlass;
             public Material FacadeNight;   // Facade009: lit office windows, reused for the distant skyline
             readonly Material[] towers, midRise, lowRise;
 
@@ -473,16 +569,21 @@ namespace LifeInDowntown.City
                 Ground = Lit("Ground", "brushed_concrete_03", 2f, new Color(0.62f, 0.62f, 0.63f), 0.45f, 0.85f);
                 Roof = Lit("Roof", "brushed_concrete_03", 2f, new Color(0.35f, 0.35f, 0.36f));
                 var f009 = Lit("FacadeOfficeNight", "Facade009", 24f, Color.white);
-                var f001 = Lit("FacadeGlassPanels", "Facade001", 14f, Color.white);
-                var f005 = Lit("FacadeGlassGrid", "Facade005", 24f, Color.white);
-                var f006 = Lit("FacadeOfficeBands", "Facade006", 30f, Color.white);
-                var brick = Lit("FacadeBrickRed", "brick_wall_001", 3f, Color.white);
-                var brown = Lit("FacadeBrickBuff", "brown_brick_02", 1.5f, Color.white);
+                // real-world tile sizes from Tools/assets/make_facades.py (TILES): 1.5 m panes, 3.4-3.6 m floors.
+                // The old uniform 14-30 m tiles made "floors" 1.4 m tall: dollhouse windows.
+                var f001 = Lit("FacadeGlassPanels", "Facade001", 24f, Color.white, tileHeight: 34f);
+                var f005 = Lit("FacadeGlassGrid", "Facade005", 48f, Color.white, tileHeight: 54f);
+                var f006 = Lit("FacadeOfficeBands", "Facade006", 25f, Color.white, tileHeight: 29f);
+                // brick with real window openings (the plain brick sets were blank walls)
+                var brick = Lit("FacadeBrickRed", "brick_windows_red", 24f, Color.white, tileHeight: 14f);
+                var brown = Lit("FacadeBrickBuff", "brick_windows_buff", 24f, Color.white, tileHeight: 14f);
+                Storefront = Lit("Storefront", "storefront", 12f, Color.white, tileHeight: StoreTop);
+                BalconyGlass = GlassMaterial("BalconyGlass", new Color(0.5f, 0.6f, 0.62f, 0.18f));
                 Pole = Plain("StreetlightPole", new Color(0.18f, 0.18f, 0.19f), 0.45f, 0.8f, Color.black, 0f);
                 Lamp = Plain("StreetlightLamp", new Color(0.9f, 0.9f, 0.85f), 0.6f, 0f, new Color(1f, 0.78f, 0.52f), LampNits);
                 Signs = SignMaterial();
                 FacadeNight = f009;
-                towers = new[] { f009, f009, f001, f005 };
+                towers = new[] { f009, f001, f005, f006 };
                 midRise = new[] { f006, f006, brick, f009 };
                 lowRise = new[] { brick, brick, brown };
             }
@@ -495,7 +596,7 @@ namespace LifeInDowntown.City
             }
 
             internal static Material Lit(string name, string texSet, float tileMetres, Color tint,
-                                float smoothMin = 0f, float smoothMax = 1f)
+                                float smoothMin = 0f, float smoothMax = 1f, float tileHeight = 0f)
             {
                 string path = $"{MaterialDir}/{name}.mat";
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -513,8 +614,24 @@ namespace LifeInDowntown.City
                 mat.SetFloat("_MetallicRemapMin", 0f); mat.SetFloat("_MetallicRemapMax", 1f);
                 mat.SetFloat("_SmoothnessRemapMin", smoothMin); mat.SetFloat("_SmoothnessRemapMax", smoothMax);
                 mat.SetFloat("_AORemapMin", 0f); mat.SetFloat("_AORemapMax", 1f);
-                float s = 1f / tileMetres;
-                mat.SetTextureScale("_BaseColorMap", new Vector2(s, s));
+                float s = 1f / tileMetres, sv = 1f / (tileHeight > 0f ? tileHeight : tileMetres);
+                mat.SetTextureScale("_BaseColorMap", new Vector2(s, sv));
+                // lit windows: any set with an _Emission map glows; HDRP tiles the emission map separately
+                Texture2D em = null;
+                foreach (var g in AssetDatabase.FindAssets("t:Texture2D", new[] { dir }))
+                {
+                    string ep = AssetDatabase.GUIDToAssetPath(g);
+                    if (Path.GetFileNameWithoutExtension(ep).EndsWith("_Emission")) em = AssetDatabase.LoadAssetAtPath<Texture2D>(ep);
+                }
+                if (em != null)
+                {
+                    float nits = texSet == "storefront" ? StorefrontNits : WindowNits;
+                    mat.SetTexture("_EmissiveColorMap", em);
+                    mat.SetTextureScale("_EmissiveColorMap", new Vector2(s, sv));
+                    mat.SetColor("_EmissiveColorLDR", Color.white);
+                    mat.SetFloat("_EmissiveIntensity", nits);
+                    mat.SetColor("_EmissiveColor", Color.white * nits);
+                }
                 UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
                 EditorUtility.SetDirty(mat);
                 return mat;
@@ -545,6 +662,20 @@ namespace LifeInDowntown.City
                 mat.SetColor("_EmissiveColor", Color.white * SignNits);
                 mat.SetFloat("_Smoothness", 0.6f);
                 mat.SetFloat("_Metallic", 0f);
+                UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
+                EditorUtility.SetDirty(mat);
+                return mat;
+            }
+
+            // transparent glass (balcony railings)
+            internal static Material GlassMaterial(string name, Color c)
+            {
+                string path = $"{MaterialDir}/{name}.mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (mat == null) { mat = new Material(Shader.Find("HDRP/Lit")) { name = name }; AssetDatabase.CreateAsset(mat, path); }
+                mat.SetFloat("_SurfaceType", 1f); mat.SetFloat("_BlendMode", 0f);
+                mat.SetColor("_BaseColor", c); mat.SetFloat("_Smoothness", 0.95f); mat.SetFloat("_Metallic", 0f);
+                mat.SetFloat("_DoubleSidedEnable", 1f);
                 UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
                 EditorUtility.SetDirty(mat);
                 return mat;

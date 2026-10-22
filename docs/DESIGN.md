@@ -177,6 +177,28 @@ Hamzah: "Let's add sound. I want to build the world more before we start making 
 - **Phone:** original ringtone and message ping (not any real phone's sounds); elevator chime on rides.
 - **Body-mic sound** (`Player/BodyMicFilter` on the listener): the whole mix goes through a chest-mic chain: high-pass ~150 Hz, low-pass ~8 kHz, compressor, light saturation, and wind buffet that grows with speed outdoors. Strength is a setting (later).
 
+## 3J. City detail: windows, light, balconies, streets (2026-10-22)
+
+Hamzah: "more details in the streets, the skyscrapers need more details. We need windows, light, balconies."
+- **Real-scale windows:** facade tiles now use real sizes (1.5 m panes, 3.4–3.6 m floors; `Tools/assets/make_facades.py` TILES). The old uniform 14–30 m tiles made "floors" 1.4 m tall.
+- **Lit windows:** every office facade gets an emission map: Facade001/005 light whole grid cells, Facade006 its detected ribbon panes, ~22% lit (60% warm, 30% cool white, 10% TV blue, some with blinds). U runs continuously round each building from a per-building offset, so no two towers light the same.
+- **Brick with windows:** the blank brick sets became `brick_windows_red/buff` (1.2 × 1.6 m openings, stone lintels and sills, 8 windows × 4 floors per 24 × 14 m tile, ~30% lit).
+- **Storefronts:** every street-facing wall of a ground-level building gets a 4.5 m lit storefront band (`storefront` set: display glass, mullions, door, sign band, bulkhead). 483 walls.
+- **Balconies:** residential towers (OSM apartments/residential/hotel/dormitory, or Condo in the name) get stacked balconies in every other 4.5 m bay from the 3rd floor up: concrete slab, glass railing, metal rail. 558 balconies.
+- **Road paint:** double yellow centre lines on two-way streets ≥ 7.5 m, dashed white lane lines on ≥ 12 m streets, ladder crosswalks + stop bars on every arm of every intersection (OSM nodes shared by 2+ roads: 17 junctions, 59 crossings). Paint at 0.075 m (above the road-area polygons).
+- **Traffic signals** (`World/TrafficSignal`): at 4-arm main-street junctions (3), mast-arm heads per approach, axes alternate green 22 s / amber 4 s / all-red 2 s, staggered between junctions.
+- **Street props:** litter bins, hydrants, benches, newspaper boxes at the kerb every ~18–40 m on main streets, plus Bike Share docks (kiosk + bikes posts) at the real OSM bicycle_rental points. 53 props.
+- Brightness tuned from renders: windows 18 nits, storefronts 12 nits (higher blew out at EV 1.5).
+
+## 3K. Rabba stores (walk-in, 2026-10-22)
+
+Hamzah: "make a couple rabba stores, make them enterable." Rabba is a real Toronto chain (personal project OK; commercial release needs a parody name, section 9).
+- **Two stores** (`CityGenerator.Shops.cs`): **under Tarik's condo** on Pantages Tower's Shuter St face beside the lobby, and **on Yonge north of Dundas** (west side). The INS Market spot was first choice for the second, but no building there is deep enough for a 10 m store.
+- **Walk-in, no loading screen:** the host wall gets a real opening (any building wall on the store front line is cut: OSM has overlapping outlines), a glass front with a 2.2 m open doorway (1.6 m was easy to clip), and an 8 × 10 m room fitted inside the footprint (rejected if another building's footprint reaches into it).
+- **Inside:** tile floor level with the sidewalk, fluorescent panels + 2 cool 4300 K lights, two double-sided aisles stocked with products, a lit drinks-fridge wall, the red checkout counter with the cigarette wall behind, a Rocketbox clerk; backlit RABBA FINE FOODS sign outside (`make_rabba_sign.py`).
+- **Indoor zones** (`World/IndoorZone`): no rain, indoor ambience and no wind inside the stores (the condo keeps the height rule). Interior volume: fog off, EV 5.5.
+- **Test:** `PlayerSimTest` walks in from the sidewalk at both stores (6+ m inside). The wall test now runs from both the post-speed-run spot and the street spawn; the plane check applies to near walls only.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

@@ -1,0 +1,39 @@
+{
+ "tiles": [
+  {
+   "name": "Facade001",
+   "w": 24.0,
+   "h": 34.0
+  },
+  {
+   "name": "Facade005",
+   "w": 48.0,
+   "h": 54.0
+  },
+  {
+   "name": "Facade006",
+   "w": 25.0,
+   "h": 29.0
+  },
+  {
+   "name": "Facade009",
+   "w": 24.0,
+   "h": 24.0
+  },
+  {
+   "name": "brick_windows_red",
+   "w": 24.0,
+   "h": 14.0
+  },
+  {
+   "name": "brick_windows_buff",
+   "w": 24.0,
+   "h": 14.0
+  },
+  {
+   "name": "storefront",
+   "w": 12.0,
+   "h": 4.5
+  }
+ ]
+}

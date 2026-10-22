@@ -25,7 +25,7 @@ namespace LifeInDowntown.Game
         float indoorMix, nextBell = 20f, nextSiren = 60f;
         int lastStep = -1;
 
-        public bool Indoors => listener != null && listener.position.y > indoorAbove;
+        public bool Indoors => listener != null && LifeInDowntown.World.IndoorZone.IsIndoors(listener.position);
 
         void Awake()
         {
