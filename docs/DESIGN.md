@@ -239,11 +239,14 @@ Hamzah: "build the TTC subway system ... one you can physically ride to other st
 ### 3N.2 Geometry from OpenStreetMap (`Tools/osm/fetch_ttc.py`, cache `raw_ttc_line1.json`)
 Game coordinates (same projection as the city):
 
-| Station | Centre (x, z) | Platforms (OSM) | Gap to next |
+| Station | Centre (x, z) | Platforms (OSM) | Gap to next (along the line) |
 |---|---|---|---|
-| Queen | (117, -379) | 2 side, ~140 m traced | 421 m to TMU |
-| TMU | (-9, 22) | 2 side, ~140 m traced | 478 m to College |
-| College | (-152, 478) | 2 side, ~166 m traced | (Wellesley off-map) |
+| Queen | (113, -365) | 2 side, ~144 m traced | 412 m to TMU |
+| TMU | (-10, 28) | 2 side, ~146 m traced | 499 m to College |
+| College | (-160, 504) | 2 side, ~172 m traced | (Wellesley off-map) |
+
+- **Built (task 2):** `fetch_ttc.py` writes `Assets/City/Data/ttc_line1.json`. Station centres are the midpoint of the two OSM side platforms, not the station node (the node sits 5 m off at TMU, 15 m at Queen, 27 m at College). The line is one centreline (midway between the tracks, smoothed, a point every 2 m, 1,952 m from 520 m south of Queen to 520 m north of College); trains and tunnels follow it, with the two tracks 4.1 m either side of centre. Measured track gap: 4.46 m Queen, 4.07 m TMU, 4.49 m College. Each entrance carries its offset in the station's frame (u along the line, v across it).
+- Queen St at Yonge is tagged `highway=construction` in OSM (Ontario Line works, real), so it was missing from the map; the city build now draws `construction=<road type>` ways as that road.
 
 - Both tracks are in OSM (`railway=subway`, `tunnel=yes`, `layer=-2`), **4.1 m apart** at TMU; they follow Yonge's bend. Platform centrelines ~12 m apart, so each platform is ~3.5 m wide.
 - **Platforms are built 152 m long** (the TTC standard; OSM traces are approximate), centred on the OSM platform ways.

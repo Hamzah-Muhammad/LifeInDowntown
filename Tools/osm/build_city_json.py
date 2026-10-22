@@ -192,6 +192,8 @@ def main():
     for w in ways.values():
         tags = w.get("tags", {})
         hw = tags.get("highway")
+        if hw == "construction" and tags.get("construction") in ROAD_WIDTHS:
+            hw = tags["construction"]   # Queen St at Yonge (Ontario Line works) is still a street surface
         if hw is None or tags.get("area") == "yes":
             continue
         if tags.get("tunnel") in ("yes", "building_passage") or tags.get("layer", "0").startswith("-"):
