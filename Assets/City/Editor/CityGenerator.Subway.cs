@@ -73,6 +73,7 @@ namespace LifeInDowntown.City
                 comps.Add(BuildStation(root, st, lay, sm, meshes, holes));
             }
             lineComp.stations = comps.ToArray();
+            BuildTrack(root, lineComp, sm, meshes);
             CutGroundHoles(parent, holes);
             int nRoutes = 0; foreach (var c in comps) nRoutes += c.routes.Length;
             Debug.Log($"SUBWAY_OK stations={comps.Count} streetOpenings={holes.Count} routes={nRoutes}");

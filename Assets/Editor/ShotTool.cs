@@ -150,6 +150,7 @@ namespace LifeInDowntown.EditorTools
                 poses.Add(($"subway_fareline_{n}", st.W(-93f, -1.5f, conc + 1.6f), st.W(-70f, 2f, conc + 0.6f)));
                 poses.Add(($"subway_platform_{n}", st.W(-25f, 6.3f, plat + 1.6f), st.W(20f, 3.2f, plat + 0.9f)));
                 poses.Add(($"subway_stairs_{n}", st.W(52f, 5.6f, plat + 1.6f), st.W(72f, 5.4f, plat + 2.6f)));
+                poses.Add(($"subway_tunnel_{n}", st.W(66f, 0f, CityGenerator.TrackBed + 1.7f), st.W(130f, 0.5f, CityGenerator.TrackBed + 1.2f)));
                 poses.Add(($"subway_up_{n}", st.W(-6f, 5.4f, plat + 1.6f), st.W(-2f, 5.4f, CityGenerator.PlatCeil)));
                 poses.Add(($"subway_track_{n}", st.W(-10f, -5.8f, plat + 1.6f), st.W(-10f, 7.2f, plat + 1.4f)));
             }

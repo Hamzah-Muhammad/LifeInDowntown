@@ -295,6 +295,7 @@ Game coordinates (same projection as the city):
   - **Wall colours per station:** unverified; needs reference photos, see 3N.9.
 - **Ceiling:** low, with fluorescent light strips over the platform edge.
 - **Track bed:** concrete with drainage; cable trays and blue emergency lights on the tunnel walls.
+- **Built (task 4):** `CityGenerator.SubwayTrack.cs` sweeps a double-track box along the centreline between the stations (8.5 m inside, floor -9.8, roof -5.4): 1,496 m of tunnel on a 1,952 m line, closed at both ends. Through the whole length: two tracks at TTC gauge (1,495 mm) on 5,206 concrete ties, a third rail on the outside of each track, two cable trays per wall, a blue emergency light every 25 m. Tunnels sit outside the station volume, so they render at the night exposure: dark, as intended.
 
 ### 3N.6 The train (procedural, no download)
 - **Build:** a Toronto Rocket set generated in code from the real dimensions in 3N.1. The body is an extruded stainless profile with a rounded roof and a black window band; the ends have the TR cab shape with headlights and a route sign reading "1 FINCH" or "1 VMC".
