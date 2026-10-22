@@ -27,6 +27,10 @@ namespace LifeInDowntown.EditorTools
             {
                 ("overhead", new Vector3(0, 420, -330), new Vector3(0, 0, -20)),
                 ("aerial_northwest", new Vector3(-260, 160, -260), new Vector3(0, 30, 0)),
+                // the whole map after the 3N.3 extension, and the streets above Queen and College stations
+                ("overhead_full", new Vector3(0, 1250, -40), new Vector3(0, 0, 20)),
+                ("aerial_queen", new Vector3(200, 170, -520), new Vector3(117, 0, -379)),
+                ("aerial_college", new Vector3(-60, 170, 330), new Vector3(-152, 0, 478)),
             };
             AddStreetPose(poses, data, "Yonge Street", "street_yonge_looking_north", southToNorth: true);
             AddStreetPose(poses, data, "Dundas Street East", "street_dundas_looking_west", southToNorth: false);
@@ -55,6 +59,9 @@ namespace LifeInDowntown.EditorTools
                 poses.Add(("bodycam_pistol_drawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));   // DESIGN 3M
             }
 
+            foreach (var tr in Object.FindObjectsByType<LifeInDowntown.Transit.TrainController>(FindObjectsSortMode.None))
+                tr.PlaceAt(tr.dir > 0 ? 0 : 1, tr.dir > 0 ? 1f : 0f);   // northbound at Queen, doors open; southbound at TMU, doors shut
+            AddSubwayPoses(poses);
             AddCrowdPoses(poses, CityGenerator.TryCondoFrame(data, out var cf) ? cf : (CityGenerator.CondoFrame?)null);
             foreach (var (shot, id) in new[] { ("items_nightstand", "condo_pistol"), ("items_coffee_table", "condo_chips") })   // DESIGN 3M
             {
@@ -75,6 +82,7 @@ namespace LifeInDowntown.EditorTools
 
             Debug.Log($"SHOT_GFX {SystemInfo.graphicsDeviceType} rayTracing={SystemInfo.supportsRayTracing}");
             var rain = GameObject.Find("Rain");
+            var subwayRoot = GameObject.Find("Subway");
 
             foreach (var (name, pos, target) in poses)
             {
@@ -93,6 +101,11 @@ namespace LifeInDowntown.EditorTools
                     // the rain box stands on the ground around the camera (useless high up, so aerials skip it)
                     rain.SetActive(pos.y < 30f);
                     rain.transform.position = new Vector3(pos.x, 0f, pos.z);
+                }
+                if (subwayRoot != null)   // as the game does (DESIGN 3N.5-3N.6): lights near the camera, riders when underground
+                {
+                    LifeInDowntown.Transit.LightBudget.Apply(subwayRoot.transform, pos);
+                    subwayRoot.GetComponent<LifeInDowntown.Transit.SubwayRiders>()?.Apply(pos);
                 }
                 var preview = PreviewCrowd(pos);
                 if (name == "bodycam_pistol_drawn")   // the held pistol where WeaponHolder puts it, in camera space
@@ -125,6 +138,39 @@ namespace LifeInDowntown.EditorTools
             AnimationMode.StopAnimationMode();
             Object.DestroyImmediate(go);
             rt.Release();
+        }
+
+        // the TTC stations (docs/DESIGN.md 3N): a street entrance, the fare line, a platform, the stairs down
+        static void AddSubwayPoses(List<(string, Vector3, Vector3)> poses)
+        {
+            foreach (var st in Object.FindObjectsByType<LifeInDowntown.Transit.SubwayStation>(FindObjectsSortMode.None))
+            {
+                string n = st.stationName.ToLowerInvariant();
+                if (st.routes.Length > 0)
+                {
+                    var r = st.routes[0].points;
+                    var dir = r[1] - r[0]; dir.y = 0f; dir.Normalize();
+                    poses.Add(($"subway_entrance_{n}", r[0] - dir * 4f + Vector3.up * 1.5f, r[1] + Vector3.up * 0.5f));
+                }
+                const float conc = CityGenerator.ConcFloor, plat = CityGenerator.PlatFloor;
+                poses.Add(($"subway_fareline_{n}", st.W(-93f, -1.5f, conc + 1.6f), st.W(-70f, 2f, conc + 0.6f)));
+                poses.Add(($"subway_platform_{n}", st.W(-25f, 6.3f, plat + 1.6f), st.W(20f, 3.2f, plat + 0.9f)));
+                poses.Add(($"subway_stairs_{n}", st.W(52f, 5.6f, plat + 1.6f), st.W(72f, 5.4f, plat + 2.6f)));
+                if (n == "queen")
+                {
+                    poses.Add(("train_platform_queen", st.W(-30f, 6.6f, plat + 1.6f), st.W(-10f, 2.0f, plat + 1.4f)));
+                    poses.Add(("train_inside_queen", st.W(-55f, 2.05f, plat + 1.65f), st.W(-35f, 2.05f, plat + 1.2f)));
+                    poses.Add(("train_door_queen", st.W(-45f, 5.2f, plat + 1.6f), st.W(-43f, 1.0f, plat + 1.2f)));
+                    poses.Add(("train_front_queen", st.W(95f, 2.05f, CityGenerator.TrackBed + 1.8f), st.W(69f, 2.05f, plat + 1.0f)));
+                    var nbTrain = GameObject.Find("Train_NB");
+                    var sitter = nbTrain == null ? null : System.Array.Find(nbTrain.GetComponentsInChildren<LifeInDowntown.NPC.Pedestrian>(true), q => q.mode == LifeInDowntown.NPC.Pedestrian.Mode.Sit);
+                    if (sitter != null) poses.Add(("train_rider_queen", sitter.transform.position + sitter.transform.forward * 1.6f + sitter.transform.right * 1.2f + Vector3.up * 1.5f, sitter.transform.position + Vector3.up * 0.7f));
+                }
+                if (n == "tmu") poses.Add(("train_tmu_shut", st.W(-30f, -6.6f, plat + 1.6f), st.W(-10f, -2.0f, plat + 1.4f)));
+                poses.Add(($"subway_tunnel_{n}", st.W(66f, 0f, CityGenerator.TrackBed + 1.7f), st.W(130f, 0.5f, CityGenerator.TrackBed + 1.2f)));
+                poses.Add(($"subway_up_{n}", st.W(-6f, 5.4f, plat + 1.6f), st.W(-2f, 5.4f, CityGenerator.PlatCeil)));
+                poses.Add(($"subway_track_{n}", st.W(-10f, -5.8f, plat + 1.6f), st.W(-10f, 7.2f, plat + 1.4f)));
+            }
         }
 
         // close-ups of the placed street people (docs/DESIGN.md 3L) and the street outside the condo lobby

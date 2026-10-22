@@ -116,6 +116,32 @@ def main():
         cu, cv = (ua + uc) / 2, (va + vc) / 2
         img.paste(tile, (int(cu - tile.width / 2), int(cv - tile.height / 2)), tile)
 
+    # TTC Line 1 under Yonge (docs/DESIGN.md 3N.7): the line in Line 1 yellow, a roundel at each station,
+    # small red squares at the street entrances
+    ttc_path = ROOT / "Assets" / "City" / "Data" / "ttc_line1.json"
+    lay_path = ROOT / "Assets" / "City" / "Data" / "ttc_stations.json"
+    if ttc_path.exists():
+        ttc = json.loads(ttc_path.read_text(encoding="utf-8"))
+        line = [px(q) for q in pts(ttc["alignment"])]
+        dr.line(line, fill=(20, 16, 4), width=int(4.6 * PX_PER_M), joint="curve")
+        dr.line(line, fill=(248, 195, 0), width=int(3.2 * PX_PER_M), joint="curve")
+        lay = json.loads(lay_path.read_text(encoding="utf-8")) if lay_path.exists() else {"stations": []}
+        rfont = ImageFont.truetype(FONT, int(8 * PX_PER_M))
+        sfont = ImageFont.truetype(FONT, int(6 * PX_PER_M))
+        for st in ttc["stations"]:
+            fx, fz = st["dirX"], st["dirZ"]
+            lo = next((l for l in lay["stations"] if l["name"] == st["name"]), None)
+            for s in (lo["streetStairs"] + lo["elevators"]) if lo else []:
+                u, v = (s["rect"][0] + s["rect"][1]) / 2, (s["rect"][2] + s["rect"][3]) / 2
+                eu, ev = px((st["x"] + fx * u + fz * v, st["z"] + fz * u - fx * v))
+                r = 2.2 * PX_PER_M
+                dr.rectangle([eu - r, ev - r, eu + r, ev + r], fill=(218, 37, 29), outline=(255, 255, 255), width=3)
+            cu, cv = px((st["x"], st["z"]))
+            r = 7 * PX_PER_M
+            dr.ellipse([cu - r, cv - r, cu + r, cv + r], fill=(248, 195, 0), outline=(20, 16, 4), width=5)
+            dr.text((cu, cv), "1", font=rfont, fill=(10, 10, 10), anchor="mm")
+            dr.text((cu + r + 6, cv), st["name"].upper(), font=sfont, fill=(248, 195, 0), anchor="lm", stroke_width=3, stroke_fill=(10, 12, 16))
+
     # building names (one per name, at the footprint centre), smaller and softer than street names
     bfont = ImageFont.truetype(FONT, int(3.2 * PX_PER_M))
     seen = set()

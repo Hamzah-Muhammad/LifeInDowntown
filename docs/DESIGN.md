@@ -225,6 +225,131 @@ Hamzah: "Create an inventory system as well, where you can carry in game items, 
 - **Police** (same download): `CharacterImport` matches extra texture sets by slot name (his equipment belt, his pistol). Two officers are posted on a corner of Yonge & Dundas (one watches Tarik), and 2 of the 90 pooled walkers are officers on the beat. Their uniform is Rocketbox's generic grey-blue, not TPS navy.
 - **Limits:** the condo food and ammo pickups are placeholder shapes; no hands are drawn holding the pistol.
 
+## 3N. TTC subway: Line 1, Queen - TMU - College (designed and built 2026-10-22, branch `feature/ttc-subway`)
+
+Hamzah: "build the TTC subway system ... one you can physically ride to other stations around the map ... as accurate as possible to real life TTC subway stations." His answers: **Queen, TMU, College** first; the subway is **quick travel** between spots in the city; **free for now** (gates open); **real streets** above the new stations.
+
+### 3N.1 Real-world facts used (checked 2026-10-22)
+- Dundas station has been **TMU station** since 7 Dec 2025 (TTC; TMU paid for the change). Sankofa Square (ex Yonge-Dundas Square) is the square above it.
+- Queen, TMU and College all opened 30 Mar 1954 on the original Union-Eglinton stretch: **cut-and-cover under Yonge, two tracks, side platforms**. Queen's platform art is John Boyle's mural *Our Nell*; College's is Charles Pachter's hockey murals (both copyrighted: not reproduced; see 3N.9).
+- Line 1 runs **Toronto Rocket** trains (Bombardier): 6 cars permanently coupled with open gangways; end cars 23.19 m, middle cars 22.86 m (train ~138 m), 3.137 m wide, 3.645 m tall; stainless steel, rivet-free sides; **4 doors per side per car**, 1.5 m wide; inside: white walls, silver dividers, grey floor (seat colour unverified). Third-rail power.
+- Adult PRESTO fare $3.30 (frozen for 2026), cash $3.35. Not used yet (free for now).
+- Directions: northbound = **Finch**; southbound = **Vaughan Metropolitan Centre via Union**.
+
+### 3N.2 Geometry from OpenStreetMap (`Tools/osm/fetch_ttc.py`, cache `raw_ttc_line1.json`)
+Game coordinates (same projection as the city):
+
+| Station | Centre (x, z) | Platforms (OSM) | Gap to next (along the line) |
+|---|---|---|---|
+| Queen | (113, -365) | 2 side, ~144 m traced | 412 m to TMU |
+| TMU | (-10, 28) | 2 side, ~146 m traced | 499 m to College |
+| College | (-160, 504) | 2 side, ~172 m traced | (Wellesley off-map) |
+
+- **Built (task 2):** `fetch_ttc.py` writes `Assets/City/Data/ttc_line1.json`. Station centres are the midpoint of the two OSM side platforms, not the station node (the node sits 5 m off at TMU, 15 m at Queen, 27 m at College). The line is one centreline (midway between the tracks, smoothed, a point every 2 m, 1,952 m from 520 m south of Queen to 520 m north of College); trains and tunnels follow it, with the two tracks 4.1 m either side of centre. Measured track gap: 4.46 m Queen, 4.07 m TMU, 4.49 m College. Each entrance carries its offset in the station's frame (u along the line, v across it).
+- Queen St at Yonge is tagged `highway=construction` in OSM (Ontario Line works, real), so it was missing from the map; the city build now draws `construction=<road type>` ways as that road.
+
+- Both tracks are in OSM (`railway=subway`, `tunnel=yes`, `layer=-2`), **4.1 m apart** at TMU; they follow Yonge's bend. Platform centrelines ~12 m apart, so each platform is ~3.5 m wide.
+- **Platforms are built 152 m long** (the TTC standard; OSM traces are approximate), centred on the OSM platform ways.
+- **Entrances: 24 real ones in OSM, 19 at these three stations**, with names, level and wheelchair flags:
+  - **TMU, street:** Sankofa Square Entrance, Sankofa Square Elevator, Yonge / Dundas NW corner.
+  - **TMU, PATH:** Atrium on Bay, Eaton Centre L1 and L2, The Tenor.
+  - **Queen, street:** Yonge / Queen NW, NE and SW corners, 2 Queen St E, Yonge / Shuter SE.
+  - **Queen, PATH:** One Queen St E, Eaton Centre North and South, Hudson's Bay. The Bay closed in 2025, so its door is shuttered.
+  - **College, street:** Yonge / Carlton NE and SE.
+  - **College, PATH:** College Park Shops.
+
+### 3N.3 Map extension (task 1)
+- The OSM box grows from 43.6535-43.6585 N to **43.6505-43.6625 N** (same west/east). That is ~1.33 km of Yonge, one block past Queen (Richmond) and past College/Carlton.
+- Everything regenerates: buildings, roads, signs, map.png, places.json, the sidewalk lines and the crowd.
+- **Risks:** roughly 2.4× the buildings with ray tracing on, and the Yonge Rabba site is re-picked from the new data, so it may move.
+- **Built 2026-10-22.** Box now x -289..275, z -645..681 m. Measured: 837 buildings (was 290), 232 roads, 535 paths, 12 plazas, 579 streetlights, 13,406 sidewalk pieces, 135 signs (was 142: the sign picker re-ranks shops), 1,032 meshes. Both Rabbas stayed put (same buildings and doors) and the condo still generates. map.png is now 2735×5785 px (import max raised to 8192). All 4 suites green. FPS with 2.9× the buildings and ray tracing is **not measured** (no exe launch); check `Player.log` after a play.
+
+### 3N.4 Levels (all three stations, shallow 1954 box)
+
+| Level | y (m) | What |
+|---|---|---|
+| Street | 0 | stair openings with railings, the red TTC sign on a post; Sankofa elevator kiosk |
+| Concourse | -4.2 floor / -1.2 ceiling | fare line (PRESTO gates, open), PRESTO machines, wayfinding, washrooms (closed), PATH doors |
+| Platform | -8.55 floor / -4.6 ceiling | 2 side platforms, 152 m |
+| Rail top | -9.6 | 2 tracks 4.1 m apart, third rail on the outside |
+
+- **Stairs:** ~25 risers concourse to platform at each end, plus escalators. The elevator uses the existing fade ride (like the condo).
+- **Concourse layout:** the fare line runs across the middle, with signs to "Northbound - Finch" and "Southbound - Vaughan Metropolitan Centre via Union" over the stairs down.
+- **Built (task 3), how it is laid out:** `plan_ttc_stations.py` plans each station in its own frame and writes `ttc_stations.json`; `CityGenerator.Subway.cs` builds it.
+  - **Concourses:** one over each end of the platforms (34 m × 14.4 m), fare line across each (12 gate cabinets, open, PRESTO readers and 2 machines). Stairs down sit at the platform ends (|u| 69-76): a 2.3 m stair (25 risers) beside a 1.2 m escalator that carries you up at 0.5 m/s.
+  - **Street stairs:** each OSM entrance gets a 2.6 m × 7.6 m opening (24 risers) placed on open pavement as close to its node as fits (not on a road, not under any building or low building part), then a 3 m passage to the nearer concourse's unpaid side. Moved from the OSM point: 4.5-5 m at Queen's corners, 16.6 m Shuter, 3 m / 18 m at TMU, 1 m / 18 m at Carlton. The ground, road, sidewalk and plaza meshes are cut around each opening.
+  - **Not built:** "Entrance by 2 Queen Street East" is a door inside the tower (every metre around it is building in OSM), so it has no sidewalk stair; SubwayTest lists it. College Park Shops' door is below street level, so it counts as a closed PATH-style door.
+  - **Elevator:** Sankofa Square Elevator is a glass kiosk; E rides it down to a landing joined to the concourse (the condo's DoorLink fade).
+  - **Light:** HDRP caps how many lights reach one screen cell, and the 602 streetlights (30 m range) reach below the pavement, so underground they crowded out the station lights. `LightBudget` switches city lights more than 30 m away off while the camera is underground, and station lights more than 35 m away off while it is on the street. A local volume over each station and its passages sets exposure EV 6.0 and no fog. Rain stops below y = -1.5 (IndoorZone).
+  - **Measured:** all 18 entrance-to-platform walks pass (9 street stairs + the elevator, to both platforms), 18-40 s at a jog.
+
+### 3N.5 Station finish (accuracy checklist)
+- **Platform edge:** yellow tactile strip with raised domes (width ~60 cm, approximate).
+- **Platform furniture:**
+  - The **Designated Waiting Area** (blue sign, intercom pillar, camera, bench, brighter light).
+  - Next-train screens hanging over the platform, with minutes and the destination.
+  - Emergency power cut and emergency alarm stations, bins and benches.
+- **Walls:** the station name repeated along the track wall in the TTC subway lettering style (our own render; the Toronto Subway typeface itself is not free to embed), with Line 1 yellow (~#F8C300, approximate) roundels "1".
+  - **TMU:** new 2025 TMU name panels.
+  - **Queen and College:** their own names.
+  - **Wall colours per station:** unverified; needs reference photos, see 3N.9.
+- **Ceiling:** low, with fluorescent light strips over the platform edge.
+- **Track bed:** concrete with drainage; cable trays and blue emergency lights on the tunnel walls.
+- **Built (task 4):** `CityGenerator.SubwayTrack.cs` sweeps a double-track box along the centreline between the stations (8.5 m inside, floor -9.8, roof -5.4): 1,496 m of tunnel on a 1,952 m line, closed at both ends. Through the whole length: two tracks at TTC gauge (1,495 mm) on 5,206 concrete ties, a third rail on the outside of each track, two cable trays per wall, a blue emergency light every 25 m. Tunnels sit outside the station volume, so they render at the night exposure: dark, as intended.
+
+### 3N.6 The train (procedural, no download)
+- **Build:** a Toronto Rocket set generated in code from the real dimensions in 3N.1. The body is an extruded stainless profile with a rounded roof and a black window band; the ends have the TR cab shape with headlights and a route sign reading "1 FINCH" or "1 VMC".
+- **Inside:** open gangways between cars; seats along the walls with grab poles; LED ceiling strips; a strip map above each door with "next station" lights.
+- **Riders:** Rocketbox people sitting (Sit clip), standing on their phones, and waiting on the platforms.
+
+### 3N.7 Riding (quick travel)
+- **Schedule:** one train per direction shuttles Queen ↔ College. When Tarik reaches a platform, the next train is **at most ~20 s away** (it is held in the tunnel out of sight, then sent in).
+- **Ride time:** a hop takes ~30 s: 2.2 m/s² up to 25 m/s, cruise, brake to the stop mark. That is faster than the real Line 1, on purpose. **Enter "zones out"**: a fade, and Tarik is at the next station.
+- **Doors:** a 12 s dwell. The door chime is code-made, followed by on-screen announcements in the real wording: "The next station is College. College station." / "Doors closing, please stand clear of the doors." Doors open on the right, on the platform side.
+- **Physics:** Tarik physically stands in the car. The train is a moving platform that carries the CharacterController by its delta each frame. He can walk the length of the train through the gangways.
+- **End stations:** "This train is short turning. All customers must exit at Queen / College." This is real TTC wording. The train empties and goes back into the tunnel.
+- **Map:** Line 1 is drawn in yellow with roundels on the full map. The minimap shows the line while underground.
+- **Built (task 5):** `CityGenerator.SubwayTrain.cs` builds two trains (Train_NB "1 FINCH", Train_SB "1 VMC"), 6 cars each, 137.82 m (23.19 + 4 × 22.86 + 23.19), 3.137 m wide, 3.645 m tall, 4 doors a side per car. The right-side leaves slide; left-side doors are part of the body. `TrainController` runs each train: hold point 300 m behind the first stop, sent in at cruising speed from 300 m out when Tarik waits on its platform, 2.2 m/s² up to 25 m/s, 2.0 m/s² braking onto the stop mark (the train centred on the platform), 12 s dwell, chime and "Doors closing", short turn at the end (doors stay open while Tarik is aboard there), then out to 300 m past the end and back to the hold point. Cars carry whoever stands in them (position and turn). Enter zones out to the next stop. Announcements are subtitles (`SubwayAnnouncer`, OnGUI).
+  - **Measured (SubwayTest):** train at TMU with doors open 20.6 s after Tarik reached the platform; TMU → College hop 31.7 s; Tarik's height stayed on the car floor the whole ride; zone-out TMU → Queen; an unattended loop runs Queen → TMU → College → short turn → hold; doors opened only when stopped on a platform, on the platform side (0 violations in 7,212 open-door steps).
+  - **Not seen yet:** the subtitle and next-train lines are OnGUI, which ShotTool renders don't show.
+
+### 3N.8 Sound (code-generated, like 3I)
+- **Station:** ambience hum.
+- **Train:**
+  - an approach rumble and wind push down the tunnel;
+  - the TR's rising motor whine as it pulls away;
+  - wheel noise;
+  - the door chime;
+  - brake hiss.
+- **In the car:** a muffled interior bed.
+- **Built (task 6):** nine `subway_*.wav` clips from `make_sounds.py`, mixed by `SubwayAudio`: station hum below the street, 3D rumble/wheels/whine on each train's front car (the whine's pitch rises with speed), wind before an arriving train, chime/doors/brake hiss from the train's own cues, the interior bed while riding. Underground no longer plays the condo's rain-on-glass and room tone, and footsteps there are concrete. **Never listened to by me**: Hamzah to judge.
+- **Riders (task 6):** 9 people per train (seated on the side benches with the chair-sit clip, or standing by a door on the phone) and 3 waiting on each platform, Rocketbox. `SubwayRiders` switches them on only while the camera is underground.
+- **Map (task 6):** `render_map.py` draws Line 1 in yellow with a "1" roundel and name at each station and red squares at the street entrances. The minimap uses the same image, so it shows the line everywhere, not only underground (simpler than the design said).
+
+### 3N.9 Open items
+- Per-station wall colours and the TMU 2025 panel look: needs reference photos (Hamzah supplies them, or I search images) before the finish pass.
+- The Pachter and Boyle murals are copyrighted: leave those walls plain or use our own art.
+- TR seat colour: unverified.
+- The PATH (Eaton Centre etc.) is not built, so PATH doors stay closed.
+- Wall tiles, floor tiles and seat fabric are neutral placeholders; the TMU panels are plain "TMU" lettering for now.
+- Not checked by eye in the running game (Hamzah forbade taking over his screen): the subtitle and next-train lines (OnGUI never shows in ShotTool renders), the zone-out fade, how the trains look moving, all the sounds, and frame rate with 837 buildings plus the subway.
+- "Entrance by 2 Queen Street East" is inside the tower in OSM, so it is not built.
+- Saving while on a train and loading puts Tarik back at the saved spot, but the trains restart at their hold points, so he lands on the track bed (untested edge case).
+
+### 3N.10 Build order (one branch, one commit per task)
+1. Map extension (3N.3), regenerate, all tests and renders green.
+2. `fetch_ttc.py` → `Assets/City/Data/ttc_line1.json` (tracks, stations, entrances, platforms, local coords).
+3. Station builder: box, platforms, concourse, stairs, escalators, elevator, street entrances, signage textures (`make_ttc_signs.py`).
+4. Tunnels and track: box tunnel, rails, ties, third rail, tunnel lights.
+5. Train mesh + `TrainController` (schedule, doors, moving-platform ride, announcements, zone-out, short turn).
+6. Sound, riders, map overlay.
+7. `SubwayTest` (all green 2026-10-22, plus the 4 older suites; exe rebuilt):
+   - every street entrance reaches its platform (PlayerSimTest-style walk);
+   - a simulated ride TMU → College arrives;
+   - doors open only at platforms;
+   - a hop takes ≤ 35 s;
+   - plus renders and a rebuild.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

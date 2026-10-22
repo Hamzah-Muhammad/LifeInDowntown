@@ -26,6 +26,8 @@ namespace LifeInDowntown.Game
         int lastStep = -1;
 
         public bool Indoors => listener != null && LifeInDowntown.World.IndoorZone.IsIndoors(listener.position);
+        // the subway counts as indoors for the rain, but it has its own beds (Transit.SubwayAudio) and concrete floors
+        public bool Underground => listener != null && listener.position.y < LifeInDowntown.World.IndoorZone.UndergroundBelow;
 
         void Awake()
         {
@@ -69,8 +71,9 @@ namespace LifeInDowntown.Game
             float duck = (paused || LifeInDowntown.Map.MapController.IsOpen ? 0.45f : 1f) * startFade;
             rainOut.volume = rainOutdoor * (1f - indoorMix) * duck;
             hum.volume = cityHum * (1f - indoorMix * 0.85f) * duck;    // the city is still faintly audible upstairs
-            rainIn.volume = rainIndoor * indoorMix * duck;
-            room.volume = roomTone * indoorMix * duck;
+            float notSubway = Underground ? 0f : 1f;
+            rainIn.volume = rainIndoor * indoorMix * duck * notSubway;
+            room.volume = roomTone * indoorMix * duck * notSubway;
 
             if (paused || listener == null || Indoors) return;
             float t = Time.time;
@@ -115,7 +118,7 @@ namespace LifeInDowntown.Game
 
         void OnFootstep()
         {
-            if (!steps.TryGetValue(Indoors ? "wood" : "concrete", out var set) || set.Length == 0) return;
+            if (!steps.TryGetValue(Indoors && !Underground ? "wood" : "concrete", out var set) || set.Length == 0) return;
             int i = Random.Range(0, set.Length);
             if (i == lastStep && set.Length > 1) i = (i + 1) % set.Length;   // never the same sample twice in a row
             lastStep = i;

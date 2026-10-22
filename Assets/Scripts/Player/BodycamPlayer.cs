@@ -114,7 +114,8 @@ namespace LifeInDowntown.Player
 
             // actual velocity from the position change (cc.velocity is always zero outside play mode)
             Vector3 startPos = transform.position;
-            var flags = cc.Move((horizontal + Vector3.up * vertical) * dt);
+            Vector3 carry = Grounded ? LifeInDowntown.Transit.Escalator.CarryAt(transform.position) : Vector3.zero;   // DESIGN 3N.4
+            var flags = cc.Move((horizontal + Vector3.up * vertical + carry) * dt);
             Vector3 actual = (transform.position - startPos) / dt;
             bool groundedNow = (flags & CollisionFlags.Below) != 0;
             if ((flags & CollisionFlags.Sides) != 0)
