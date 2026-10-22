@@ -26,4 +26,4 @@
 *.ogg filter=lfs diff=lfs merge=lfs -text
 
 # Generated city meshes (large, regenerable)
-Assets/City/Generated/** filter=lfs diff=lfs merge=lfs -text
+Assets/City/Generated/*.asset filter=lfs diff=lfs merge=lfs -text
