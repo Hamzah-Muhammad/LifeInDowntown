@@ -36,6 +36,7 @@ namespace LifeInDowntown.EditorTools
                 poses.Add(("condo_window_view", condo.W(-1.2f, 4.6f, 1.6f), condo.W(-0.6f, -40f, 0.4f)));
                 poses.Add(("condo_room", condo.W(0.2f, 0.5f, 1.65f), condo.W(-1.6f, 7.5f, 1.0f)));
                 poses.Add(("condo_cn_tower_view", condo.W(-1.0f, 1.2f, 1.6f), new Vector3(-499f, 280f, -1514f)));   // toward the real CN Tower
+                poses.Add(("condo_topdown", condo.W(0f, 3.75f, 11f) + condo.inward * 0.01f, condo.W(0f, 3.75f, 0f)));    // layout check, ceiling hidden
             }
             var bodycam = GameObject.Find("BodycamCamera");
             if (bodycam != null)   // what the player sees at spawn: chest height, wide lens
@@ -56,8 +57,14 @@ namespace LifeInDowntown.EditorTools
             {
                 cam.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(target - pos));
                 cam.fieldOfView = name.StartsWith("bodycam") ? PlayerSetup.VerticalFov : 60f;
-                var condoGlass = GameObject.Find("CondoGlass");
-                if (condoGlass != null) condoGlass.GetComponent<Renderer>().enabled = name != "condo_window_noglass";
+                foreach (var hide in new[] { "CondoCeiling" })
+                {
+                    var hidden = GameObject.Find(hide);
+                    if (hidden != null) hidden.GetComponent<Renderer>().enabled = name != "condo_topdown";
+                }
+                // the overhead view also clears the tower roof above the condo
+                var tower = GameObject.Find("Bldg_" + CityGenerator.CondoTower);
+                if (tower != null) tower.GetComponent<Renderer>().enabled = name != "condo_topdown";
                 if (rain != null)
                 {
                     // the rain box stands on the ground around the camera (useless high up, so aerials skip it)

@@ -147,7 +147,8 @@ namespace LifeInDowntown.City
 
             // living: TV wall unit, rug, (furniture models go here once downloaded: section 3H)
             B(black, -4.94f, 2.2f, 1.0f, -4.9f, 3.65f, 1.82f);           // 65" TV
-            B(wood, -4.94f, 1.9f, 0f, -4.5f, 3.95f, 0.45f);              // low media cabinet
+            if (!File.Exists(FurniturePrefab("modern_wooden_cabinet")))
+                B(wood, -4.94f, 1.9f, 0f, -4.5f, 3.95f, 0.45f);          // low media cabinet (until the model is imported)
             B(fabric, -3.7f, 1.3f, 0.002f, -1.1f, 4.1f, 0.01f);          // rug
             // front door (closed panel, the interaction point is just inside it)
             B(wood, -0.55f, D - 0.04f, 0f, 0.45f, D + 0.02f, 2.08f);
@@ -162,7 +163,9 @@ namespace LifeInDowntown.City
             foreach (var (name, mb, mat, col) in add)
                 if (mb.VertexCount > 0) AddObject(name, root, mb.ToMesh(name), mat, meshes, col);
 
-            // warm interior lights (2700 K); the living light casts shadows
+            int placed = PlaceFurniture(f, root);
+
+            // warm interior lights (3000 K); the living light casts shadows
             void Lamp(string name, float u, float v, float lumens, bool shadows)
             {
                 var go = new GameObject(name);
@@ -213,7 +216,54 @@ namespace LifeInDowntown.City
             AddObject("LobbyDoors", root, lobby.ToMesh("LobbyDoors"), m.Glass, meshes, collider: false);
             AddObject("LobbyCanopyLight", root, lobbyGlow.ToMesh("LobbyCanopyLight"), mats.Lamp, meshes, collider: false);
 
-            Debug.Log($"CONDO_OK tower={CondoTower} floorY={CondoFloorY} origin={f.origin} window faces {(-f.inward)}");
+            Debug.Log($"CONDO_OK tower={CondoTower} floorY={CondoFloorY} origin={f.origin} window faces {(-f.inward)} furniture={placed}");
+        }
+
+        // ------------------------------------------------------------- furniture
+        static string FurniturePrefab(string id) => $"Assets/Condo/Prefabs/{id}.prefab";
+
+        enum Align { Floor, Ceiling, Centre }
+
+        // Poly Haven models face +Z. Each entry: model, (u, v) in the condo frame, the local direction its
+        // front should face (x = along u, z = along v), how to set its height, and an extra height (m).
+        static readonly (string id, float u, float v, Vector3 front, Align align, float y)[] Furniture =
+        {
+            ("modern_wooden_cabinet",    -4.68f, 2.93f, new Vector3(1, 0, 0),      Align.Floor,   0f),     // media unit under the TV
+            ("sofa_03",                  -1.45f, 2.93f, new Vector3(-1, 0, 0),     Align.Floor,   0f),     // facing the TV
+            ("modern_coffee_table_01",   -2.85f, 2.93f, new Vector3(1, 0, 0),      Align.Floor,   0f),
+            ("potted_plant_04",          -2.85f, 3.25f, new Vector3(1, 0, 0),      Align.Floor,   0.39f),  // on the coffee table
+            // facing the skyline. All seating faces +Z, measured by CondoFurnitureImport.ReportFacing
+            // (highest backrest vertex at -Z); a top-down render misread once suggested otherwise
+            ("mid_century_lounge_chair", -3.85f, 0.95f, new Vector3(-0.3f, 0, -1), Align.Floor,   0f),
+            ("side_table_01",            -2.95f, 0.7f,  new Vector3(0, 0, 1),      Align.Floor,   0f),
+            ("modern_arm_chair_01",       0.35f, 1.25f, new Vector3(-1, 0, 0.45f), Align.Floor,   0f),
+            ("bar_chair_round_01",       -3.6f,  4.15f, new Vector3(0, 0, 1),      Align.Floor,   0f),     // island stools
+            ("bar_chair_round_01",       -2.4f,  4.15f, new Vector3(0, 0, 1),      Align.Floor,   0f),
+            ("modern_ceiling_lamp_01",   -2.85f, 2.93f, new Vector3(1, 0, 0),      Align.Ceiling, 0f),
+            ("potted_plant_01",          -4.5f,  4.5f,  new Vector3(1, 0, 0),      Align.Floor,   0f),
+            ("painted_wooden_nightstand", 4.62f, 3.25f, new Vector3(-1, 0, 0),     Align.Floor,   0f),
+            ("hanging_picture_frame_01",  1.43f, 2.3f,  new Vector3(-1, 0, 0),     Align.Centre,  1.55f),  // living side of the bedroom wall
+        };
+
+        static int PlaceFurniture(CondoFrame f, Transform parent)
+        {
+            int n = 0;
+            foreach (var it in Furniture)
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(FurniturePrefab(it.id));
+                if (prefab == null) continue;
+                var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+                go.transform.rotation = f.Facing(it.front.normalized);
+                go.transform.position = Vector3.zero;
+                var b = LifeInDowntown.EditorTools.CondoFurnitureImport.Bounds(go);
+                Vector3 target = f.W(it.u, it.v, 0f);
+                float y = it.align == Align.Floor ? CondoFloorY + it.y - b.min.y
+                        : it.align == Align.Ceiling ? CondoFloorY + CondoCeiling - b.max.y
+                        : CondoFloorY + it.y - b.center.y;
+                go.transform.position = new Vector3(target.x - b.center.x, y, target.z - b.center.z);
+                n++;
+            }
+            return n;
         }
 
         public const float CondoLumens = 600f;   // 1400 blew the white walls out at EV 4.2
