@@ -549,7 +549,7 @@ namespace LifeInDowntown.City
         // Placeholder HDRP Lit materials (grey-box pass). The CC0 texture pass replaces these.
         // HDRP Lit materials from the approved CC0 sets (docs/DESIGN.md 3A.1). Mesh UVs are in metres,
         // so each material's tiling is 1 / (real-world size of one texture tile).
-        class Materials
+        internal class Materials
         {
             const string TexDir = "Assets/City/Textures";
             public readonly Material Ground, Asphalt, Concrete, Paving, Roof, Pole, Lamp, Signs, Storefront, BalconyGlass;

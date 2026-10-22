@@ -106,9 +106,12 @@ namespace LifeInDowntown.Phone
                 if (view == View.Incoming && kb.backspaceKey.wasPressedThisFrame) Decline();
                 if (InCall && runner.Node != null)
                 {
-                    if (runner.Node.choices.Length == 0 && kb.spaceKey.wasPressedThisFrame) runner.Continue();
-                    for (int i = 0; i < Mathf.Min(3, runner.Node.choices.Length); i++)
-                        if (kb[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) { runner.Choose(i); break; }
+                    // Continue() can end the call and clear Node, so the choice keys only read a node with choices
+                    var node = runner.Node;
+                    if (node.choices.Length == 0) { if (kb.spaceKey.wasPressedThisFrame) runner.Continue(); }
+                    else
+                        for (int i = 0; i < Mathf.Min(3, node.choices.Length); i++)
+                            if (kb[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) { runner.Choose(i); break; }
                 }
             }
 

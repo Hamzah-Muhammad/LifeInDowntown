@@ -17,8 +17,14 @@ namespace LifeInDowntown.EditorTools
         const string AnimDir = Root + "/Animations";
 
         // clip file per animator mode (Pedestrian.Mode order)
-        static readonly string[] FemaleClips = { "f_walk_neutral_01", "f_walk_slow_01", "f_idle_neutral_01", "f_cell_phone_textmessage" };
-        static readonly string[] MaleClips = { "m_walk_neutral_01", "m_walk_slow_01", "m_idle_neutral_01", "m_cell_phone_talk_01" };
+        static readonly string[] FemaleClips = { "f_walk_neutral_01", "f_walk_slow_01", "f_idle_neutral_01", "f_cell_phone_textmessage",
+            "m_crouch_idle", "f_sit_chair_idle_neutral_01", "f_sit_chair_idle_neutral_01", "m_idle_drunk_01", "m_idle_cough_01",
+            "m_idle_shake_arms_01", "m_idle_nervous_03", "f_idle_look_around_01", "m_gestic_talk_cool", "m_gestic_listen_nervous_01",
+            "f_idle_waiting_01" };   // no female file for some street poses: the humanoid rig retargets the male one
+        static readonly string[] MaleClips = { "m_walk_neutral_01", "m_walk_slow_01", "m_idle_neutral_01", "m_cell_phone_talk_01",
+            "m_crouch_idle", "m_sit_chair_idle_neutral_01", "m_sit_chair_idle_look_around", "m_idle_drunk_01", "m_idle_cough_01",
+            "m_idle_shake_arms_01", "m_idle_nervous_03", "m_idle_look_around_01", "m_gestic_talk_cool", "m_gestic_listen_nervous_01",
+            "m_idle_waiting_01" };
 
         [MenuItem("Life In Downtown/Import Rocketbox Characters")]
         public static void ImportAll()
@@ -79,7 +85,7 @@ namespace LifeInDowntown.EditorTools
             var ctrl = AnimatorController.CreateAnimatorControllerAtPath(path);
             ctrl.AddParameter("Mode", AnimatorControllerParameterType.Int);
             var sm = ctrl.layers[0].stateMachine;
-            string[] names = { "Walk", "WalkSlow", "Idle", "Phone" };
+            string[] names = System.Enum.GetNames(typeof(LifeInDowntown.NPC.Pedestrian.Mode));
             for (int i = 0; i < names.Length; i++)
             {
                 var clip = Clip(clipFiles[i]);
