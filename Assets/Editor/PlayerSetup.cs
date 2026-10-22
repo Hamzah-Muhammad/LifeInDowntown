@@ -134,6 +134,12 @@ namespace LifeInDowntown.EditorTools
             phoneDoc.sortingOrder = 0;
             var missions = phoneGo.AddComponent<LifeInDowntown.Phone.MissionManager>();
             missions.player = player.transform;
+            // Ty in person: waits at meeting places and talks in subtitles (DESIGN 3O.1)
+            var cast = phoneGo.AddComponent<LifeInDowntown.Phone.Cast>();
+            cast.missions = missions;
+            cast.tyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/{NpcSetup.TyAvatar}.prefab");
+            var talk = phoneGo.AddComponent<LifeInDowntown.Phone.InPersonTalk>();
+            talk.missions = missions; talk.player = player;
             var phone = phoneGo.AddComponent<LifeInDowntown.Phone.PhoneController>();
             phone.missions = missions;
             phone.player = player;

@@ -6,7 +6,12 @@ namespace LifeInDowntown.Phone
 {
     // Data for contacts, dialogue, missions and places (docs/DESIGN.md 3D), loaded from Resources/.
     [Serializable] public class ContactCall { public string dialogue; public string[] requires = new string[0]; public string[] blocked = new string[0]; }
-    [Serializable] public class Contact { public string id; public string name; public string color; public ContactCall[] calls = new ContactCall[0]; }
+    [Serializable] public class Contact
+    {
+        public string id; public string name; public string color; public ContactCall[] calls = new ContactCall[0];
+        public string[] texts = new string[0];   // sent between jobs, in order, looping (DESIGN 3O.1)
+        public float textMinutes;                // minutes of play between those texts (0 = never)
+    }
     [Serializable] public class ContactList { public Contact[] contacts = new Contact[0]; }
 
     [Serializable] public class DialogueChoice { public string text; public string next; public string[] actions = new string[0]; }
@@ -20,7 +25,12 @@ namespace LifeInDowntown.Phone
     [Serializable] public class DialogueList { public Dialogue[] dialogues = new Dialogue[0]; }
 
     [Serializable] public class MissionTrigger { public float afterSeconds; public string[] requires = new string[0]; public string[] blocked = new string[0]; }
-    [Serializable] public class Objective { public string text; public string place; public float radius = 10f; public string arriveText; }
+    [Serializable] public class Objective
+    {
+        public string text; public string place; public float radius = 10f; public string arriveText;
+        public string npc;    // someone waiting there in person, e.g. "ty" (DESIGN 3O.1)
+        public string talk;   // dialogue played face to face on arrival; the objective completes when it ends
+    }
     [Serializable] public class Mission
     {
         public string id; public string title; public string giver;
@@ -79,7 +89,11 @@ namespace LifeInDowntown.Phone
                 if (!Dialogues.ContainsKey(m.call)) problems.Add($"mission {m.id}: missing call dialogue {m.call}");
                 if (!Contacts.ContainsKey(m.giver)) problems.Add($"mission {m.id}: unknown giver {m.giver}");
                 foreach (var o in m.objectives)
+                {
                     if (!Places.ContainsKey(o.place)) problems.Add($"mission {m.id}: unknown place '{o.place}'");
+                    if (!string.IsNullOrEmpty(o.talk) && !Dialogues.ContainsKey(o.talk)) problems.Add($"mission {m.id}: missing talk dialogue {o.talk}");
+                    if (!string.IsNullOrEmpty(o.talk) && string.IsNullOrEmpty(o.npc)) problems.Add($"mission {m.id}: talk '{o.talk}' with nobody there (npc)");
+                }
             }
             foreach (var dlg in Dialogues.Values)
             {

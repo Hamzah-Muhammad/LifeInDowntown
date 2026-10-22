@@ -83,6 +83,32 @@ namespace LifeInDowntown.EditorTools
             Wait(120f, away);
             Check(ringing == null, "a refused job never rings again");
 
+            // ---- Ty in person (DESIGN 3O.1): College Run waits for the face-to-face talk before it completes
+            GameState.NewGame(); S = GameState.Current;
+            S.SetFlag("done:link_up"); S.SetFlag("done:the_package"); S.SetFlag("done:ma_errand");
+            mm.ResetSession();
+            Objective met = null;
+            mm.MeetStarted += o => met = o;
+            Wait(239f, away);
+            Check(ringing == null, "no Ty job before 4 min");
+            Wait(2f, away);
+            Check(ringing?.id == "college_run", $"Ty rings with College Run after 4 min (got {ringing?.id})");
+            runner.Begin(mm.Data.Dialogues[ringing.call]);
+            runner.Choose(0); runner.Continue();
+            mm.CallEnded(false); ringing = null;
+            Check(S.activeMission == "college_run" && mm.ActiveObjective.npc == "ty", "College Run: Ty waits in person at College Park");
+            mm.SetMeetPoint(P("College Park Shops Entrance") + new Vector3(3f, 0f, 0f));   // Cast snaps him to the sidewalk
+            Wait(1f, P("College Park Shops Entrance") + new Vector3(3f, 0f, 0f));
+            Check(met != null && mm.Meeting && S.activeMission == "college_run", "reaching Ty starts the talk and the job waits for it");
+            var talk = new DialogueRunner(mm.Apply);
+            talk.Begin(mm.Data.Dialogues[met.talk]);
+            talk.Choose(1); talk.Continue(); talk.Continue();
+            mm.MeetEnded();
+            Check(S.HasFlag("done:college_run") && Mathf.Approximately(S.cash, 100f) && !mm.Meeting, $"the talk ends the job: cash {S.cash} (60+40)");
+            int textsBefore = S.messages.Count;
+            Wait(301f, away);
+            Check(S.messages.Count == textsBefore + 1 && S.messages[S.messages.Count - 1].from == "ty", $"between jobs Ty texts every 5 min ('{S.messages[S.messages.Count - 1].text}')");
+
             Check(banners.Exists(b => b.StartsWith("JOB COMPLETE")), $"completion banners shown ({banners.Count} banners total)");
             Object.DestroyImmediate(go);
             Debug.Log(fails == 0 ? "PHONE_RESULT all checks passed" : $"PHONE_RESULT {fails} check(s) failed");

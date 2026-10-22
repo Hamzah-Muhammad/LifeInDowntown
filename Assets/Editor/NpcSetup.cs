@@ -17,6 +17,7 @@ namespace LifeInDowntown.EditorTools
     // Seeded, so every regenerate gives the same street.
     public static class NpcSetup
     {
+        public const string TyAvatar = "Male_Adult_10";
         const float SidewalkOffset = 1.6f, Spacing = 4f, SlabTop = 0.15f;
         const int CornerGroups = 10, CrosswalkCorners = 18, HomelessSpots = 16;
         static readonly HashSet<string> Streets = new HashSet<string> { "primary", "secondary", "tertiary", "unclassified", "residential" };
@@ -45,6 +46,7 @@ namespace LifeInDowntown.EditorTools
                 {
                     var go = AssetDatabase.LoadAssetAtPath<GameObject>(f.Replace('\\', '/'));
                     string file = Path.GetFileName(f);
+                    if (file.StartsWith(TyAvatar)) continue;   // Ty is one person: never in the street crowd (DESIGN 3O.1)
                     (file.StartsWith("Police_") ? c.police : file.StartsWith("Female") ? c.female : c.male).Add(go);
                 }
             if (c.male.Count + c.female.Count == 0) { Debug.Log("NPC_SKIP no prefabs yet (run CharacterImport)"); return; }

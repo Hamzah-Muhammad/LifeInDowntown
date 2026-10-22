@@ -27,6 +27,7 @@ namespace LifeInDowntown.Game
         public int objectiveIndex;
         public List<PhoneMessage> messages = new List<PhoneMessage>();
         public List<string> callLog = new List<string>();
+        public int textsSent;              // between-jobs texts sent so far (DESIGN 3O.1)
 
         public static GameState Current { get; set; } = new GameState();
 

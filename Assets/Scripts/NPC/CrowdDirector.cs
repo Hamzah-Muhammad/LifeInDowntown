@@ -33,6 +33,18 @@ namespace LifeInDowntown.NPC
         bool asleep, filled;
         float nextTick, statWindow, statFrames, nextStat = 15f;
 
+        public static CrowdDirector Instance { get; private set; }
+
+        void Awake() { Instance = this; }
+
+        // the closest baked sidewalk point (story characters stand on real pavement, DESIGN 3O.1)
+        public Vector3 NearestSidewalk(Vector3 to)
+        {
+            Vector3 best = to; float bd = float.MaxValue;
+            foreach (var p in points) { float d = FlatDist(p, to); if (d < bd) { bd = d; best = p; } }
+            return best;
+        }
+
         void Start()
         {
             var body = FindFirstObjectByType<LifeInDowntown.Player.BodycamPlayer>();

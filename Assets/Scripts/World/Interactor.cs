@@ -24,7 +24,8 @@ namespace LifeInDowntown.World
         {
             near = null; nearThing = null;
             bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
-            if (!playing || busy || player == null || LifeInDowntown.Map.MapController.IsOpen || LifeInDowntown.Items.InventoryUI.IsOpen) return;
+            if (!playing || busy || player == null || LifeInDowntown.Map.MapController.IsOpen || LifeInDowntown.Items.InventoryUI.IsOpen
+                || LifeInDowntown.Phone.InPersonTalk.AnyTalking) return;
             float best = float.MaxValue;
             foreach (var d in DoorLink.All)
             {
