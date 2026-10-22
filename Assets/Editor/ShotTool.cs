@@ -65,28 +65,28 @@ namespace LifeInDowntown.EditorTools
             else cam.Render();
         }
 
-        // Eye-level pose 70 m back along the named street from the Yonge & Dundas origin, looking along it.
+        // Eye-level pose on the right-hand sidewalk of the named street, standing on a real point of the
+        // street ~70 m from the Yonge & Dundas origin (south of it for north views, east of it for west views)
+        // and looking back along the street through the intersection. Streets bend, so no straight-line guess.
         static void AddStreetPose(List<(string, Vector3, Vector3)> poses, CityData data, string street, string name, bool southToNorth)
         {
-            Vector2 best = Vector2.zero, other = Vector2.zero;
-            float bestDist = float.MaxValue, roadWidth = 10f;
+            Vector2 eyeOnRoad = Vector2.zero;
+            float bestErr = float.MaxValue, roadWidth = 10f;
             foreach (var r in data.roads)
             {
                 if (r.name != street) continue;
-                var p = CityDataUtil.Points(r.pts);
-                for (int i = 0; i + 1 < p.Count; i++)
+                foreach (var v in CityDataUtil.Points(r.pts))
                 {
-                    float d = p[i].magnitude;
-                    if (d < bestDist) { bestDist = d; best = p[i]; other = p[i + 1]; roadWidth = r.width; }
+                    bool behind = southToNorth ? v.y < 0f : v.x > 0f;
+                    float err = Mathf.Abs(v.magnitude - 70f);
+                    if (behind && err < bestErr) { bestErr = err; eyeOnRoad = v; roadWidth = r.width; }
                 }
             }
-            if (bestDist == float.MaxValue) { Debug.LogWarning($"SHOT_SKIP no road named {street}"); return; }
-            Vector2 dir = (other - best).normalized;
-            if (southToNorth && dir.y < 0) dir = -dir;      // point north
-            if (!southToNorth && dir.x > 0) dir = -dir;     // point west
-            // stand on the right-hand sidewalk, 70 m behind the origin
-            Vector2 eye = -dir * 70f + new Vector2(dir.y, -dir.x) * (roadWidth * 0.5f + 1.5f);
-            poses.Add((name, new Vector3(eye.x, 1.7f, eye.y), new Vector3(dir.x * 120f, 8f, dir.y * 120f)));
+            if (bestErr == float.MaxValue) { Debug.LogWarning($"SHOT_SKIP no road named {street}"); return; }
+            Vector2 dir = (-eyeOnRoad).normalized;   // towards the intersection
+            Vector2 eye = eyeOnRoad + new Vector2(dir.y, -dir.x) * (roadWidth * 0.5f + 1.5f);
+            Vector2 target = eye + dir * 150f;
+            poses.Add((name, new Vector3(eye.x, 1.7f, eye.y), new Vector3(target.x, 8f, target.y)));
         }
     }
 }

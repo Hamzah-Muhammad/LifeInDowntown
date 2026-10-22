@@ -40,6 +40,7 @@ namespace LifeInDowntown.City
             int built = BuildBuildings(data, root.transform, mats, meshes);
             BuildRoads(data, root.transform, mats, meshes, out int sidewalkPieces);
             BuildPaths(data, root.transform, mats, meshes);
+            int lights = BuildStreetlights(data, root.transform, mats, meshes);
 
             // meshes live in one asset file so the scene file stays small
             AssetDatabase.CreateAsset(meshes[0], MeshAssetPath);
@@ -47,10 +48,11 @@ namespace LifeInDowntown.City
             AssetDatabase.SaveAssets();
 
             PlaceMainCamera();
+            NightLook.Apply();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log($"CITY_OK buildings={built} roads={data.roads.Length} paths={data.paths.Length} " +
-                      $"plazas={data.plazas.Length} sidewalkPieces={sidewalkPieces} meshes={meshes.Count}");
+                      $"plazas={data.plazas.Length} sidewalkPieces={sidewalkPieces} streetlights={lights} meshes={meshes.Count}");
         }
 
         public static void GenerateFromCommandLine() => Generate();
@@ -249,6 +251,120 @@ namespace LifeInDowntown.City
             AddObject("RoadAreas", parent, roadAreas.ToMesh("RoadAreas"), mats.Asphalt, meshes, collider: false);
         }
 
+        // ---------------------------------------------------------- streetlights
+        const float LightSpacing = 32f, PoleHeight = 8f, ArmLength = 1.8f;
+        static readonly HashSet<string> LitRoadTypes = new HashSet<string>
+            { "primary", "secondary", "tertiary", "unclassified", "residential", "living_street" };
+
+        // Staggered poles on both sides of every street, each with a warm downward spot light.
+        // Poles never stand on another road, inside a building, or within 12 m of another pole.
+        static int BuildStreetlights(CityData d, Transform parent, Materials mats, List<Mesh> meshes)
+        {
+            var group = new GameObject("Streetlights").transform;
+            group.SetParent(parent, false);
+            var segs = new List<(Vector2 a, Vector2 b, float halfW, long id)>();
+            foreach (var r in d.roads)
+            {
+                var p = CityDataUtil.Points(r.pts);
+                for (int i = 0; i + 1 < p.Count; i++) segs.Add((p[i], p[i + 1], r.width * 0.5f, r.id));
+            }
+            var footprints = new List<List<Vector2>>();
+            foreach (var b in d.buildings) if (b.minH < 0.5f) footprints.Add(CityDataUtil.Points(b.pts));
+
+            var poles = new MeshBuilder();
+            var heads = new MeshBuilder();
+            var placed = new List<Vector2>();
+            foreach (var r in d.roads)
+            {
+                if (!LitRoadTypes.Contains(r.type)) continue;
+                var p = CityDataUtil.Points(r.pts);
+                float off = r.width * 0.5f + 0.6f, step = LightSpacing * 0.5f, untilNext = step * 0.5f;
+                int k = 0;   // alternates the side: one pole every half-spacing, sides staggered
+                for (int i = 0; i + 1 < p.Count; i++)
+                {
+                    Vector2 a = p[i], b = p[i + 1];
+                    float len = (b - a).magnitude;
+                    if (len < 0.5f) continue;
+                    Vector2 dir = (b - a) / len, left = new Vector2(-dir.y, dir.x);
+                    float t = untilNext;
+                    for (; t < len; t += step)
+                    {
+                        int side = (k++ % 2 == 0) ? 1 : -1;
+                        Vector2 basePt = a + dir * t + left * (off * side);
+                        if (OnAnyRoad(basePt, segs, r.id, 0.4f)) continue;
+                        if (footprints.Exists(f => PointInPolygon(basePt, f))) continue;
+                        if (placed.Exists(q => (q - basePt).sqrMagnitude < 144f)) continue;
+                        placed.Add(basePt);
+                        Vector2 toRoad = -left * side;
+                        AddPole(poles, heads, basePt, toRoad);
+                        Vector2 headPt = basePt + toRoad * ArmLength;
+                        AddLight(group, new Vector3(headPt.x, PoleHeight - 0.25f, headPt.y), placed.Count);
+                    }
+                    untilNext = t - len;
+                }
+            }
+            AddObject("StreetlightPoles", group, poles.ToMesh("StreetlightPoles"), mats.Pole, meshes, collider: true);
+            AddObject("StreetlightHeads", group, heads.ToMesh("StreetlightHeads"), mats.Lamp, meshes, collider: false);
+            return placed.Count;
+        }
+
+        static void AddPole(MeshBuilder poles, MeshBuilder heads, Vector2 at, Vector2 toRoad)
+        {
+            var fwd = new Vector3(toRoad.x, 0, toRoad.y);
+            var right = Vector3.Cross(Vector3.up, fwd);
+            var basePos = new Vector3(at.x, 0, at.y);
+            Box(poles, basePos + Vector3.up * (PoleHeight * 0.5f), right * 0.09f, Vector3.up * (PoleHeight * 0.5f), fwd * 0.09f);
+            var armCentre = basePos + Vector3.up * (PoleHeight - 0.1f) + fwd * (ArmLength * 0.5f);
+            Box(poles, armCentre, right * 0.05f, Vector3.up * 0.05f, fwd * (ArmLength * 0.5f));
+            var headCentre = basePos + Vector3.up * (PoleHeight - 0.18f) + fwd * ArmLength;
+            Box(heads, headCentre, right * 0.18f, Vector3.up * 0.06f, fwd * 0.32f);
+        }
+
+        static void AddLight(Transform parent, Vector3 pos, int index)
+        {
+            var go = new GameObject($"Lamp_{index:000}");
+            go.transform.SetParent(parent, false);
+            go.transform.SetPositionAndRotation(pos, Quaternion.Euler(90f, 0f, 0f));
+            var light = go.AddComponent<Light>();
+            go.AddComponent<UnityEngine.Rendering.HighDefinition.HDAdditionalLightData>();
+            light.type = LightType.Spot;
+            light.lightUnit = UnityEngine.Rendering.LightUnit.Lumen;
+            light.intensity = StreetlightLumens;
+            light.useColorTemperature = true;
+            light.colorTemperature = 3200f;
+            light.color = Color.white;
+            light.range = 30f;
+            light.spotAngle = 125f;
+            light.innerSpotAngle = 70f;
+            light.shadows = LightShadows.None;
+        }
+
+        public const float StreetlightLumens = 7000f;
+        const float LampNits = 4000f;
+
+        // oriented box from centre and three half-extent axis vectors
+        static void Box(MeshBuilder mb, Vector3 c, Vector3 x, Vector3 y, Vector3 z)
+        {
+            foreach (var (n, u, v) in new[] { (x, y, z), (-x, y, z), (y, z, x), (-y, z, x), (z, x, y), (-z, x, y) })
+            {
+                Vector3 f = c + n;
+                mb.Quad(f - u - v, f + u - v, f + u + v, f - u + v, n,
+                        Vector2.zero, Vector2.right, Vector2.one, Vector2.up);
+            }
+        }
+
+        static bool PointInPolygon(Vector2 pt, List<Vector2> poly)
+        {
+            bool inside = false;
+            for (int i = 0, j = poly.Count - 1; i < poly.Count; j = i++)
+            {
+                if ((poly[i].y > pt.y) != (poly[j].y > pt.y) &&
+                    pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
+                    inside = !inside;
+            }
+            return inside;
+        }
+
         // ------------------------------------------------------------- helpers
         static Vector3 V(Vector2 p, float y) => new Vector3(p.x, y, p.y);
 
@@ -281,7 +397,7 @@ namespace LifeInDowntown.City
         class Materials
         {
             const string TexDir = "Assets/City/Textures";
-            public readonly Material Ground, Asphalt, Concrete, Paving, Roof;
+            public readonly Material Ground, Asphalt, Concrete, Paving, Roof, Pole, Lamp;
             readonly Material[] towers, midRise, lowRise;
 
             public Materials()
@@ -301,6 +417,8 @@ namespace LifeInDowntown.City
                 var f006 = Lit("FacadeOfficeBands", "Facade006", 30f, Color.white);
                 var brick = Lit("FacadeBrickRed", "brick_wall_001", 3f, Color.white);
                 var brown = Lit("FacadeBrickBuff", "brown_brick_02", 1.5f, Color.white);
+                Pole = Plain("StreetlightPole", new Color(0.18f, 0.18f, 0.19f), 0.45f, 0.8f, Color.black, 0f);
+                Lamp = Plain("StreetlightLamp", new Color(0.9f, 0.9f, 0.85f), 0.6f, 0f, new Color(1f, 0.78f, 0.52f), LampNits);
                 towers = new[] { f009, f009, f001, f005 };
                 midRise = new[] { f006, f006, brick, f009 };
                 lowRise = new[] { brick, brick, brown };
@@ -333,6 +451,27 @@ namespace LifeInDowntown.City
                 mat.SetFloat("_AORemapMin", 0f); mat.SetFloat("_AORemapMax", 1f);
                 float s = 1f / tileMetres;
                 mat.SetTextureScale("_BaseColorMap", new Vector2(s, s));
+                UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
+                EditorUtility.SetDirty(mat);
+                return mat;
+            }
+
+            // untextured Lit material, optionally emissive (luminance in nits)
+            static Material Plain(string name, Color baseColor, float smoothness, float metallic, Color emissive, float nits)
+            {
+                string path = $"{MaterialDir}/{name}.mat";
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (mat == null)
+                {
+                    mat = new Material(Shader.Find("HDRP/Lit")) { name = name };
+                    AssetDatabase.CreateAsset(mat, path);
+                }
+                mat.SetColor("_BaseColor", baseColor);
+                mat.SetFloat("_Smoothness", smoothness);
+                mat.SetFloat("_Metallic", metallic);
+                mat.SetColor("_EmissiveColorLDR", emissive);
+                mat.SetFloat("_EmissiveIntensity", nits);
+                mat.SetColor("_EmissiveColor", emissive.linear * nits);
                 UnityEngine.Rendering.HighDefinition.HDMaterial.ValidateMaterial(mat);
                 EditorUtility.SetDirty(mat);
                 return mat;
