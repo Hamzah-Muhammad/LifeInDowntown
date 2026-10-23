@@ -429,15 +429,15 @@ He skipped the scope questions except the car, so the recommended defaults apply
 - **Lobby:** walk-in on Shuter beside the Rabba (the wall cutter now handles several openings on one edge). Two elevators: condo ↔ lobby ↔ P1.
 - **Garage:** 24 bays, a 7 m aisle and a roll-up door; drive-in and out through fade gates; the concierge knows where the car is.
 - **E46:** about 4.3k triangles. In DriveTest it did 0-46 km/h in 3 s (a real 330i is about 6.5 s to 100), stopped from 46 km/h in 1.3 s, reversed after a beat at a standstill, and steered 46°.
-- **Parked cars:** 240 on side-street kerbs (from 1,541 valid spots) plus 7 in P1. One renderer each (wheels baked in), about 5k triangles; lamps off.
+- **Parked cars:** about 50 in all (Hamzah: 250 was excess): 43 on side-street kerbs (from 1,541 valid spots) plus 11 in P1. One renderer each (wheels baked in), about 5k triangles; lamps off.
 - **Shooting** (ShootingTest): a wall shot leaves a hole; a person shot ragdolls (12 bodies); HEAT +1 for firing near people, +3 for a hit; bystanders run and police walk over; no firing in indoor zones; an empty mag clicks; R reloads.
-- **Street extras:** 27 Green P pay-and-display machines, 3 Bike Share Toronto docks in the curb lane, 224 bits of litter.
+- **Street extras:** 5 Green P pay-and-display machines (one per 9 parked cars), 3 Bike Share Toronto docks in the curb lane, 224 bits of litter.
 - **Tests:** 7 suites green (player, phone, saves, inventory, drive, shooting, subway).
 - **Not checked in the running game:**
   - the driving feel;
   - the engine and gunshot sounds;
   - the subtitles, the street talk and the inventory screen (UI isn't in batch renders);
-  - frame rate with ~250 cars on the bigger map.
+  - frame rate on the bigger map.
 - **Limits:**
   - The E46's side windows show stair-step edges where glass meets trim.
   - Parked cars are generic shapes.
