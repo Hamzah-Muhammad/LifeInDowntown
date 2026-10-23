@@ -66,7 +66,9 @@ namespace LifeInDowntown.NPC
                 var go = Instantiate(cop ? policePrefabs[rnd.Next(policePrefabs.Length)] : walkerPrefabs[rnd.Next(walkerPrefabs.Length)], transform);
                 go.name = $"Walker_{n:00}";
                 go.SetActive(false);
-                pool.Add(go.GetComponent<Pedestrian>());
+                var ped = go.GetComponent<Pedestrian>();
+                ped.role = cop ? Pedestrian.Role.Police : Pedestrian.Role.Walker;
+                pool.Add(ped);
             }
             Debug.Log($"CROWD_OK pool={pool.Count} statics={statics.Length} lines={lineStart.Length} points={points.Length}");
         }

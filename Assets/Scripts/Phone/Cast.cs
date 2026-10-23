@@ -38,7 +38,7 @@ namespace LifeInDowntown.Phone
             waiting = Instantiate(prefab, at, Quaternion.LookRotation(Flat(place - at).sqrMagnitude > 0.01f ? Flat(place - at) : Vector3.forward));
             waiting.name = who == "ty" ? "Ty" : who;
             var p = waiting.GetComponent<Pedestrian>();
-            if (p != null) { p.path = null; p.mode = Pedestrian.Mode.Phone; p.watchPlayer = true; p.watchRange = 14f; }
+            if (p != null) { p.path = null; p.role = Pedestrian.Role.Story; p.mode = Pedestrian.Mode.Phone; p.watchPlayer = true; p.watchRange = 14f; }
         }
 
         static Vector3 Flat(Vector3 v) { v.y = 0f; return v; }

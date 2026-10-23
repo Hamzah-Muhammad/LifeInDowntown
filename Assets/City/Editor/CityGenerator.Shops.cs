@@ -266,7 +266,7 @@ namespace LifeInDowntown.City
                     var clerk = (GameObject)PrefabUtility.InstantiatePrefab(clerkPrefab, root);
                     clerk.transform.SetPositionAndRotation(s.W(2.75f, 2.35f, F), Quaternion.LookRotation(-inw));
                     var ped = clerk.GetComponent<LifeInDowntown.NPC.Pedestrian>();
-                    ped.mode = LifeInDowntown.NPC.Pedestrian.Mode.Idle;
+                    ped.mode = LifeInDowntown.NPC.Pedestrian.Mode.Idle; ped.role = LifeInDowntown.NPC.Pedestrian.Role.Clerk;
                 }
                 // E at the counter opens the shop (docs/DESIGN.md 3M); the customer side of the till
                 var till = new GameObject("ShopCounter").transform;

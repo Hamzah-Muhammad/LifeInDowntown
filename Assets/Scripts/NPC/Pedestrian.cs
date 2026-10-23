@@ -10,7 +10,12 @@ namespace LifeInDowntown.NPC
         // order = animator states = CharacterImport clip lists
         public enum Mode { Walk, WalkSlow, Idle, Phone, Crouch, Sit, SitLook, Drunk, Cough, Cold, Nervous, LookAround, TalkCool, Listen, Waiting }
 
+        // who they are on the street: picks their lines (NpcBarks) and who dealers worry about (DESIGN 3O)
+        public enum Role { Walker, Corner, Homeless, Police, Waiting, Clerk, Story }
+
         public Mode mode = Mode.Walk;
+        public Role role = Role.Walker;
+        public static readonly System.Collections.Generic.List<Pedestrian> All = new System.Collections.Generic.List<Pedestrian>();
         public Vector3[] path;            // sidewalk points (world), walked forward then back
         public int startIndex;
         public float walkSpeed = 1.16f;   // measured: clip averageSpeed of the Rocketbox neutral walks (no foot sliding)
@@ -37,7 +42,8 @@ namespace LifeInDowntown.NPC
         }
 
         // re-enabling resets the animator's parameters (CrowdDirector switches far people off and on)
-        void OnEnable() { if (anim != null) anim.SetInteger(ModeId, (int)mode); }
+        void OnEnable() { All.Add(this); if (anim != null) anim.SetInteger(ModeId, (int)mode); }
+        void OnDisable() => All.Remove(this);
 
         // pooled walkers are re-used: new path, new place, new heading
         public void Begin(Vector3[] newPath, int start, int heading, Mode m)

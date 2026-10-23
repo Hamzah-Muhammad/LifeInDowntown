@@ -39,7 +39,7 @@ namespace LifeInDowntown.Items
 
             shopCol = Col(root, "col-shop");
             shopTitle = Text(shopCol, "col-title", "SHOP");
-            Text(shopCol, "col-sub", "Prices include HST");
+            shopSub = Text(shopCol, "col-sub", "Prices include HST");
             shopList = new ScrollView { name = "shop-list" }; shopList.AddToClassList("shop-list"); shopCol.Add(shopList);
 
             var pack = Col(root, "col-backpack");
@@ -93,7 +93,9 @@ namespace LifeInDowntown.Items
             if (toastUntil > 0f && Time.unscaledTime > toastUntil) { toast.text = ""; toastUntil = 0f; }
         }
 
-        public void OpenShop(string id) => Open(id);
+        public void OpenShop(string id, string seller = null) { sellerName = seller; Open(id); }
+        string sellerName;            // a person, not a store (the corner dealers)
+        Label shopSub;
 
         public void Open(string shop)
         {
@@ -109,7 +111,7 @@ namespace LifeInDowntown.Items
         {
             IsOpen = false;
             closedFrame = Time.frameCount;
-            shopId = null;
+            shopId = null; sellerName = null;
             Show(false);
             bool phoneUp = LifeInDowntown.Phone.PhoneController.Instance != null && LifeInDowntown.Phone.PhoneController.Instance.IsUp;
             if (player != null) { player.moveEnabled = true; player.lookEnabled = !phoneUp; }
@@ -193,7 +195,8 @@ namespace LifeInDowntown.Items
         void DrawShop()
         {
             var shop = ItemCatalog.Shop(shopId);
-            shopTitle.text = shop != null ? shop.name.ToUpperInvariant() : "SHOP";
+            shopTitle.text = sellerName != null ? sellerName.ToUpperInvariant() : shop != null ? shop.name.ToUpperInvariant() : "SHOP";
+            shopSub.text = sellerName != null ? "Cash only. No receipts." : "Prices include HST";
             shopList.Clear();
             if (shop == null) return;
             foreach (var id in shop.stock)
@@ -248,7 +251,10 @@ namespace LifeInDowntown.Items
             var d = ItemCatalog.Get(id);
             switch (Inventory.Buy(S, id))
             {
-                case Inventory.BuyResult.Ok: Toast($"Bought {d.name} for {ItemCatalog.Money(d.price)}"); break;
+                case Inventory.BuyResult.Ok:
+                    Toast($"Bought {d.name} for {ItemCatalog.Money(d.price)}");
+                    S.heat += ItemCatalog.Shop(shopId)?.heat ?? 0;
+                    break;
                 case Inventory.BuyResult.NoCash: Toast($"Not enough cash for the {d.name}."); break;
                 case Inventory.BuyResult.NoRoom: Toast("No room in the backpack."); break;
             }
