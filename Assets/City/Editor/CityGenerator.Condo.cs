@@ -194,27 +194,12 @@ namespace LifeInDowntown.City
             vol.isGlobal = false; vol.priority = 40f; vol.blendDistance = 0.5f;
             vol.sharedProfile = CondoProfile();
 
-            // doors: street entrance <-> condo entry (runtime: LifeInDowntown.World.DoorLink)
-            var outside = new GameObject("CondoDoor_Street").transform;
-            outside.SetParent(root, false);
-            outside.SetPositionAndRotation(f.outwardGround, Quaternion.LookRotation(-f.inward));
+            // the condo's front door: the elevator down to the lobby (its exit is set by BuildLobby, DESIGN 3O.2)
             var inside = new GameObject("CondoDoor_Inside").transform;
             inside.SetParent(root, false);
             inside.SetPositionAndRotation(f.W(-0.05f, D - 0.7f, 0f), Quaternion.LookRotation(-f.inward));
-            var streetDoor = outside.gameObject.AddComponent<LifeInDowntown.World.DoorLink>();
-            streetDoor.prompt = "Take the elevator up to 3801";
-            streetDoor.exit = inside;
             var condoDoor = inside.gameObject.AddComponent<LifeInDowntown.World.DoorLink>();
-            condoDoor.prompt = "Take the elevator down to Shuter St";
-            condoDoor.exit = outside;
-
-            // a lit glass entrance on the street side so the door is findable
-            var lobby = new MeshBuilder(); var lobbyGlow = new MeshBuilder();
-            Vector3 dc = f.outwardGround + f.inward * 0.62f, side = f.along;
-            Box(lobby, dc + Vector3.up * 1.2f, side * 1.3f, Vector3.up * 1.2f, f.inward * 0.05f);
-            Box(lobbyGlow, dc + Vector3.up * 2.55f - f.inward * 0.05f, side * 1.4f, Vector3.up * 0.08f, f.inward * 0.06f);
-            AddObject("LobbyDoors", root, lobby.ToMesh("LobbyDoors"), m.Glass, meshes, collider: false);
-            AddObject("LobbyCanopyLight", root, lobbyGlow.ToMesh("LobbyCanopyLight"), mats.Lamp, meshes, collider: false);
+            condoDoor.prompt = "Take the elevator down to the lobby";
 
             Debug.Log($"CONDO_OK tower={CondoTower} floorY={CondoFloorY} origin={f.origin} window faces {(-f.inward)} furniture={placed}");
         }

@@ -35,7 +35,14 @@ namespace LifeInDowntown.EditorTools
             AddStreetPose(poses, data, "Yonge Street", "street_yonge_looking_north", southToNorth: true);
             AddStreetPose(poses, data, "Dundas Street East", "street_dundas_looking_west", southToNorth: false);
             poses.Add(("intersection_yonge_dundas", new Vector3(-22f, 4.5f, -26f), new Vector3(4f, 0f, 2f)));      // crosswalks, signals
-            var shopSites = CityGenerator.ShopSites(data);
+            if (CityGenerator.TryLobbySite(data, out var lobby))   // DESIGN 3O.2
+            {
+                poses.Add(("lobby_outside", lobby.W(-1.2f, -6f, 1.7f), lobby.W(0f, 2f, 1.8f)));
+                poses.Add(("lobby_inside", lobby.W(-0.3f, 1.2f, 1.65f), lobby.W(0f, 10f, 1.3f)));
+                poses.Add(("lobby_desk", lobby.W(-1.6f, 3.0f, 1.65f), lobby.W(2.5f, 5.6f, 1.2f)));
+                poses.Add(("lobby_lounge", lobby.W(1.8f, 3.4f, 1.65f), lobby.W(-3.2f, 8.6f, 0.8f)));
+            }
+            var shopSites = CityGenerator.ShopSites(data).FindAll(x => x.kind == "rabba");
             if (shopSites.Count > 0)
             {
                 var shop = shopSites[0];

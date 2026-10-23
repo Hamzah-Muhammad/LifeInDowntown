@@ -372,7 +372,7 @@ He skipped the scope questions except the car, so the recommended defaults apply
   - a lounge with a sofa, chairs, table and plants (the condo's furniture sets);
   - a wall of mailboxes, and a closed parcel-room door;
   - **two elevators** with steel doors, call buttons and floor displays: the left goes "up to 3801", the right "down to P1 Parking".
-- **Concierge:** a uniformed Rocketbox person behind a desk with CCTV monitors. They watch Tarik, greet him on the way in or out ("Evening, Mr. Tarik." / "Late one?"), and E talks to them (a few lines, plus hints such as where his car is parked).
+- **Concierge:** a Rocketbox person (Female_Adult_06) behind a desk with CCTV monitors. They watch Tarik, greet him on the way in or out ("Evening, Mr. Tarik." / "Late one?"), and E talks to them (a few lines, plus hints such as where his car is parked).
 
 ### 3O.3 P1 garage
 - **Space:** under Pantages at floor y = -3.6 (well clear of Line 1). About 40 × 24 m, a 2.6 m ceiling, columns on an 8 m grid with yellow-black bands, painted bays 2.6 × 5.4 m numbered P1-01 to P1-24, fluorescent tubes, pipes, an EXIT sign and a fire door.

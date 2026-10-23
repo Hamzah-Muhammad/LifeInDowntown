@@ -45,6 +45,7 @@ namespace LifeInDowntown.City
             BuildShops(data, root.transform, mats, meshes);
             BuildStreetDetail(data, root.transform, mats, meshes);
             BuildCondo(data, root.transform, mats, meshes);
+            BuildLobby(data, root.transform, mats, meshes);
             BuildSubway(root.transform, mats, meshes);       // DESIGN 3N: stations, then the holes in the pavement
             BuildSkyline(root.transform, mats, meshes);
             int puddles = RainLook.BuildPuddles(data, root.transform);
@@ -137,11 +138,14 @@ namespace LifeInDowntown.City
                         mb.Quad(new Vector3(a2.x, ya, a2.y), new Vector3(b2.x, ya, b2.y), new Vector3(b2.x, yb, b2.y), new Vector3(a2.x, yb, a2.y), outward,
                                 new Vector2(u + t0, ya), new Vector2(u + t1, ya), new Vector2(u + t1, yb), new Vector2(u + t0, yb));
                     }
-                    if (ShopOpening(shopSites, bd.id, p, q, out float sf, out float st))
+                    var cuts = ShopOpenings(shopSites, p, q);
+                    if (cuts.Count > 0)
                     {
-                        // storefront band either side of the store, and a lintel over its opening
+                        // storefront band between the openings (a Rabba and the lobby can share one wall), a lintel over each
                         mb.UseSubmesh(2);
-                        Seg(0f, sf, y0, StoreTop); Seg(st, len, y0, StoreTop); Seg(sf, st, ShopCeiling + 0.12f, StoreTop);
+                        float at = 0f;
+                        foreach (var (sf, st, top) in cuts) { if (sf > at) Seg(at, sf, y0, StoreTop); Seg(sf, st, top + 0.12f, StoreTop); at = st; }
+                        if (at < len) Seg(at, len, y0, StoreTop);
                         mb.UseSubmesh(0);
                         wallBottom = StoreTop;
                     }

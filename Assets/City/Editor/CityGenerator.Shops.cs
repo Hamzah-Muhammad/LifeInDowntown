@@ -17,6 +17,7 @@ namespace LifeInDowntown.City
         public struct ShopSite
         {
             public string name;
+            public string kind;            // "rabba" or "lobby" (the Pantages lobby, CityGenerator.Lobby.cs)
             public long building;
             public Vector2 a, b;           // the wall edge (CCW footprint order)
             public float t;                // store centre along the edge (m from a)
@@ -38,6 +39,8 @@ namespace LifeInDowntown.City
             {
                 var p = condo.outwardGround + condo.inward * 0.7f - condo.along * 7.2f;
                 targets.Add(("Rabba (Pantages)", new Vector2(p.x, p.z)));
+                var lp = condo.outwardGround + condo.inward * 0.7f + condo.along * LobbyShift;   // its own 8 m, clear of the Rabba
+                targets.Add((LobbyName, new Vector2(lp.x, lp.z)));
             }
             // the second store: near the INS Market point if a deep enough building is there, else on Yonge
             // (the Dundas West buildings near it are too shallow for a 10 m store)
@@ -72,7 +75,7 @@ namespace LifeInDowntown.City
                         float t = Mathf.Clamp(Vector2.Dot(target - a, along), ShopWidth / 2 + 0.7f, len - ShopWidth / 2 - 0.7f);
                         float dist = (a + along * t - target).magnitude;
                         if (dist >= bestD) continue;
-                        var s = new ShopSite { name = name, building = bd.id, a = a, b = b, t = t, along = along, outward = outward };
+                        var s = new ShopSite { name = name, kind = name == LobbyName ? "lobby" : "rabba", building = bd.id, a = a, b = b, t = t, along = along, outward = outward };
                         bool fits = true;
                         foreach (var (u, v) in new[] { (-ShopWidth / 2, 0.3f), (ShopWidth / 2, 0.3f), (-ShopWidth / 2, ShopDepth), (ShopWidth / 2, ShopDepth) })
                         { var w = s.W(u, v, 0f); if (!PointInPolygon(new Vector2(w.x, w.z), ring)) { fits = false; break; } }
@@ -87,12 +90,13 @@ namespace LifeInDowntown.City
             return shopSitesCache = sites;
         }
 
-        // a store's opening on this wall edge, if any: (from, to) metres along the edge. Any building's wall lying
-        // on the store front is cut, not only the host's: OSM often has overlapping outlines/parts on one facade.
-        static bool ShopOpening(List<ShopSite> sites, long building, Vector2 a, Vector2 b, out float from, out float to)
+        // the store / lobby openings on this wall edge, sorted along it: (from, to) metres from a, and the room's
+        // ceiling. Any building's wall lying on the front is cut, not only the host's: OSM often has overlapping
+        // outlines/parts on one facade.
+        static List<(float from, float to, float top)> ShopOpenings(List<ShopSite> sites, Vector2 a, Vector2 b)
         {
-            from = to = 0f;
-            Vector2 e = b - a; float len = e.magnitude; if (len < 0.5f) return false;
+            var cuts = new List<(float, float, float)>();
+            Vector2 e = b - a; float len = e.magnitude; if (len < 0.5f) return cuts;
             Vector2 dir = e / len, n = new Vector2(-dir.y, dir.x);
             foreach (var s in sites)
             {
@@ -103,10 +107,10 @@ namespace LifeInDowntown.City
                 if (t0 > t1) (t0, t1) = (t1, t0);
                 t0 = Mathf.Max(0f, t0); t1 = Mathf.Min(len, t1);
                 if (t1 - t0 < 0.5f) continue;                                                                 // no overlap
-                from = t0; to = t1;
-                return true;
+                cuts.Add((t0, t1, s.kind == "lobby" ? LobbyCeiling : ShopCeiling));
             }
-            return false;
+            cuts.Sort((x, y) => x.Item1.CompareTo(y.Item1));
+            return cuts;
         }
 
         // another building's footprint reaching into the store room would put walls inside it
@@ -154,6 +158,7 @@ namespace LifeInDowntown.City
             int idx = 0;
             foreach (var s in sites)
             {
+                if (s.kind != "rabba") continue;   // the lobby builds itself after the condo (CityGenerator.Lobby.cs)
                 var root = new GameObject($"Rabba_{idx++}").transform;
                 root.SetParent(parent, false);
                 float W = ShopWidth, D = ShopDepth, H = ShopCeiling, F = ShopFloor;
