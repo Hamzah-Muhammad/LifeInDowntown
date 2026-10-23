@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-322628735894777701
+--- !u!114 &-3174294535036760122
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -164,9 +164,9 @@ MonoBehaviour:
   m_Name: GarageInterior
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.VolumeProfile
   components:
-  - {fileID: 4707949133431136763}
-  - {fileID: -322628735894777701}
---- !u!114 &4707949133431136763
+  - {fileID: 2864038519504644653}
+  - {fileID: -3174294535036760122}
+--- !u!114 &2864038519504644653
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}

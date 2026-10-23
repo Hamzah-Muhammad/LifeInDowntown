@@ -49,7 +49,7 @@ namespace LifeInDowntown.EditorTools
             ("Green", new Color(0.05f, 0.14f, 0.1f), 5),
         };
 
-        const int MaxStreet = 240;
+        const int MaxStreet = 43;   // + the residents' cars in P1 = about 50 (Hamzah 2026-10-22: 250 was excess)
 
         static int ParkedCars(Transform root, Transform tarikSpot)
         {
