@@ -44,6 +44,19 @@ namespace LifeInDowntown.EditorTools
                 float gy = CityGenerator.GarageFloorY;   // DESIGN 3O.3
                 poses.Add(("garage_aisle", lobby.W(-18.5f, 9.2f, gy + 1.6f), lobby.W(10f, 9.2f, gy + 1.0f)));
                 poses.Add(("garage_bay17", lobby.W(-3.9f, 7.5f, gy + 1.6f), lobby.W(-3.9f, 16f, gy + 0.6f)));
+                var car = GameObject.Find("Vehicles/TarikCar");   // DESIGN 3O.4: shown out on Shuter St, then put back
+                var street = GameObject.Find("PantagesGarage/GarageGate_Street_Exit");
+                if (car != null && street != null)
+                {
+                    carHome = (car.transform.position, car.transform.rotation);
+                    car.transform.SetPositionAndRotation(street.transform.position - Vector3.up * 0.28f, street.transform.rotation);
+                    var t = car.transform;
+                    poses.Add(("car_front34", t.position + t.forward * 4.2f + t.right * 2.6f + Vector3.up * 1.3f, t.position + Vector3.up * 0.6f));
+                    poses.Add(("car_side", t.position + t.right * 5.5f + Vector3.up * 0.9f, t.position + Vector3.up * 0.7f));
+                    poses.Add(("car_rear34", t.position - t.forward * 4.5f - t.right * 2.4f + Vector3.up * 1.4f, t.position + Vector3.up * 0.6f));
+                    var seat = t.Find("DriverSeat");
+                    if (seat != null) poses.Add(("car_driver_view", seat.position, seat.position + t.forward * 20f + Vector3.up * -0.4f));
+                }
                 poses.Add(("garage_exit", lobby.W(8f, 9.2f, gy + 1.6f), lobby.W(20f, 9.2f, gy + 1.2f)));
                 poses.Add(("garage_street_door", lobby.W(-14f, -9f, 1.7f), lobby.W(-10.5f, 0f, 1.6f)));
             }
@@ -148,6 +161,8 @@ namespace LifeInDowntown.EditorTools
                 foreach (var w in preview) Object.DestroyImmediate(w);
             }
             AnimationMode.StopAnimationMode();
+            var parked = GameObject.Find("Vehicles/TarikCar");
+            if (parked != null && carHome.HasValue) parked.transform.SetPositionAndRotation(carHome.Value.Item1, carHome.Value.Item2);
             Object.DestroyImmediate(go);
             rt.Release();
         }
@@ -265,6 +280,8 @@ namespace LifeInDowntown.EditorTools
             }
             return made;
         }
+
+        static (Vector3, Quaternion)? carHome;
 
         static void Render(Camera cam, RenderTexture rt)
         {

@@ -291,11 +291,28 @@ def subway_doors():
     write("subway_doors.wav", slide + thunk)
 
 
+def engine_i6():
+    """Tarik's E46 (docs/DESIGN.md 3O.4): an inline-6 at ~2000 rpm = 100 firing pulses a second (3 per rev),
+    the smooth straight-six hum (even firing: strong 3rd-order, weak 1.5th), plus a little intake noise.
+    1 s loop of whole cycles; CarController shifts the pitch with speed."""
+    r = np.random.default_rng(330)
+    sec = 2.5
+    n = int(sec * SR)
+    t = np.arange(n) / SR
+    f = 100.0
+    tone = (np.sin(2 * np.pi * f * t) + 0.45 * np.sin(2 * np.pi * 2 * f * t) + 0.2 * np.sin(2 * np.pi * 3 * f * t)
+            + 0.18 * np.sin(2 * np.pi * 0.5 * f * t) + 0.08 * np.sin(2 * np.pi * 1.5 * f * t))
+    pulses = np.maximum(0, np.sin(2 * np.pi * f * t)) ** 6 * 0.6               # the combustion pulse shape
+    intake = fft_band(r.standard_normal(n), 300, 2500) * 0.12
+    wobble = 1 + 0.04 * np.sin(2 * np.pi * 3.1 * t)                             # idle roughness
+    write("engine_i6.wav", loopable(fft_band((tone * 0.5 + pulses) * wobble + intake, 25, 4000), 0.5))
+
+
 if __name__ == "__main__":
     import sys
     ALL = [rain_outdoor, rain_indoor, city_hum, room_tone, phone_ring, phone_ping, elevator_ding,
            streetcar_bell, siren_wail, footsteps, subway_hum, subway_rumble, subway_motor, subway_wheels,
-           subway_wind, subway_interior, subway_chime, subway_brake, subway_doors]
+           subway_wind, subway_interior, subway_chime, subway_brake, subway_doors, engine_i6]
     pick = sys.argv[1:]                     # e.g. `python make_sounds.py rain_indoor`; none = everything
     for fn in ALL:
         if not pick or fn.__name__ in pick:

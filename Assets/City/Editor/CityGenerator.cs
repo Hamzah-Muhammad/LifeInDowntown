@@ -63,6 +63,7 @@ namespace LifeInDowntown.City
             LifeInDowntown.EditorTools.PlayerSetup.Setup(data);
             LifeInDowntown.EditorTools.NpcSetup.Setup(data);
             LifeInDowntown.EditorTools.ItemSetup.Setup();
+            LifeInDowntown.EditorTools.VehicleSetup.Setup();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log($"CITY_OK buildings={built} roads={data.roads.Length} paths={data.paths.Length} " +

@@ -120,6 +120,8 @@ namespace LifeInDowntown.EditorTools
             doc.sortingOrder = 10;   // menus draw over the phone HUD
             var menu = game.AddComponent<MenuController>();
             game.AddComponent<LifeInDowntown.World.Interactor>().player = player.transform;
+            var drive = game.AddComponent<LifeInDowntown.Vehicles.PlayerDriving>();   // F to get in/out of Tarik's car (DESIGN 3O.4)
+            drive.player = player; drive.rig = rig;
             var audio = game.AddComponent<AudioDirector>();
             audio.player = player; audio.listener = rig.transform;
             var flow = game.AddComponent<GameFlow>();

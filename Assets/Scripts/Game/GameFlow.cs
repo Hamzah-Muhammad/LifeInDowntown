@@ -177,6 +177,7 @@ namespace LifeInDowntown.Game
 
         void PlaceAt(Vector3 position, float yaw, float pitch)
         {
+            LifeInDowntown.Vehicles.PlayerDriving.Instance?.ForceOut();   // out of the car first (load, new game, collapse)
             var cc = player.GetComponent<CharacterController>();
             cc.enabled = false;                  // CharacterController overrides direct position writes
             player.transform.position = position;

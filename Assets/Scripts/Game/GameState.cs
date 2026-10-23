@@ -23,6 +23,11 @@ namespace LifeInDowntown.Game
         public bool drawn;                 // weapon out, or holstered
         public int loaded;                 // rounds in the equipped weapon's magazine
 
+        // Tarik's car (docs/DESIGN.md 3O.3): in his bay, or where he left it
+        public bool carInGarage = true, carSaved;
+        public UnityEngine.Vector3 carPos;
+        public float carYaw;
+
         public string activeMission = "";
         public int objectiveIndex;
         public List<PhoneMessage> messages = new List<PhoneMessage>();
