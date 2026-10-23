@@ -1,19 +1,58 @@
 {
   "contacts": [
     {
-      "id": "ty", "name": "Ty", "color": "#E0A040",
+      "id": "ty",
+      "name": "Ty",
+      "color": "#E0A040",
       "calls": [
-        { "dialogue": "ty_callback", "requires": ["ty_waiting"], "blocked": ["done:link_up"] },
-        { "dialogue": "ty_idle", "requires": [], "blocked": [] }
+        {
+          "dialogue": "ty_callback",
+          "requires": [
+            "ty_waiting"
+          ],
+          "blocked": [
+            "done:link_up"
+          ]
+        },
+        {
+          "dialogue": "ty_idle",
+          "requires": [],
+          "blocked": []
+        }
+      ],
+      "textMinutes": 5,
+      "texts": [
+        "You good? Haven't heard from you.",
+        "Yo the Raps lost again lol",
+        "Don't be walking round Sankofa late, too many cops tonight.",
+        "How's the condo? You still ain't invited me.",
+        "Keep your phone charged. Might have something later.",
+        "Ma still make that biryani? Tell her I said hi."
       ]
     },
     {
-      "id": "ma", "name": "Ma", "color": "#C05080",
-      "calls": [ { "dialogue": "ma_idle", "requires": [], "blocked": [] } ]
+      "id": "ma",
+      "name": "Ma",
+      "color": "#C05080",
+      "calls": [
+        {
+          "dialogue": "ma_idle",
+          "requires": [],
+          "blocked": []
+        }
+      ]
     },
     {
-      "id": "baba", "name": "Baba", "color": "#4080C0",
-      "calls": [ { "dialogue": "baba_idle", "requires": [], "blocked": [] } ]
+      "id": "baba",
+      "name": "Baba",
+      "color": "#4080C0",
+      "calls": [
+        {
+          "dialogue": "baba_idle",
+          "requires": [],
+          "blocked": []
+        }
+      ]
     }
   ]
 }

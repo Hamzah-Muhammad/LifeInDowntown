@@ -1,33 +1,243 @@
 {
   "items": [
-    { "id": "phone", "name": "Phone", "category": "key", "weight": 0.2, "stack": 1, "price": 0, "desc": "Cracked screen, 82% battery. Up Arrow or P." },
-    { "id": "condo_keys", "name": "Condo Keys", "category": "key", "weight": 0.05, "stack": 1, "price": 0, "desc": "Fob and key for 3801, Pantages Tower." },
-    { "id": "lighter", "name": "Lighter", "category": "tool", "weight": 0.03, "stack": 1, "price": 2.49, "desc": "Red Bic." },
-
-    { "id": "ketchup_chips", "name": "Ketchup Chips", "category": "food", "weight": 0.2, "stack": 5, "price": 3.49, "hunger": 15, "desc": "Big bag. A Canadian classic." },
-    { "id": "chocolate_bar", "name": "Chocolate Bar", "category": "food", "weight": 0.05, "stack": 10, "price": 2.29, "hunger": 8, "desc": "Caramel, slightly squashed." },
-    { "id": "beef_patty", "name": "Beef Patty", "category": "food", "weight": 0.15, "stack": 5, "price": 3.99, "hunger": 30, "desc": "Jamaican beef patty from the warmer. Spicy." },
-    { "id": "sandwich", "name": "Turkey Sandwich", "category": "food", "weight": 0.25, "stack": 3, "price": 6.99, "hunger": 40, "desc": "Fridge sandwich, best before tomorrow." },
-    { "id": "instant_noodles", "name": "Cup Noodles", "category": "food", "weight": 0.1, "stack": 6, "price": 1.99, "hunger": 22, "thirst": -5, "desc": "Salty. Add hot water at the counter." },
-    { "id": "banana", "name": "Banana", "category": "food", "weight": 0.12, "stack": 6, "price": 0.79, "hunger": 10, "desc": "One of the last decent ones." },
-
-    { "id": "water", "name": "Bottled Water", "category": "drink", "weight": 0.52, "stack": 4, "price": 2.29, "thirst": 40, "desc": "500 ml." },
-    { "id": "energy_drink", "name": "Energy Drink", "category": "drink", "weight": 0.5, "stack": 4, "price": 3.99, "thirst": 25, "hunger": 3, "desc": "473 ml can. Heart goes brrr." },
-    { "id": "pop", "name": "Can of Pop", "category": "drink", "weight": 0.37, "stack": 6, "price": 2.49, "thirst": 25, "desc": "355 ml, ginger ale." },
-    { "id": "coffee", "name": "Coffee", "category": "drink", "weight": 0.35, "stack": 2, "price": 2.79, "thirst": 15, "desc": "Medium double-double from the machine." },
-
-    { "id": "painkillers", "name": "Painkillers", "category": "medical", "weight": 0.05, "stack": 4, "price": 9.99, "health": 20, "desc": "Ibuprofen, 24 tablets." },
-    { "id": "first_aid", "name": "First Aid Kit", "category": "medical", "weight": 0.4, "stack": 2, "price": 14.99, "health": 50, "desc": "Bandages, gauze, tape." },
-    { "id": "cigarettes", "name": "Cigarettes", "category": "misc", "weight": 0.03, "stack": 4, "price": 17.99, "desc": "Pack of 20. Ontario prices." },
-
-    { "id": "pistol_9mm", "name": "9mm Pistol", "category": "weapon", "weight": 0.9, "stack": 1, "price": 0, "ammo": "ammo_9mm", "magazine": 15, "desc": "Compact semi-auto. Not registered to you." },
-    { "id": "ammo_9mm", "name": "9mm Rounds", "category": "ammo", "weight": 0.012, "stack": 50, "price": 0, "desc": "Loose rounds." }
+    {
+      "id": "phone",
+      "name": "Phone",
+      "category": "key",
+      "weight": 0.2,
+      "stack": 1,
+      "price": 0,
+      "desc": "Cracked screen, 82% battery. Up Arrow or P."
+    },
+    {
+      "id": "condo_keys",
+      "name": "Condo Keys",
+      "category": "key",
+      "weight": 0.05,
+      "stack": 1,
+      "price": 0,
+      "desc": "Fob and key for 3801, Pantages Tower."
+    },
+    {
+      "id": "lighter",
+      "name": "Lighter",
+      "category": "tool",
+      "weight": 0.03,
+      "stack": 1,
+      "price": 2.49,
+      "desc": "Red Bic."
+    },
+    {
+      "id": "ketchup_chips",
+      "name": "Ketchup Chips",
+      "category": "food",
+      "weight": 0.2,
+      "stack": 5,
+      "price": 3.49,
+      "hunger": 15,
+      "desc": "Big bag. A Canadian classic."
+    },
+    {
+      "id": "chocolate_bar",
+      "name": "Chocolate Bar",
+      "category": "food",
+      "weight": 0.05,
+      "stack": 10,
+      "price": 2.29,
+      "hunger": 8,
+      "desc": "Caramel, slightly squashed."
+    },
+    {
+      "id": "beef_patty",
+      "name": "Beef Patty",
+      "category": "food",
+      "weight": 0.15,
+      "stack": 5,
+      "price": 3.99,
+      "hunger": 30,
+      "desc": "Jamaican beef patty from the warmer. Spicy."
+    },
+    {
+      "id": "sandwich",
+      "name": "Turkey Sandwich",
+      "category": "food",
+      "weight": 0.25,
+      "stack": 3,
+      "price": 6.99,
+      "hunger": 40,
+      "desc": "Fridge sandwich, best before tomorrow."
+    },
+    {
+      "id": "instant_noodles",
+      "name": "Cup Noodles",
+      "category": "food",
+      "weight": 0.1,
+      "stack": 6,
+      "price": 1.99,
+      "hunger": 22,
+      "thirst": -5,
+      "desc": "Salty. Add hot water at the counter."
+    },
+    {
+      "id": "banana",
+      "name": "Banana",
+      "category": "food",
+      "weight": 0.12,
+      "stack": 6,
+      "price": 0.79,
+      "hunger": 10,
+      "desc": "One of the last decent ones."
+    },
+    {
+      "id": "water",
+      "name": "Bottled Water",
+      "category": "drink",
+      "weight": 0.52,
+      "stack": 4,
+      "price": 2.29,
+      "thirst": 40,
+      "desc": "500 ml."
+    },
+    {
+      "id": "energy_drink",
+      "name": "Energy Drink",
+      "category": "drink",
+      "weight": 0.5,
+      "stack": 4,
+      "price": 3.99,
+      "thirst": 25,
+      "hunger": 3,
+      "desc": "473 ml can. Heart goes brrr."
+    },
+    {
+      "id": "pop",
+      "name": "Can of Pop",
+      "category": "drink",
+      "weight": 0.37,
+      "stack": 6,
+      "price": 2.49,
+      "thirst": 25,
+      "desc": "355 ml, ginger ale."
+    },
+    {
+      "id": "coffee",
+      "name": "Coffee",
+      "category": "drink",
+      "weight": 0.35,
+      "stack": 2,
+      "price": 2.79,
+      "thirst": 15,
+      "desc": "Medium double-double from the machine."
+    },
+    {
+      "id": "painkillers",
+      "name": "Painkillers",
+      "category": "medical",
+      "weight": 0.05,
+      "stack": 4,
+      "price": 9.99,
+      "health": 20,
+      "desc": "Ibuprofen, 24 tablets."
+    },
+    {
+      "id": "first_aid",
+      "name": "First Aid Kit",
+      "category": "medical",
+      "weight": 0.4,
+      "stack": 2,
+      "price": 14.99,
+      "health": 50,
+      "desc": "Bandages, gauze, tape."
+    },
+    {
+      "id": "cigarettes",
+      "name": "Cigarettes",
+      "category": "misc",
+      "weight": 0.03,
+      "stack": 4,
+      "price": 17.99,
+      "desc": "Pack of 20. Ontario prices."
+    },
+    {
+      "id": "pistol_9mm",
+      "name": "9mm Pistol",
+      "category": "weapon",
+      "weight": 0.9,
+      "stack": 1,
+      "price": 0,
+      "ammo": "ammo_9mm",
+      "magazine": 15,
+      "desc": "Compact semi-auto. Not registered to you."
+    },
+    {
+      "id": "ammo_9mm",
+      "name": "9mm Rounds",
+      "category": "ammo",
+      "weight": 0.012,
+      "stack": 50,
+      "price": 0,
+      "desc": "Loose rounds."
+    },
+    {
+      "id": "loud",
+      "name": "Loud (1g)",
+      "category": "misc",
+      "weight": 0.005,
+      "stack": 10,
+      "price": 15,
+      "health": 4,
+      "hunger": -8,
+      "desc": "A gram of loud in a little baggie. You can smell it through the plastic."
+    },
+    {
+      "id": "pills",
+      "name": "Pills",
+      "category": "medical",
+      "weight": 0.01,
+      "stack": 10,
+      "price": 20,
+      "health": 12,
+      "desc": "Two little blue ones. Don't ask what's in them."
+    }
   ],
   "shops": [
-    { "id": "rabba", "name": "Rabba Fine Foods",
-      "stock": ["ketchup_chips", "chocolate_bar", "beef_patty", "sandwich", "instant_noodles", "banana", "water", "energy_drink",
-                "pop", "coffee", "painkillers", "first_aid", "cigarettes", "lighter"] }
+    {
+      "id": "rabba",
+      "name": "Rabba Fine Foods",
+      "stock": [
+        "ketchup_chips",
+        "chocolate_bar",
+        "beef_patty",
+        "sandwich",
+        "instant_noodles",
+        "banana",
+        "water",
+        "energy_drink",
+        "pop",
+        "coffee",
+        "painkillers",
+        "first_aid",
+        "cigarettes",
+        "lighter"
+      ]
+    },
+    {
+      "id": "corner",
+      "name": "Corner",
+      "heat": 1,
+      "stock": [
+        "loud",
+        "pills",
+        "cigarettes"
+      ]
+    }
   ],
-  "startKit": ["phone", "condo_keys", "lighter"],
+  "startKit": [
+    "phone",
+    "condo_keys",
+    "lighter",
+    "pistol_9mm",
+    "ammo_9mm:30"
+  ],
   "startCash": 60
 }

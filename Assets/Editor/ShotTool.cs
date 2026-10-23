@@ -35,7 +35,32 @@ namespace LifeInDowntown.EditorTools
             AddStreetPose(poses, data, "Yonge Street", "street_yonge_looking_north", southToNorth: true);
             AddStreetPose(poses, data, "Dundas Street East", "street_dundas_looking_west", southToNorth: false);
             poses.Add(("intersection_yonge_dundas", new Vector3(-22f, 4.5f, -26f), new Vector3(4f, 0f, 2f)));      // crosswalks, signals
-            var shopSites = CityGenerator.ShopSites(data);
+            if (CityGenerator.TryLobbySite(data, out var lobby))   // DESIGN 3O.2
+            {
+                poses.Add(("lobby_outside", lobby.W(-1.2f, -6f, 1.7f), lobby.W(0f, 2f, 1.8f)));
+                poses.Add(("lobby_inside", lobby.W(-0.3f, 1.2f, 1.65f), lobby.W(0f, 10f, 1.3f)));
+                poses.Add(("lobby_desk", lobby.W(-1.6f, 3.0f, 1.65f), lobby.W(2.5f, 5.6f, 1.2f)));
+                poses.Add(("lobby_lounge", lobby.W(1.8f, 3.4f, 1.65f), lobby.W(-3.2f, 8.6f, 0.8f)));
+                float gy = CityGenerator.GarageFloorY;   // DESIGN 3O.3
+                poses.Add(("garage_aisle", lobby.W(-18.5f, 9.2f, gy + 1.6f), lobby.W(10f, 9.2f, gy + 1.0f)));
+                poses.Add(("garage_bay17", lobby.W(-3.9f, 7.5f, gy + 1.6f), lobby.W(-3.9f, 16f, gy + 0.6f)));
+                var car = GameObject.Find("Vehicles/TarikCar");   // DESIGN 3O.4: shown out on Shuter St, then put back
+                var street = GameObject.Find("PantagesGarage/GarageGate_Street_Exit");
+                if (car != null && street != null)
+                {
+                    carHome = (car.transform.position, car.transform.rotation);
+                    car.transform.SetPositionAndRotation(street.transform.position - Vector3.up * 0.28f, street.transform.rotation);
+                    var t = car.transform;
+                    poses.Add(("car_front34", t.position + t.forward * 4.2f + t.right * 2.6f + Vector3.up * 1.3f, t.position + Vector3.up * 0.6f));
+                    poses.Add(("car_side", t.position + t.right * 5.5f + Vector3.up * 0.9f, t.position + Vector3.up * 0.7f));
+                    poses.Add(("car_rear34", t.position - t.forward * 4.5f - t.right * 2.4f + Vector3.up * 1.4f, t.position + Vector3.up * 0.6f));
+                    var seat = t.Find("DriverSeat");
+                    if (seat != null) poses.Add(("car_driver_view", seat.position, seat.position + t.forward * 20f + Vector3.up * -0.4f));
+                }
+                poses.Add(("garage_exit", lobby.W(8f, 9.2f, gy + 1.6f), lobby.W(20f, 9.2f, gy + 1.2f)));
+                poses.Add(("garage_street_door", lobby.W(-14f, -9f, 1.7f), lobby.W(-10.5f, 0f, 1.6f)));
+            }
+            var shopSites = CityGenerator.ShopSites(data).FindAll(x => x.kind == "rabba");
             if (shopSites.Count > 0)
             {
                 var shop = shopSites[0];
@@ -62,6 +87,11 @@ namespace LifeInDowntown.EditorTools
             foreach (var tr in Object.FindObjectsByType<LifeInDowntown.Transit.TrainController>(FindObjectsSortMode.None))
                 tr.PlaceAt(tr.dir > 0 ? 0 : 1, tr.dir > 0 ? 1f : 0f);   // northbound at Queen, doors open; southbound at TMU, doors shut
             AddSubwayPoses(poses);
+            foreach (var (shot, obj) in new[] { ("street_bikeshare", "Vehicles/StreetExtras/BikeShare_Station"), ("street_greenp", "Vehicles/StreetExtras/GreenP_Machine") })   // DESIGN 3O.7
+            {
+                var o = GameObject.Find(obj);
+                if (o != null) poses.Add((shot, o.transform.position + o.transform.right * -6f + o.transform.forward * 4f + Vector3.up * 1.7f, o.transform.position + Vector3.up * 0.8f));
+            }
             AddCrowdPoses(poses, CityGenerator.TryCondoFrame(data, out var cf) ? cf : (CityGenerator.CondoFrame?)null);
             foreach (var (shot, id) in new[] { ("items_nightstand", "condo_pistol"), ("items_coffee_table", "condo_chips") })   // DESIGN 3M
             {
@@ -136,6 +166,8 @@ namespace LifeInDowntown.EditorTools
                 foreach (var w in preview) Object.DestroyImmediate(w);
             }
             AnimationMode.StopAnimationMode();
+            var parked = GameObject.Find("Vehicles/TarikCar");
+            if (parked != null && carHome.HasValue) parked.transform.SetPositionAndRotation(carHome.Value.Item1, carHome.Value.Item2);
             Object.DestroyImmediate(go);
             rt.Release();
         }
@@ -253,6 +285,8 @@ namespace LifeInDowntown.EditorTools
             }
             return made;
         }
+
+        static (Vector3, Quaternion)? carHome;
 
         static void Render(Camera cam, RenderTexture rt)
         {

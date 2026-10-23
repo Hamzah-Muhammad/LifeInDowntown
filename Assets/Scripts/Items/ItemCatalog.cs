@@ -26,6 +26,7 @@ namespace LifeInDowntown.Items
     {
         public string id, name;
         public string[] stock;
+        public int heat;              // HEAT per purchase (the corner dealers)
     }
 
     [Serializable]

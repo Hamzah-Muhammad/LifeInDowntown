@@ -13,6 +13,10 @@ namespace LifeInDowntown.World
         public Transform player;
         public float fadeSeconds = 0.45f;
 
+        public static Interactor Instance { get; private set; }
+        static readonly System.Collections.Generic.List<DoorLink> NoDoors = new System.Collections.Generic.List<DoorLink>();
+        void Awake() { Instance = this; }
+
         DoorLink near;
         Interactable nearThing;     // pickups, shop counters (docs/DESIGN.md 3M)
         float fade;          // 0 = clear, 1 = black
@@ -24,9 +28,11 @@ namespace LifeInDowntown.World
         {
             near = null; nearThing = null;
             bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
-            if (!playing || busy || player == null || LifeInDowntown.Map.MapController.IsOpen || LifeInDowntown.Items.InventoryUI.IsOpen) return;
+            if (!playing || busy || player == null || LifeInDowntown.Map.MapController.IsOpen || LifeInDowntown.Items.InventoryUI.IsOpen
+                || LifeInDowntown.Phone.InPersonTalk.AnyTalking) return;
             float best = float.MaxValue;
-            foreach (var d in DoorLink.All)
+            bool driving = LifeInDowntown.Vehicles.PlayerDriving.PlayerIsDriving;   // doors are for people, gates for cars
+            foreach (var d in driving ? NoDoors : DoorLink.All)
             {
                 float dist = Vector3.Distance(Flat(d.transform.position), Flat(player.position));
                 if (dist < d.radius && Mathf.Abs(d.transform.position.y - player.position.y) < 2.5f && dist < best) { best = dist; near = d; }
@@ -40,6 +46,21 @@ namespace LifeInDowntown.World
             bool e = Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame;
             if (e && nearThing != null) nearThing.Interact();
             else if (e && near != null) StartCoroutine(Ride(near));
+        }
+
+        // fade to black, do something while it's black (move the car, ...), fade back in
+        public void Fade(System.Action whileBlack) { if (!busy) StartCoroutine(FadeRoutine(whileBlack)); }
+
+        IEnumerator FadeRoutine(System.Action whileBlack)
+        {
+            busy = true;
+            for (float t = 0; t < fadeSeconds; t += Time.unscaledDeltaTime) { fade = t / fadeSeconds; yield return null; }
+            fade = 1f;
+            whileBlack?.Invoke();
+            yield return new WaitForSecondsRealtime(0.35f);
+            for (float t = 0; t < fadeSeconds; t += Time.unscaledDeltaTime) { fade = 1f - t / fadeSeconds; yield return null; }
+            fade = 0f;
+            busy = false;
         }
 
         IEnumerator Ride(DoorLink door)

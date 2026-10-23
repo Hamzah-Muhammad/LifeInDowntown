@@ -18,15 +18,24 @@ namespace LifeInDowntown.Phone
         public event Action<Mission> IncomingCall;           // the phone rings
         public event Action<string, string> Notify;          // banner: title, body
         public event Action MessagesChanged;
+        public event Action<Objective> MeetStarted;          // Tarik reached someone waiting in person (InPersonTalk)
 
         float quietSeconds;           // time since the last mission event (start, finish, decline)
         bool callPending;             // a mission call is ringing or in progress
+        bool meeting;                 // a face-to-face talk is running; the objective waits for it
+        float textClock;              // play time since the last between-jobs text
 
         GameState S => GameState.Current;
         public Mission Active => Data?.Mission(S.activeMission);
         public Objective ActiveObjective =>
             Active != null && S.objectiveIndex < Active.objectives.Length ? Active.objectives[S.objectiveIndex] : null;
-        public Vector3? Target => ActiveObjective != null ? Data.PlacePosition(ActiveObjective.place) : null;
+        public Vector3? Target => ActiveObjective == null ? null : meetPoint ?? Data.PlacePosition(ActiveObjective.place);
+        public Vector3? PlaceTarget => ActiveObjective != null ? Data.PlacePosition(ActiveObjective.place) : null;
+
+        // where the person for this objective actually stands (Cast snaps them to the sidewalk); the meeting
+        // radius and the waypoint use it instead of the map place
+        Vector3? meetPoint;
+        public void SetMeetPoint(Vector3? at) => meetPoint = at;
 
         void Awake()
         {
@@ -49,6 +58,8 @@ namespace LifeInDowntown.Phone
         {
             quietSeconds = 0f;
             callPending = false;
+            meeting = false;
+            textClock = 0f;
         }
 
         public void Tick(float dt, Vector3 playerPos)
@@ -58,16 +69,46 @@ namespace LifeInDowntown.Phone
             var obj = ActiveObjective;
             if (obj != null)
             {
-                var t = Data.PlacePosition(obj.place);
-                if (t.HasValue && Flat(playerPos - t.Value).magnitude <= obj.radius) Advance();
+                if (meeting) return;
+                var t = Target;
+                if (t.HasValue && Flat(playerPos - t.Value).magnitude <= obj.radius)
+                {
+                    if (!string.IsNullOrEmpty(obj.talk) && MeetStarted != null) { meeting = true; MeetStarted(obj); }
+                    else Advance();
+                }
                 return;
             }
             if (callPending || S.activeMission != "") return;
+            IdleTexts(dt);
             var next = NextTriggered();
             if (next != null)
             {
                 callPending = true;
                 IncomingCall?.Invoke(next);
+            }
+        }
+
+        // the face-to-face talk finished: the meeting objective is done
+        public void MeetEnded()
+        {
+            if (!meeting) return;
+            meeting = false;
+            if (ActiveObjective != null) Advance();
+        }
+
+        public bool Meeting => meeting;
+
+        // between jobs, contacts with a text list send the next one every few minutes of play
+        void IdleTexts(float dt)
+        {
+            textClock += dt;
+            foreach (var c in Data.ContactOrder)
+            {
+                if (c.texts.Length == 0 || c.textMinutes <= 0f || textClock < c.textMinutes * 60f) continue;
+                Text(c.id, c.texts[S.textsSent % c.texts.Length]);
+                S.textsSent++;
+                textClock = 0f;
+                return;
             }
         }
 
@@ -137,6 +178,7 @@ namespace LifeInDowntown.Phone
             var obj = ActiveObjective;
             if (!string.IsNullOrEmpty(obj.arriveText)) Text(m.giver, obj.arriveText);
             S.objectiveIndex++;
+            meetPoint = null;
             if (S.objectiveIndex >= m.objectives.Length) Complete(m);
             else Notify?.Invoke(m.title.ToUpperInvariant(), DialogueRunner.Fill(m.objectives[S.objectiveIndex].text));
         }

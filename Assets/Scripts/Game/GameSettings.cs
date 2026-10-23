@@ -26,6 +26,8 @@ namespace LifeInDowntown.Game
 
     public static class GameSettings
     {
+        // the whole mix plays at 5% of its old level (Hamzah 2026-10-22: "wayyy to loud"); the slider keeps its range
+        public const float MixScale = 0.05f;
         public const float BaseLookSensitivity = 0.08f;
         static string pathOverride;   // tests point this at a temp file
         public static string FilePath
@@ -68,7 +70,7 @@ namespace LifeInDowntown.Game
             int w = s.width > 0 ? s.width : Screen.currentResolution.width;
             int h = s.height > 0 ? s.height : Screen.currentResolution.height;
             if (!Application.isEditor) Screen.SetResolution(w, h, s.displayMode);
-            AudioListener.volume = s.masterVolume;
+            AudioListener.volume = s.masterVolume * MixScale;
 
             var player = UnityEngine.Object.FindFirstObjectByType<BodycamPlayer>(FindObjectsInactive.Include);
             if (player != null) player.lookSensitivity = BaseLookSensitivity * s.mouseSensitivity;

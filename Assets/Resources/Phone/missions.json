@@ -1,38 +1,136 @@
 {
   "missions": [
     {
-      "id": "link_up", "title": "Link Up", "giver": "ty",
-      "trigger": { "afterSeconds": 20, "requires": [], "blocked": ["done:link_up", "ty_waiting"] },
+      "id": "link_up",
+      "title": "Link Up",
+      "giver": "ty",
+      "trigger": {
+        "afterSeconds": 20,
+        "requires": [],
+        "blocked": [
+          "done:link_up",
+          "ty_waiting"
+        ]
+      },
       "call": "ty_linkup",
       "objectives": [
-        { "text": "Meet Ty at Sankofa Square", "place": "Sankofa Square Entrance", "radius": 12,
-          "arriveText": "Change of plans, too many eyes here. Meet me at Trinity Square, behind the Eaton Centre." },
-        { "text": "Meet Ty at Trinity Square", "place": "Trinity Square", "radius": 25, "arriveText": "" }
+        {
+          "text": "Meet Ty at Sankofa Square",
+          "place": "Sankofa Square Entrance",
+          "radius": 12,
+          "arriveText": "Change of plans, too many eyes here. Meet me at Trinity Square, behind the Eaton Centre."
+        },
+        {
+          "text": "Meet Ty at Trinity Square",
+          "place": "Trinity Square",
+          "radius": 6,
+          "arriveText": "",
+          "npc": "ty",
+          "talk": "ty_meet_trinity"
+        }
       ],
-      "rewards": ["cash:+20", "rep:+1", "flag:met_ty"],
-      "doneText": "Good looks for coming out. Twenty for your TTC. I'll hit you with something real soon."
+      "rewards": [
+        "cash:+20",
+        "rep:+1",
+        "flag:met_ty"
+      ],
+      "doneText": "Good looks for coming out. That twenty's for your TTC. I'll hit you with something real soon."
     },
     {
-      "id": "ma_errand", "title": "Ma's Errand", "giver": "ma",
-      "trigger": { "afterSeconds": 40, "requires": ["done:link_up"], "blocked": ["done:ma_errand"] },
+      "id": "ma_errand",
+      "title": "Ma's Errand",
+      "giver": "ma",
+      "trigger": {
+        "afterSeconds": 40,
+        "requires": [
+          "done:link_up"
+        ],
+        "blocked": [
+          "done:ma_errand"
+        ]
+      },
       "call": "ma_errand_call",
       "objectives": [
-        { "text": "Pick up Baba's prescription at Shoppers Drug Mart", "place": "Shoppers Drug Mart", "radius": 10, "arriveText": "" }
+        {
+          "text": "Pick up Baba's prescription at Shoppers Drug Mart",
+          "place": "Shoppers Drug Mart",
+          "radius": 10,
+          "arriveText": ""
+        }
       ],
-      "rewards": ["cash:-8", "loyalty:+1"],
+      "rewards": [
+        "cash:-8",
+        "loyalty:+1"
+      ],
       "doneText": "Thank you beta. Come home safe, don't stay out with that boy all night."
     },
     {
-      "id": "the_package", "title": "The Package", "giver": "ty",
-      "trigger": { "afterSeconds": 45, "requires": ["done:link_up"], "blocked": ["done:the_package", "refused_package"] },
+      "id": "the_package",
+      "title": "The Package",
+      "giver": "ty",
+      "trigger": {
+        "afterSeconds": 45,
+        "requires": [
+          "done:link_up"
+        ],
+        "blocked": [
+          "done:the_package",
+          "refused_package"
+        ]
+      },
       "call": "ty_package",
       "objectives": [
-        { "text": "Grab the bag by the Sankofa Square subway entrance", "place": "Sankofa Square Entrance", "radius": 8,
-          "arriveText": "You got it? Don't open it. Victoria Street garage, now." },
-        { "text": "Drop the bag at the 300 Victoria Street Garage", "place": "300 Victoria Street Garage", "radius": 14, "arriveText": "" }
+        {
+          "text": "Grab the bag by the Sankofa Square subway entrance",
+          "place": "Sankofa Square Entrance",
+          "radius": 8,
+          "arriveText": "You got it? Don't open it. I'm at the Victoria Street garage, come to me."
+        },
+        {
+          "text": "Bring the bag to Ty at the 300 Victoria Street Garage",
+          "place": "300 Victoria Street Garage",
+          "radius": 6,
+          "arriveText": "",
+          "npc": "ty",
+          "talk": "ty_meet_garage"
+        }
       ],
-      "rewards": ["cash:+60", "rep:+1", "heat:+1"],
+      "rewards": [
+        "cash:+60",
+        "rep:+1",
+        "heat:+1"
+      ],
       "doneText": "Clean. Sixty's yours. Keep your head down for a bit."
+    },
+    {
+      "id": "college_run",
+      "title": "College Run",
+      "giver": "ty",
+      "trigger": {
+        "afterSeconds": 240,
+        "requires": [
+          "done:the_package"
+        ],
+        "blocked": [
+          "done:college_run"
+        ]
+      },
+      "call": "ty_college",
+      "objectives": [
+        {
+          "text": "Take Line 1 up to College and meet Ty at the College Park entrance",
+          "place": "College Park Shops Entrance",
+          "radius": 6,
+          "arriveText": "",
+          "npc": "ty",
+          "talk": "ty_meet_college"
+        }
+      ],
+      "rewards": [
+        "cash:+40",
+        "rep:+1"
+      ],
+      "doneText": "See, that's how it's done. Quiet. Forty, like I said."
     }
   ]
 }

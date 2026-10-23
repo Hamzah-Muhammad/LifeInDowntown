@@ -17,6 +17,7 @@ namespace LifeInDowntown.EditorTools
     // Seeded, so every regenerate gives the same street.
     public static class NpcSetup
     {
+        public const string TyAvatar = "Male_Adult_10";
         const float SidewalkOffset = 1.6f, Spacing = 4f, SlabTop = 0.15f;
         const int CornerGroups = 10, CrosswalkCorners = 18, HomelessSpots = 16;
         static readonly HashSet<string> Streets = new HashSet<string> { "primary", "secondary", "tertiary", "unclassified", "residential" };
@@ -45,6 +46,7 @@ namespace LifeInDowntown.EditorTools
                 {
                     var go = AssetDatabase.LoadAssetAtPath<GameObject>(f.Replace('\\', '/'));
                     string file = Path.GetFileName(f);
+                    if (file.StartsWith(TyAvatar)) continue;   // Ty is one person: never in the street crowd (DESIGN 3O.1)
                     (file.StartsWith("Police_") ? c.police : file.StartsWith("Female") ? c.female : c.male).Add(go);
                 }
             if (c.male.Count + c.female.Count == 0) { Debug.Log("NPC_SKIP no prefabs yet (run CharacterImport)"); return; }
@@ -80,13 +82,21 @@ namespace LifeInDowntown.EditorTools
             var junctions = CityGenerator.FindJunctions(data);
             junctions.Sort((a, b) => a.p.x != b.p.x ? a.p.x.CompareTo(b.p.x) : a.p.y.CompareTo(b.p.y));
             Shuffle(junctions, c.rnd);
-            int police = PlacePolice(c, junctions);
-            int groups = PlaceCorners(c, junctions);
-            int waiting = PlaceCrosswalks(c, junctions);
-            int homeless = PlaceHomeless(c, lines);
+            // each group's people get their street role (lines, dealer worries); corner lookouts are dealers (DESIGN 3O)
+            void Roles(int from, Pedestrian.Role r) { for (int i = from; i < c.statics.Count; i++) c.statics[i].role = r; }
+            int n0 = c.statics.Count;
+            int police = PlacePolice(c, junctions); Roles(n0, Pedestrian.Role.Police); n0 = c.statics.Count;
+            int groups = PlaceCorners(c, junctions); Roles(n0, Pedestrian.Role.Corner);
+            string[] names = { "Dre", "Junior", "Smokes", "Lil T", "Bigs", "K", "Ricky", "Shottas", "Moe", "Tiny" };
+            int dealers = 0;
+            for (int i = n0; i < c.statics.Count; i++)
+                if (c.statics[i].watchPlayer) c.statics[i].gameObject.AddComponent<LifeInDowntown.World.DealerNPC>().nickname = names[dealers++ % names.Length];
+            n0 = c.statics.Count;
+            int waiting = PlaceCrosswalks(c, junctions); Roles(n0, Pedestrian.Role.Waiting); n0 = c.statics.Count;
+            int homeless = PlaceHomeless(c, lines); Roles(n0, Pedestrian.Role.Homeless);
             crowd.statics = c.statics.ToArray();
             Debug.Log($"NPC_OK pool={crowd.walkers} cornerGroups={groups} crosswalkPeople={waiting} homelessSpots={homeless} " +
-                      $"police={police} statics={c.statics.Count} sidewalkLines={lines.Count} points={pts.Count} characters={all.Count}");
+                      $"police={police} dealers={dealers} statics={c.statics.Count} sidewalkLines={lines.Count} points={pts.Count} characters={all.Count}");
         }
 
         // ---------- police: two officers posted at Yonge & Dundas, the corner TPS always has someone on ----------

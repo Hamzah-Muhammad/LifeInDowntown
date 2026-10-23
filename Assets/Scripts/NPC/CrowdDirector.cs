@@ -33,6 +33,18 @@ namespace LifeInDowntown.NPC
         bool asleep, filled;
         float nextTick, statWindow, statFrames, nextStat = 15f;
 
+        public static CrowdDirector Instance { get; private set; }
+
+        void Awake() { Instance = this; }
+
+        // the closest baked sidewalk point (story characters stand on real pavement, DESIGN 3O.1)
+        public Vector3 NearestSidewalk(Vector3 to)
+        {
+            Vector3 best = to; float bd = float.MaxValue;
+            foreach (var p in points) { float d = FlatDist(p, to); if (d < bd) { bd = d; best = p; } }
+            return best;
+        }
+
         void Start()
         {
             var body = FindFirstObjectByType<LifeInDowntown.Player.BodycamPlayer>();
@@ -54,7 +66,9 @@ namespace LifeInDowntown.NPC
                 var go = Instantiate(cop ? policePrefabs[rnd.Next(policePrefabs.Length)] : walkerPrefabs[rnd.Next(walkerPrefabs.Length)], transform);
                 go.name = $"Walker_{n:00}";
                 go.SetActive(false);
-                pool.Add(go.GetComponent<Pedestrian>());
+                var ped = go.GetComponent<Pedestrian>();
+                ped.role = cop ? Pedestrian.Role.Police : Pedestrian.Role.Walker;
+                pool.Add(ped);
             }
             Debug.Log($"CROWD_OK pool={pool.Count} statics={statics.Length} lines={lineStart.Length} points={points.Length}");
         }
@@ -81,15 +95,20 @@ namespace LifeInDowntown.NPC
             Vector3 at = player.position;
             foreach (var s in statics)
                 if (s != null) s.gameObject.SetActive(FlatDist(s.transform.position, at) < staticRange);
-            foreach (var p in pool)
-                if (p.gameObject.activeSelf && FlatDist(p.transform.position, at) > despawn) p.gameObject.SetActive(false);
+            for (int i = pool.Count - 1; i >= 0; i--)
+            {
+                var p = pool[i];
+                if (!p.gameObject.activeSelf || FlatDist(p.transform.position, at) <= despawn) continue;
+                if (p.Dead) { Destroy(p.gameObject); pool.RemoveAt(i); continue; }   // a ragdoll is never re-used
+                p.gameObject.SetActive(false);
+            }
 
             // first fill (new game, or back down from the condo): anywhere in range, as if they were already there
             int budget = filled ? 3 : walkers;
             foreach (var p in pool)
             {
                 if (budget <= 0) break;
-                if (p.gameObject.activeSelf) continue;
+                if (p.gameObject.activeSelf || p.Dead) continue;
                 if (!Spawn(p, at, !filled)) break;
                 budget--;
             }

@@ -46,12 +46,16 @@ namespace LifeInDowntown.EditorTools
             else Check(false, "condo frame found in Pantages Tower");
             var doors = System.Array.FindAll(Object.FindObjectsByType<LifeInDowntown.World.DoorLink>(FindObjectsSortMode.None),
                                              dl => !dl.name.StartsWith("SubwayElevator"));   // the subway's own pair: SubwayTest
-            Check(doors.Length == 2 && System.Array.TrueForAll(doors, dl => dl.exit != null && dl.exit.GetComponent<LifeInDowntown.World.DoorLink>() != null),
-                  $"street entrance and condo door are linked to each other ({doors.Length} doors)");
+            var condoDoor = System.Array.Find(doors, dl => dl.name == "CondoDoor_Inside");
+            var liftUp = System.Array.Find(doors, dl => dl.name == "Lobby_Elevator_Up");
+            Check(condoDoor != null && liftUp != null && liftUp.exit == condoDoor.transform && condoDoor.exit != null && condoDoor.exit.name == "Lobby_ElevatorLanding",
+                  $"lobby elevator and condo door are linked (DESIGN 3O.2; {doors.Length} doors)");
+            Check(System.Array.TrueForAll(doors, dl => dl.exit != null), "every door leads somewhere");
 
             // walk-in Rabba: from the sidewalk straight through the doorway into the store (DESIGN 3K)
             var shops = CityGenerator.ShopSites(data);
-            Check(shops.Count == 2, $"two Rabba stores placed ({shops.Count})");
+            Check(shops.FindAll(x => x.kind == "rabba").Count == 2 && shops.FindAll(x => x.kind == "lobby").Count == 1,
+                  $"two Rabba stores and the Pantages lobby placed ({shops.Count} sites)");
             foreach (var shop in shops)
             {
                 var outside = shop.W(-0.2f, -1.2f, 0.3f);

@@ -145,8 +145,11 @@ namespace LifeInDowntown.Items
         public static void EnsureKeyItems(GameState s)
         {
             Fit(s);
-            foreach (var id in ItemCatalog.StartKit)
+            foreach (var entry in ItemCatalog.StartKit)
+            {
+                string id = entry.Split(':')[0];
                 if (ItemCatalog.Get(id) is ItemDef d && d.IsKey && Count(s, id) == 0) Add(s, id, 1);
+            }
         }
     }
 }

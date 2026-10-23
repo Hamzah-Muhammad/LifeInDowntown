@@ -120,6 +120,9 @@ namespace LifeInDowntown.EditorTools
             doc.sortingOrder = 10;   // menus draw over the phone HUD
             var menu = game.AddComponent<MenuController>();
             game.AddComponent<LifeInDowntown.World.Interactor>().player = player.transform;
+            game.AddComponent<LifeInDowntown.NPC.NpcBarks>().player = player.transform;   // Toronto street talk (DESIGN 3O)
+            var drive = game.AddComponent<LifeInDowntown.Vehicles.PlayerDriving>();   // F to get in/out of Tarik's car (DESIGN 3O.4)
+            drive.player = player; drive.rig = rig;
             var audio = game.AddComponent<AudioDirector>();
             audio.player = player; audio.listener = rig.transform;
             var flow = game.AddComponent<GameFlow>();
@@ -134,6 +137,12 @@ namespace LifeInDowntown.EditorTools
             phoneDoc.sortingOrder = 0;
             var missions = phoneGo.AddComponent<LifeInDowntown.Phone.MissionManager>();
             missions.player = player.transform;
+            // Ty in person: waits at meeting places and talks in subtitles (DESIGN 3O.1)
+            var cast = phoneGo.AddComponent<LifeInDowntown.Phone.Cast>();
+            cast.missions = missions;
+            cast.tyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/{NpcSetup.TyAvatar}.prefab");
+            var talk = phoneGo.AddComponent<LifeInDowntown.Phone.InPersonTalk>();
+            talk.missions = missions; talk.player = player;
             var phone = phoneGo.AddComponent<LifeInDowntown.Phone.PhoneController>();
             phone.missions = missions;
             phone.player = player;

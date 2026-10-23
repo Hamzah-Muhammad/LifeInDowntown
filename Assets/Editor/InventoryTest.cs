@@ -26,6 +26,8 @@ namespace LifeInDowntown.EditorTools
                 var s = GameState.Current;
                 Check(Inventory.Count(s, "phone") == 1 && Inventory.Count(s, "condo_keys") == 1 && Inventory.Count(s, "lighter") == 1,
                       "new game: phone, keys and lighter in the backpack");
+                Check(s.equipped == "pistol_9mm" && !s.drawn && s.loaded == 15 && Inventory.Count(s, "ammo_9mm") == 15,
+                      $"new game: the 9mm on his hip, {s.loaded} loaded, {Inventory.Count(s, "ammo_9mm")} spare (DESIGN 3O.6)");
                 Check(Mathf.Approximately(s.cash, 60f) && s.inventory.Count == Inventory.Slots, $"new game: $60.00 and {Inventory.Slots} slots (cash {s.cash})");
                 Check(!Inventory.CanDrop("phone") && Inventory.CanDrop("lighter"), "key items can't be dropped");
 
@@ -40,8 +42,9 @@ namespace LifeInDowntown.EditorTools
                 int room = Inventory.Room(s, "water");
                 int expectByWeight = Mathf.FloorToInt((Inventory.MaxCarry - before) / 0.52f + 1e-4f);
                 Check(room == Mathf.Min(expectByWeight, (Inventory.Slots - Used(s)) * 4), $"room for water by slots and weight: {room}");
+                int spare0 = Inventory.Count(s, "ammo_9mm");
                 Inventory.Add(s, "ammo_9mm", 50); Inventory.Add(s, "ammo_9mm", 50);
-                Check(Inventory.Count(s, "ammo_9mm") == 100, "100 rounds in two stacks of 50");
+                Check(Inventory.Count(s, "ammo_9mm") == spare0 + 100, $"100 more rounds stack up ({spare0} + 100)");
                 Inventory.Remove(s, "ammo_9mm", 100);
 
                 // buying
@@ -82,8 +85,9 @@ namespace LifeInDowntown.EditorTools
                       $"collapse at zero: wake on {s.health:0} health, cash $100 -> {ItemCatalog.Money(s.cash)}, hunger {s.hunger:0} (woke on 30, then the clock kept going)");
                 Object.DestroyImmediate(statsGo);
 
-                // weapons: equip loads the magazine from loose rounds
+                // weapons: equip loads the magazine from loose rounds (start from a clean slate: a new game starts armed)
                 s.health = 100f;
+                Inventory.Remove(s, "pistol_9mm", 9); Inventory.Remove(s, "ammo_9mm", 999); s.equipped = ""; s.loaded = 0;
                 Inventory.Add(s, "pistol_9mm", 1); Inventory.Add(s, "ammo_9mm", 20);
                 Check(Inventory.Equip(s, "pistol_9mm") && s.equipped == "pistol_9mm" && s.loaded == 15 && Inventory.Count(s, "ammo_9mm") == 5,
                       $"equip pistol: {s.loaded} loaded, {Inventory.Count(s, "ammo_9mm")} spare");
@@ -101,6 +105,14 @@ namespace LifeInDowntown.EditorTools
                 Inventory.EnsureKeyItems(oldSave);
                 Check(Inventory.Count(oldSave, "phone") == 1 && Inventory.Count(oldSave, "condo_keys") == 1, "old saves get the phone and keys back");
 
+                // a corner dealer: his own stock, and buying from him is HEAT (DESIGN 3O)
+                s.cash = 100f; int heat0 = s.heat;
+                var corner = ItemCatalog.Shop("corner");
+                Check(corner != null && corner.heat == 1 && System.Array.IndexOf(corner.stock, "loud") >= 0, "the corner stock exists and costs heat");
+                Check(Inventory.Buy(s, "loud") == Inventory.BuyResult.Ok && Mathf.Approximately(s.cash, 85f), $"a gram of loud is $15 (cash {s.cash})");
+                Check(LifeInDowntown.NPC.NpcBarks.LinesFor(LifeInDowntown.NPC.Pedestrian.Role.Walker).Length >= 10
+                      && LifeInDowntown.NPC.NpcBarks.LinesFor(LifeInDowntown.NPC.Pedestrian.Role.Homeless).Length > 0, "Toronto street lines for walkers and the homeless");
+
                 // scene wiring
                 EditorSceneManager.OpenScene("Assets/Scenes/Downtown_YongeDundas.unity", OpenSceneMode.Single);
                 var counters = Object.FindObjectsByType<ShopCounter>(FindObjectsSortMode.None);
@@ -108,6 +120,10 @@ namespace LifeInDowntown.EditorTools
                 var pickups = Object.FindObjectsByType<WorldPickup>(FindObjectsSortMode.None);
                 bool upstairs = System.Array.TrueForAll(pickups, p => p.transform.position.y > 119f && p.transform.position.y < 122f);
                 Check(pickups.Length == 4 && upstairs, $"4 condo pickups on the furniture, in the condo ({pickups.Length})");
+                var dealers = Object.FindObjectsByType<LifeInDowntown.World.DealerNPC>(FindObjectsSortMode.None);
+                Check(dealers.Length >= 8 && System.Array.TrueForAll(dealers, dl => dl.GetComponent<LifeInDowntown.NPC.Pedestrian>().role == LifeInDowntown.NPC.Pedestrian.Role.Corner),
+                      $"a dealer on each corner crew ({dealers.Length})");
+                Check(Object.FindFirstObjectByType<LifeInDowntown.NPC.NpcBarks>() != null, "street talk is in the scene");
                 Check(Object.FindFirstObjectByType<InventoryUI>() != null && Object.FindFirstObjectByType<PlayerStats>() != null
                       && Object.FindFirstObjectByType<WeaponHolder>() != null, "backpack screen, body stats and weapon holder are in the scene");
             }

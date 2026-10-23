@@ -3,72 +3,410 @@
     {
       "id": "ty_linkup",
       "nodes": [
-        { "id": "start", "speaker": "Ty", "text": "Yo {name}, you up? Pull up to Sankofa Square, by the subway stairs. Gotta talk to you about something.",
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "Yo {name}, you up? Pull up to Sankofa Square, by the subway stairs. Gotta talk to you about something.",
           "choices": [
-            { "text": "Say less, I'm coming.", "next": "ok" },
-            { "text": "Bro, it's pouring. What's so important?", "next": "rain" },
-            { "text": "Can't right now.", "next": "no" } ] },
-        { "id": "rain", "speaker": "Ty", "text": "Rain never stopped nobody from getting money, ahlie. Just come.", "next": "ok" },
-        { "id": "ok", "speaker": "Ty", "text": "Bet. Don't take forever.", "actions": ["start:link_up"] },
-        { "id": "no", "speaker": "Ty", "text": "Say less. Hit me when you're free. And don't leave me on read like last time.", "actions": ["flag:ty_waiting"] }
+            {
+              "text": "Say less, I'm coming.",
+              "next": "ok"
+            },
+            {
+              "text": "Bro, it's pouring. What's so important?",
+              "next": "rain"
+            },
+            {
+              "text": "Can't right now.",
+              "next": "no"
+            }
+          ]
+        },
+        {
+          "id": "rain",
+          "speaker": "Ty",
+          "text": "Rain never stopped nobody from getting money, ahlie. Just come.",
+          "next": "ok"
+        },
+        {
+          "id": "ok",
+          "speaker": "Ty",
+          "text": "Bet. Don't take forever.",
+          "actions": [
+            "start:link_up"
+          ]
+        },
+        {
+          "id": "no",
+          "speaker": "Ty",
+          "text": "Say less. Hit me when you're free. And don't leave me on read like last time.",
+          "actions": [
+            "flag:ty_waiting"
+          ]
+        }
       ]
     },
     {
       "id": "ty_callback",
       "nodes": [
-        { "id": "start", "speaker": "Ty", "text": "Finally. Sankofa Square, by the stairs. Come now.", "actions": ["unflag:ty_waiting", "start:link_up"] }
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "Finally. Sankofa Square, by the stairs. Come now.",
+          "actions": [
+            "unflag:ty_waiting",
+            "start:link_up"
+          ]
+        }
       ]
     },
     {
       "id": "ty_idle",
       "nodes": [
-        { "id": "start", "speaker": "Ty", "text": "What's good? I'm in the middle of something, I'll hit you later." }
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "What's good? I'm in the middle of something, I'll hit you later."
+        }
       ]
     },
     {
       "id": "ma_errand_call",
       "nodes": [
-        { "id": "start", "speaker": "Ma", "text": "{name}, beta, where are you? It's late and it's raining.",
+        {
+          "id": "start",
+          "speaker": "Ma",
+          "text": "{name}, beta, where are you? It's late and it's raining.",
           "choices": [
-            { "text": "Downtown with Ty, Ma.", "next": "ty" },
-            { "text": "Just walking. I'm good.", "next": "walk" } ] },
-        { "id": "ty", "speaker": "Ma", "text": "That boy... okay. Your Baba's medicine is ready at the Shoppers on Yonge. Pick it up before you come home.", "next": "ask" },
-        { "id": "walk", "speaker": "Ma", "text": "Walking, in this? Okay, listen. Your Baba's medicine is ready at the Shoppers on Yonge. Pick it up for me.", "next": "ask" },
-        { "id": "ask", "speaker": "Ma", "text": "Can you do that for me?",
+            {
+              "text": "Downtown with Ty, Ma.",
+              "next": "ty"
+            },
+            {
+              "text": "Just walking. I'm good.",
+              "next": "walk"
+            }
+          ]
+        },
+        {
+          "id": "ty",
+          "speaker": "Ma",
+          "text": "That boy... okay. Your Baba's medicine is ready at the Shoppers on Yonge. Pick it up before you come home.",
+          "next": "ask"
+        },
+        {
+          "id": "walk",
+          "speaker": "Ma",
+          "text": "Walking, in this? Okay, listen. Your Baba's medicine is ready at the Shoppers on Yonge. Pick it up for me.",
+          "next": "ask"
+        },
+        {
+          "id": "ask",
+          "speaker": "Ma",
+          "text": "Can you do that for me?",
           "choices": [
-            { "text": "I got you, Ma.", "next": "yes" },
-            { "text": "Can Baba not get it tomorrow?", "next": "push" } ] },
-        { "id": "push", "speaker": "Ma", "text": "He's on night shift again. Please, {name}.", "next": "yes" },
-        { "id": "yes", "speaker": "Ma", "text": "Allah bless you. Text me when you have it.", "actions": ["start:ma_errand"] }
+            {
+              "text": "I got you, Ma.",
+              "next": "yes"
+            },
+            {
+              "text": "Can Baba not get it tomorrow?",
+              "next": "push"
+            }
+          ]
+        },
+        {
+          "id": "push",
+          "speaker": "Ma",
+          "text": "He's on night shift again. Please, {name}.",
+          "next": "yes"
+        },
+        {
+          "id": "yes",
+          "speaker": "Ma",
+          "text": "Allah bless you. Text me when you have it.",
+          "actions": [
+            "start:ma_errand"
+          ]
+        }
       ]
     },
     {
       "id": "ma_idle",
       "nodes": [
-        { "id": "start", "speaker": "Ma", "text": "Beta, are you eating properly? Come home before midnight.",
-          "choices": [ { "text": "Yes, Ma.", "next": "bye" }, { "text": "I'm not a kid, Ma.", "next": "kid" } ] },
-        { "id": "kid", "speaker": "Ma", "text": "You'll always be my kid. Midnight.", "next": "bye" },
-        { "id": "bye", "speaker": "Ma", "text": "Okay. Khuda hafiz." }
+        {
+          "id": "start",
+          "speaker": "Ma",
+          "text": "Beta, are you eating properly? Come home before midnight.",
+          "choices": [
+            {
+              "text": "Yes, Ma.",
+              "next": "bye"
+            },
+            {
+              "text": "I'm not a kid, Ma.",
+              "next": "kid"
+            }
+          ]
+        },
+        {
+          "id": "kid",
+          "speaker": "Ma",
+          "text": "You'll always be my kid. Midnight.",
+          "next": "bye"
+        },
+        {
+          "id": "bye",
+          "speaker": "Ma",
+          "text": "Okay. Khuda hafiz."
+        }
       ]
     },
     {
       "id": "baba_idle",
       "nodes": [
-        { "id": "start", "speaker": "Baba", "text": "I'm at work, {name}. Listen to your mother, okay? I have to go, the supervisor is watching." }
+        {
+          "id": "start",
+          "speaker": "Baba",
+          "text": "I'm at work, {name}. Listen to your mother, okay? I have to go, the supervisor is watching."
+        }
       ]
     },
     {
       "id": "ty_package",
       "nodes": [
-        { "id": "start", "speaker": "Ty", "text": "Remember I said something real? I got a bag that needs to get to the garage on Victoria Street. Easy sixty.",
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "Remember I said something real? I got a bag that needs to get to the garage on Victoria Street. Easy sixty.",
           "choices": [
-            { "text": "What's in the bag?", "next": "what" },
-            { "text": "Sixty? Bet.", "next": "yes" },
-            { "text": "Nah, I'm good.", "next": "no" } ] },
-        { "id": "what", "speaker": "Ty", "text": "Don't ask questions you don't want answers to. You in or what?",
-          "choices": [ { "text": "...Fine. I'm in.", "next": "yes" }, { "text": "I'm good, Ty.", "next": "no" } ] },
-        { "id": "yes", "speaker": "Ty", "text": "That's my guy. Bag's by the Sankofa Square subway entrance. Grab it, then the garage.", "actions": ["start:the_package"] },
-        { "id": "no", "speaker": "Ty", "text": "Your loss. Don't come crying when your pockets are empty.", "actions": ["flag:refused_package", "loyalty:-1"] }
+            {
+              "text": "What's in the bag?",
+              "next": "what"
+            },
+            {
+              "text": "Sixty? Bet.",
+              "next": "yes"
+            },
+            {
+              "text": "Nah, I'm good.",
+              "next": "no"
+            }
+          ]
+        },
+        {
+          "id": "what",
+          "speaker": "Ty",
+          "text": "Don't ask questions you don't want answers to. You in or what?",
+          "choices": [
+            {
+              "text": "...Fine. I'm in.",
+              "next": "yes"
+            },
+            {
+              "text": "I'm good, Ty.",
+              "next": "no"
+            }
+          ]
+        },
+        {
+          "id": "yes",
+          "speaker": "Ty",
+          "text": "That's my guy. Bag's by the Sankofa Square subway entrance. Grab it, then the garage.",
+          "actions": [
+            "start:the_package"
+          ]
+        },
+        {
+          "id": "no",
+          "speaker": "Ty",
+          "text": "Your loss. Don't come crying when your pockets are empty.",
+          "actions": [
+            "flag:refused_package",
+            "loyalty:-1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ty_meet_trinity",
+      "nodes": [
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "There he is. Look at you, {name}. Pantages Tower? Since when you got condo money?",
+          "choices": [
+            {
+              "text": "Since I stopped wasting it.",
+              "next": "save"
+            },
+            {
+              "text": "Don't worry about it.",
+              "next": "mind"
+            },
+            {
+              "text": "You dragged me out in the rain for this?",
+              "next": "rain"
+            }
+          ]
+        },
+        {
+          "id": "save",
+          "speaker": "Ty",
+          "text": "Stopped wasting it. Okay, okay. Regent Park still remembers when you couldn't buy a patty.",
+          "next": "work"
+        },
+        {
+          "id": "mind",
+          "speaker": "Ty",
+          "text": "Say less. Everybody downtown got secrets. I'm not the police.",
+          "next": "work"
+        },
+        {
+          "id": "rain",
+          "speaker": "Ty",
+          "text": "Relax, it's Toronto, it's always raining. I'm here 'cause I need somebody I trust.",
+          "next": "work"
+        },
+        {
+          "id": "work",
+          "speaker": "Ty",
+          "text": "I'm plugged in out here now. People need things moved, picked up, looked at. Small stuff, good money. You in?",
+          "choices": [
+            {
+              "text": "I'm listening.",
+              "next": "yes"
+            },
+            {
+              "text": "Depends what 'stuff' means.",
+              "next": "depends"
+            }
+          ]
+        },
+        {
+          "id": "yes",
+          "speaker": "Ty",
+          "text": "That's my guy. Keep your phone on.",
+          "actions": [
+            "flag:ty_trusts"
+          ]
+        },
+        {
+          "id": "depends",
+          "speaker": "Ty",
+          "text": "Smart. Nothing crazy. I'll call you, you decide. Keep your phone on."
+        }
+      ]
+    },
+    {
+      "id": "ty_meet_garage",
+      "nodes": [
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "You didn't open it, right? Don't answer, I can see your face.",
+          "choices": [
+            {
+              "text": "Never touched it.",
+              "next": "good"
+            },
+            {
+              "text": "What's in it, Ty?",
+              "next": "what"
+            }
+          ]
+        },
+        {
+          "id": "what",
+          "speaker": "Ty",
+          "text": "Stuff that pays rent. Less you know, less you gotta lie about.",
+          "next": "good"
+        },
+        {
+          "id": "good",
+          "speaker": "Ty",
+          "text": "Here. That's sixty. Go home, get dry. I'll hit you up."
+        }
+      ]
+    },
+    {
+      "id": "ty_college",
+      "nodes": [
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "Yo, you near the subway? Need you up at College. Take Line 1, it's quicker than walking in this.",
+          "choices": [
+            {
+              "text": "On my way.",
+              "next": "ok"
+            },
+            {
+              "text": "Why College?",
+              "next": "why"
+            },
+            {
+              "text": "Not tonight.",
+              "next": "no"
+            }
+          ]
+        },
+        {
+          "id": "why",
+          "speaker": "Ty",
+          "text": "Guy owes me, he's by College Park. I want you there so he sees I got people.",
+          "next": "ok"
+        },
+        {
+          "id": "ok",
+          "speaker": "Ty",
+          "text": "Bet. College Park entrance. I'll be outside.",
+          "actions": [
+            "start:college_run"
+          ]
+        },
+        {
+          "id": "no",
+          "speaker": "Ty",
+          "text": "Aight. Don't make me ask twice though."
+        }
+      ]
+    },
+    {
+      "id": "ty_meet_college",
+      "nodes": [
+        {
+          "id": "start",
+          "speaker": "Ty",
+          "text": "Took the train like I said? Good. He just left. Saw you, got scared, paid up.",
+          "choices": [
+            {
+              "text": "That's it? I just stood here.",
+              "next": "stood"
+            },
+            {
+              "text": "Easy money.",
+              "next": "easy"
+            }
+          ]
+        },
+        {
+          "id": "stood",
+          "speaker": "Ty",
+          "text": "That's the job sometimes. Presence. Here, forty.",
+          "next": "end"
+        },
+        {
+          "id": "easy",
+          "speaker": "Ty",
+          "text": "Don't get comfortable. Here, forty.",
+          "next": "end"
+        },
+        {
+          "id": "end",
+          "speaker": "Ty",
+          "text": "Go home through the Eaton Centre, it's dry. Talk soon."
+        }
       ]
     }
   ]
