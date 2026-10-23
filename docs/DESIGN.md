@@ -503,7 +503,20 @@ The design as written:
   - **Death:** ragdoll (existing).
 - **HEAT:** as in 3O.6. Killing police is +10, though police combat stays a later milestone.
 
-### 3P.3 Fist fights
+### 3P.3 Fist fights (built 2026-10-22)
+Built as follows:
+- **`Player/Fists`:** jab and cross do 8-12, the hook 18-24. The hook comes on holding left mouse for 0.25 s.
+- **`NPC/NpcMelee`:** added on someone's first punch.
+  - **Walkers:** after one punch they stagger and stare; the second makes them fight.
+  - **Corner crews:** they fight at the first punch.
+  - **Police:** they walk up and watch. Clerks and story people run.
+  - **Fighters:** their swings are aimed IK arms (a `TarikBody` of their own). They give up and run below 35 health.
+  - **Knockdown:** a ragdoll, then `Ragdoll.Recover` stands them up where the hips landed. There's no get-up clip yet, so the pose snaps.
+- **"Shoved twice" became "punched twice":** the game has no shove.
+- **Finger-curl fix:** the curl direction was being judged at every joint, so past ~90° the middle joint bent backward (a claw). It's now judged once per finger. That also fixed the loose support hand on the pistol. Thumbs fold in too.
+- **Range:** `range_fists_*` (guard, close-ups, jab, cross, hook, block) and `range_brawl_*` (a fighter landing a swing).
+
+The design as written:
 - **Controls:**
   - **Fists up:** holstered and in a fight stance (V toggles, or it comes up automatically when an enemy is in melee range).
   - **Left mouse:** jab, then cross alternating. **Right mouse:** block (fists to the face, 70% less damage).
@@ -553,7 +566,7 @@ The design as written:
 ### 3P.7 Build order (one branch `feature/combat`, one commit per task)
 1. Tarik's body and IK hands with the pistol: draw, holster, aim, recoil, reload. **Done.**
 2. The damage model and feedback. **Done.**
-3. Fist fights.
+3. Fist fights. **Done.**
 4. Hostile AI, the spawner and "Wrong Corner".
 5. Corner crews turning hostile.
 6. Sounds, tests, renders, rebuild.
@@ -562,7 +575,8 @@ The design as written:
 - **No custom animations:** everything arm-related is IK and procedural; legs use the walk clip. No strafing or crouch-walk clips exist in Rocketbox.
 - **The look:** Male_Adult_18 as Tarik is a placeholder until Tarik's look is decided.
 - **Police combat** is a later milestone.
-- **Support hand:** its fingers cup slightly low under the trigger guard. Tune `WeaponHolder.GripLPos/GripLRot` in the range (3Q).
+- **Support hand:** it wraps properly since the curl fix (3P.3). It still sits slightly low. Tune `WeaponHolder.GripLPos/GripLRot` in the range (3Q).
+- **Fist guard:** it sits a little low and wide in the frame. A get-up animation after a knockdown would replace the snap.
 
 ## 3Q. Development range (built 2026-10-22)
 Hamzah: "you need to create a 'development range' where you have put models and make them correctly before dropping them in the game."

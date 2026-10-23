@@ -157,6 +157,54 @@ namespace LifeInDowntown.EditorTools
             Eye("range_eye_rack", PlayerSetup.VerticalFov);
             wh.PoseForShot(true);
 
+            // fists (DESIGN 3P.3): guard, jab and cross at full reach, the hook coming round, the block
+            var fists = eye.GetComponent<Fists>();
+            if (fists != null)
+            {
+                wh.PoseHolstered();
+                Idle(body.anim);
+                fists.PoseForShot(Fists.Move.None, 0f);
+                Debug.Log($"RANGE fists: index bend R {body.IndexBend(true):F0} L {body.IndexBend(false):F0} deg (fist = 150+); thumb gap R {body.ThumbGap(true):F3} L {body.ThumbGap(false):F3} m; bones R {body.ThumbBones(true)} L {body.ThumbBones(false)}");
+                Eye("range_fists_guard", PlayerSetup.VerticalFov);
+                var fr = body.HandPosition(true);
+                Look("range_fists_close", fr + new Vector3(0.12f, 0.05f, 0.4f), fr + Vector3.forward * 0.05f, 30f);
+                var fl = body.HandPosition(false);
+                Look("range_fists_close_left", fl + new Vector3(-0.15f, 0.05f, 0.35f), fl + Vector3.forward * 0.05f, 30f);
+                Look("range_fists_side", new Vector3(1.8f, 1.5f, 0.6f), new Vector3(0f, 1.35f, 0.35f), 40f);
+                fists.PoseForShot(Fists.Move.Jab, 0.1f);
+                Eye("range_fists_jab", PlayerSetup.VerticalFov);
+                fists.PoseForShot(Fists.Move.Cross, 0.1f);
+                Eye("range_fists_cross", PlayerSetup.VerticalFov);
+                fists.PoseForShot(Fists.Move.Hook, 0.25f);
+                Eye("range_fists_hook", PlayerSetup.VerticalFov);
+                fists.PoseForShot(Fists.Move.None, 0f, true);
+                Eye("range_fists_block", PlayerSetup.VerticalFov);
+
+                // someone squaring up to him, caught as his right lands
+                var fp = AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/Male_Adult_04.prefab");
+                if (fp != null)
+                {
+                    var foe = ((GameObject)PrefabUtility.InstantiatePrefab(fp)).GetComponent<LifeInDowntown.NPC.Pedestrian>();
+                    foe.name = "RangeFighter";
+                    foe.transform.SetPositionAndRotation(new Vector3(0f, 0f, 1.05f), Quaternion.Euler(0f, 180f, 0f));
+                    foe.role = LifeInDowntown.NPC.Pedestrian.Role.Corner;
+                    Idle(foe.GetComponentInChildren<Animator>());
+                    foreach (var smr in foe.GetComponentsInChildren<SkinnedMeshRenderer>()) { smr.forceMatrixRecalculationPerRender = true; smr.updateWhenOffscreen = true; }
+                    LifeInDowntown.NPC.Pedestrian.Player = GameObject.Find("Player").transform;
+                    foe.Punch(1f, foe.transform.position + Vector3.up * 1.3f, Vector3.forward, false);
+                    var melee = foe.GetComponent<LifeInDowntown.NPC.NpcMelee>();
+                    for (int i = 0; i < 150 && melee.SwingsLanded == 0 && !melee.Down; i++) { melee.Step(1f / 60f); foe.GetComponent<TarikBody>()?.Solve(); }
+                    foe.transform.position = new Vector3(0f, 0f, 1.05f);
+                    fists.PoseForShot(Fists.Move.None, 0f, true);
+                    Look("range_brawl_side", new Vector3(2.4f, 1.5f, 0.55f), new Vector3(0f, 1.35f, 0.55f), 40f);
+                    Eye("range_brawl_eye", PlayerSetup.VerticalFov);
+                    Debug.Log($"RANGE brawl: fighting={melee.Fighting} landed={melee.SwingsLanded} health={LifeInDowntown.Game.GameState.Current.health:F0}");
+                    Object.DestroyImmediate(foe.gameObject);
+                    LifeInDowntown.Game.GameState.Current.health = 100f;
+                }
+                fists.SetUp(false); fists.Step(1f);
+            }
+
             var g = GameObject.Find("PistolOnPlinth").transform.position;
             for (int a = 0; a < 360; a += 90)
                 Look($"range_pistol_{a}", g + Quaternion.Euler(15f, a, 0f) * (Vector3.back * 0.55f), g, 30f);

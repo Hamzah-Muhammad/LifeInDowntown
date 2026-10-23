@@ -17,7 +17,8 @@ namespace LifeInDowntown.Items
         public float starveDrain = 6f, healPerMinute = 3f;           // health points per minute
         public float regenDelay = 8f;                                // no healing this long after a hit (DESIGN 3P.2)
 
-        public static PlayerStats Instance { get; private set; }
+        static PlayerStats instance;
+        public static PlayerStats Instance => instance != null ? instance : (instance = FindFirstObjectByType<PlayerStats>());   // edit-mode tests never run Awake
         public float SinceHit { get; private set; } = 999f;
         public int Collapses { get; private set; }
         // HurtFeedback listens: a hit (damage, where it came from) and a bullet cracking past
@@ -35,7 +36,7 @@ namespace LifeInDowntown.Items
 
         static GameState S => GameState.Current;
 
-        void Awake() { Instance = this; }
+        void Awake() { instance = this; }
 
         // Tarik is hit: health down, the regen clock restarts; at zero he goes down and wakes at home
         public void TakeDamage(float amount, Vector3 from)

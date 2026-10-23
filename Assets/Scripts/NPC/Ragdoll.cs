@@ -39,6 +39,12 @@ namespace LifeInDowntown.NPC
         {
             var anim = who.GetComponentInChildren<Animator>();
             if (anim == null || !anim.isHuman) return 0;
+            var already = who.GetComponentsInChildren<Rigidbody>();
+            if (!anim.enabled && already.Length > 0)   // knocked down already (a punch, DESIGN 3P.3): just push
+            {
+                Push(already, hitPoint, push);
+                return already.Length;
+            }
             var made = new Dictionary<HumanBodyBones, Rigidbody>();
             foreach (var (bone, parent, mass, radius) in Bones)
             {
@@ -70,11 +76,43 @@ namespace LifeInDowntown.NPC
             }
             anim.enabled = false;
             foreach (var col in who.GetComponents<Collider>()) col.enabled = false;   // the walking capsule
-            Rigidbody nearest = null; float best = float.MaxValue;
-            foreach (var rb in made.Values) { float d = (rb.position - hitPoint).sqrMagnitude; if (d < best) { best = d; nearest = rb; } }
-            if (nearest != null) nearest.AddForceAtPosition(push, hitPoint, ForceMode.Impulse);
+            Push(new List<Rigidbody>(made.Values).ToArray(), hitPoint, push);
             return made.Count;
         }
+
+        static void Push(Rigidbody[] bodies, Vector3 hitPoint, Vector3 push)
+        {
+            Rigidbody nearest = null; float best = float.MaxValue;
+            foreach (var rb in bodies) { float d = (rb.position - hitPoint).sqrMagnitude; if (d < best) { best = d; nearest = rb; } }
+            if (nearest != null) nearest.AddForceAtPosition(push, hitPoint, ForceMode.Impulse);
+        }
+
+        // back on their feet after a knockdown: the ragdoll parts come off, the body stands where the hips fell
+        // (on the ground below them, facing the way it lay), and the animator takes over again
+        public static void Recover(GameObject who)
+        {
+            var anim = who.GetComponentInChildren<Animator>();
+            if (anim == null) return;
+            var hips = anim.GetBoneTransform(HumanBodyBones.Hips);
+            Vector3 at = hips != null ? hips.position : who.transform.position;
+            float ground = who.transform.position.y;
+            if (Physics.Raycast(at + Vector3.up * 0.5f, Vector3.down, out var hit, 3f, ~0, QueryTriggerInteraction.Ignore) && hit.collider.attachedRigidbody == null)
+                ground = hit.point.y;
+            foreach (var j in who.GetComponentsInChildren<CharacterJoint>()) Kill(j);
+            foreach (var rb in who.GetComponentsInChildren<Rigidbody>())
+            {
+                var col = rb.GetComponent<CapsuleCollider>();
+                if (col != null) Kill(col);
+                Kill(rb);
+            }
+            Vector3 fwd = Vector3.ProjectOnPlane(who.transform.forward, Vector3.up);
+            who.transform.SetPositionAndRotation(new Vector3(at.x, ground, at.z), fwd.sqrMagnitude > 1e-4f ? Quaternion.LookRotation(fwd) : who.transform.rotation);
+            foreach (var col in who.GetComponents<Collider>()) col.enabled = true;
+            anim.enabled = true;
+        }
+
+        // immediate even in play: a deferred Destroy of a Rigidbody is refused while its joint still exists this frame
+        static void Kill(Object o) => Object.DestroyImmediate(o);
 
         static int Axis(Vector3 v)
         {

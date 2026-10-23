@@ -348,11 +348,28 @@ def hurt():
     write("heartbeat.wav", onepole_lp(thud(0.0, 1.0) + thud(0.24, 0.7), 300))
 
 
+def punches():
+    """fist fights (docs/DESIGN.md 3P.3): an arm cutting the air, a jab landing (knuckle slap over a short
+    body thud) and a hook landing (heavier, lower, longer)."""
+    r = np.random.default_rng(31)
+    L = int(0.22 * SR); t = np.arange(L) / SR
+    env = np.sin(np.pi * np.clip(t / 0.2, 0, 1)) ** 2
+    write("punch_swing.wav", fft_band(r.standard_normal(L), 300, 2500) * env * 0.5)
+    def impact(slap_hz, thud_hz, thud_s, gain):
+        L = int(0.35 * SR); t = np.arange(L) / SR
+        slap = fft_band(r.standard_normal(L), slap_hz, 7000) * np.exp(-t / 0.006)
+        thud = np.sin(2 * np.pi * thud_hz * t) * np.exp(-t / thud_s) * gain
+        cloth = fft_band(r.standard_normal(L), 200, 1500) * np.exp(-t / 0.03) * 0.5
+        return slap + thud + cloth
+    write("punch_jab.wav", impact(1800, 95, 0.04, 1.0))
+    write("punch_hook.wav", impact(1200, 70, 0.08, 1.6))
+
+
 if __name__ == "__main__":
     import sys
     ALL = [rain_outdoor, rain_indoor, city_hum, room_tone, phone_ring, phone_ping, elevator_ding,
            streetcar_bell, siren_wail, footsteps, subway_hum, subway_rumble, subway_motor, subway_wheels,
-           subway_wind, subway_interior, subway_chime, subway_brake, subway_doors, engine_i6, gunshot, hurt]
+           subway_wind, subway_interior, subway_chime, subway_brake, subway_doors, engine_i6, gunshot, hurt, punches]
     pick = sys.argv[1:]                     # e.g. `python make_sounds.py rain_indoor`; none = everything
     for fn in ALL:
         if not pick or fn.__name__ in pick:

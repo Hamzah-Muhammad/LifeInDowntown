@@ -27,6 +27,8 @@ namespace LifeInDowntown.Player
         {
             public Transform upper, fore, hand;
             public Transform[][] fingers;
+            public Transform[] thumb;
+            public Quaternion[] thumbRest;
             public Quaternion handOffset;             // hand bone rotation in its own grip frame
             public Quaternion upperRest, foreRest, handRest;
             public Quaternion[][] fingerRest;
@@ -59,6 +61,8 @@ namespace LifeInDowntown.Player
                 a.fingers[f] = new[] { anim.GetBoneTransform(U(names[f] + "Proximal")), anim.GetBoneTransform(U(names[f] + "Intermediate")), anim.GetBoneTransform(U(names[f] + "Distal")) };
                 a.fingerRest[f] = System.Array.ConvertAll(a.fingers[f], t => t != null ? t.localRotation : Quaternion.identity);
             }
+            a.thumb = new[] { anim.GetBoneTransform(U("ThumbProximal")), anim.GetBoneTransform(U("ThumbIntermediate")), anim.GetBoneTransform(U("ThumbDistal")) };
+            a.thumbRest = System.Array.ConvertAll(a.thumb, t => t != null ? t.localRotation : Quaternion.identity);
             a.upperRest = a.upper.localRotation; a.foreRest = a.fore.localRotation; a.handRest = a.hand.localRotation;
             a.handOffset = Quaternion.Inverse(HandFrame(a)) * a.hand.rotation;
             return a;
@@ -126,17 +130,43 @@ namespace LifeInDowntown.Player
             var frame = HandFrame(a);
             Vector3 palm = frame * Vector3.down, across = frame * Vector3.right;
             for (int f = 0; f < a.fingers.Length; f++)
+            {
+                float sign = 1f;
                 for (int k = 0; k < a.fingers[f].Length; k++)
                 {
                     var b = a.fingers[f][k];
                     if (b == null) continue;
                     b.localRotation = a.fingerRest[f][k];
-                    var child = k + 1 < a.fingers[f].Length ? a.fingers[f][k + 1] : null;
-                    Vector3 dir = child != null ? (child.position - b.position).normalized : frame * Vector3.forward;
-                    float sign = Vector3.Dot(Quaternion.AngleAxis(10f, across) * dir, palm) > Vector3.Dot(dir, palm) ? 1f : -1f;
+                    // the way to the palm is judged once, at the knuckle: past ~90 the next joint already points
+                    // into the palm and the same test flips, bending it backwards (a claw instead of a fist)
+                    if (k == 0)
+                    {
+                        var child = a.fingers[f][1];
+                        Vector3 dir = child != null ? (child.position - b.position).normalized : frame * Vector3.forward;
+                        sign = Vector3.Dot(Quaternion.AngleAxis(10f, across) * dir, palm) > Vector3.Dot(dir, palm) ? 1f : -1f;
+                    }
                     float angle = (k == 0 ? 85f : k == 1 ? 95f : 40f) * amount * (f == 0 ? 0.85f : 1f);   // a real wrap: ~90 at the knuckle and the middle joint
                     b.rotation = Quaternion.AngleAxis(angle * sign, across) * b.rotation;
                 }
+            }
+            // the thumb folds in across the palm, round the hand's long axis, towards the middle of the curled fingers
+            Vector3 fold = a.hand.position + frame * new Vector3(0f, -0.03f, 0.07f);
+            for (int k = 0; k < a.thumb.Length; k++)
+            {
+                var b = a.thumb[k];
+                if (b == null) continue;
+                b.localRotation = a.thumbRest[k];
+                var tip = k + 1 < a.thumb.Length && a.thumb[k + 1] != null ? a.thumb[k + 1] : b.childCount > 0 ? b.GetChild(0) : null;
+                if (tip == null) continue;
+                // try the whole fold both ways and keep the one that brings the tip in (mirrored rigs differ)
+                Vector3 axis = frame * Vector3.forward;
+                float angle = (k == 0 ? 45f : k == 1 ? 45f : 35f) * amount;
+                var start = b.rotation;
+                b.rotation = Quaternion.AngleAxis(angle, axis) * start;
+                float dPlus = (tip.position - fold).sqrMagnitude;
+                b.rotation = Quaternion.AngleAxis(-angle, axis) * start;
+                if (dPlus < (tip.position - fold).sqrMagnitude) b.rotation = Quaternion.AngleAxis(angle, axis) * start;
+            }
         }
 
         // where a hand would sit, for tests: hand bone world position
@@ -147,6 +177,36 @@ namespace LifeInDowntown.Player
             var a = rightHand ? right : left;
             return a == null ? 0f : Vector3.Distance(a.upper.position, a.fore.position) + Vector3.Distance(a.fore.position, a.hand.position);
         }
+        // how closed a hand is, for tests and the range: the angle between the back of the hand (wrist to
+        // knuckle) and the index fingertip's last bone. ~0 = flat, 150+ = a fist
+        public float IndexBend(bool rightHand)
+        {
+            Init();
+            var a = rightHand ? right : left;
+            if (a == null || a.fingers[0][0] == null || a.fingers[0][2] == null) return 0f;
+            var tip = a.fingers[0][2];
+            Vector3 tipDir = tip.childCount > 0 ? tip.GetChild(0).position - tip.position : tip.position - a.fingers[0][1].position;
+            return Vector3.Angle(a.fingers[0][0].position - a.hand.position, tipDir);
+        }
+
+        // the thumb tip's distance to the curled fingers (m), for the range and tests: a folded thumb is ~0.03-0.05
+        public float ThumbGap(bool rightHand)
+        {
+            Init();
+            var a = rightHand ? right : left;
+            if (a == null || a.thumb[2] == null) return -1f;
+            var tip = a.thumb[2].childCount > 0 ? a.thumb[2].GetChild(0) : a.thumb[2];
+            var mid = a.fingers[1][1] != null ? a.fingers[1][1].position : a.hand.position;
+            return Vector3.Distance(tip.position, mid);
+        }
+
+        public string ThumbBones(bool rightHand)
+        {
+            Init();
+            var a = rightHand ? right : left;
+            return a == null ? "-" : string.Join(",", System.Array.ConvertAll(a.thumb, t => t != null ? t.name : "null"));
+        }
+
         public Vector3 Shoulder(bool rightHand) { Init(); return (rightHand ? right : left)?.upper.position ?? Vector3.zero; }
     }
 }

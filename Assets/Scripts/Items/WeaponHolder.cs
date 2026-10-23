@@ -60,6 +60,21 @@ namespace LifeInDowntown.Items
 
         void Awake() { Instance = this; }
 
+        // playing, on foot, no backpack / map / phone up: the hands are his (the gun and the fists both ask)
+        public static bool InputFree()
+        {
+            bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
+            return playing && !LifeInDowntown.Vehicles.PlayerDriving.PlayerIsDriving && !InventoryUI.IsOpen && !LifeInDowntown.Map.MapController.IsOpen
+                   && !(LifeInDowntown.Phone.PhoneController.Instance != null && LifeInDowntown.Phone.PhoneController.Instance.IsUp);
+        }
+
+        // Tarik's own body under the player (NPC fighters carry a TarikBody for their swings too)
+        public static TarikBody PlayerBody(Component cam)
+        {
+            var r = cam.GetComponent<BodycamRig>();
+            return r != null && r.player != null ? r.player.GetComponentInChildren<TarikBody>() : null;
+        }
+
         void Start()
         {
             gun = (gunModel != null ? Instantiate(gunModel) : StandIn()).transform;
@@ -76,7 +91,7 @@ namespace LifeInDowntown.Items
             hintR = Point(transform, "ElbowHintR", HintR, Quaternion.identity);
             hintL = Point(transform, "ElbowHintL", HintL, Quaternion.identity);
             reloadHand = Point(transform, "ReloadHand", Vector3.zero, Quaternion.identity);
-            body = FindFirstObjectByType<TarikBody>();
+            body = PlayerBody(this);
             flash = muzzle.gameObject.AddComponent<Light>();
             flash.type = LightType.Point; flash.range = 8f; flash.color = new Color(1f, 0.78f, 0.45f); flash.intensity = 0f;
             audioSrc = gameObject.AddComponent<AudioSource>();
@@ -94,8 +109,7 @@ namespace LifeInDowntown.Items
             bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
             bool driving = LifeInDowntown.Vehicles.PlayerDriving.PlayerIsDriving;
             var kb = Keyboard.current; var mouse = Mouse.current;
-            bool free = playing && !driving && !InventoryUI.IsOpen && !LifeInDowntown.Map.MapController.IsOpen
-                        && !(LifeInDowntown.Phone.PhoneController.Instance != null && LifeInDowntown.Phone.PhoneController.Instance.IsUp);
+            bool free = InputFree();
             if (free && kb != null)
             {
                 if (kb.qKey.wasPressedThisFrame) ToggleDraw();
@@ -263,6 +277,15 @@ namespace LifeInDowntown.Items
             gun.localRotation = Quaternion.Euler(aimed ? aimEuler : heldEuler);
             Hands(1f);
             if (body != null) { body.Solve(); body.Solve(); }
+        }
+
+        // editor renders: the gun back in the holster (the fists shots)
+        public void PoseHolstered()
+        {
+            if (gun == null) Start();
+            raise = 0f; aim = 0f; S.drawn = false;
+            gun.gameObject.SetActive(false);
+            Hands(0f);
         }
 
         public void ToggleDraw()

@@ -50,6 +50,15 @@ namespace LifeInDowntown.NPC
             return false;
         }
 
+        // a punch from Tarik (DESIGN 3P.3): NpcMelee takes it from here (stagger, knockdown, fighting back)
+        public void Punch(float amount, Vector3 point, Vector3 dir, bool heavy)
+        {
+            if (Dead) return;
+            var m = GetComponent<NpcMelee>();
+            if (m == null) m = gameObject.AddComponent<NpcMelee>();
+            m.TakePunch(amount, point, dir, heavy);
+        }
+
         public static float BodyShot() => Random.Range(50f, 55f);   // two of these always drop anyone (45-55 could leave them on 6)
 
         // shot (DESIGN 3O.6): ragdoll, stop thinking

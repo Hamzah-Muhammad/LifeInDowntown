@@ -91,6 +91,69 @@ namespace LifeInDowntown.EditorTools
                 stats.TakeDamage(40f, Vector3.forward);
                 Check(stats.Collapses == 1 && Mathf.Approximately(s.health, 35f) && Mathf.Approximately(s.cash, 85f) && !s.drawn
                       && s.equipped == "pistol_9mm" && Inventory.Count(s, "pistol_9mm") == 1, $"at 0 he wakes at home, $15 lighter, pistol kept (cash {s.cash}, health {s.health})");
+                // fists (DESIGN 3P.3)
+                var fists = cam.GetComponent<Fists>();
+                s.drawn = false; s.health = 100f;
+                fists.SetUp(true); fists.Step(0.2f);
+                var tb = WeaponHolder.PlayerBody(cam.transform);
+                tb.Solve();
+                Check(fists.Up && fists.Weight >= 1f && tb.rightTarget != null && tb.rightTarget.name == "FistR" && tb.leftTarget.name == "FistL", "fists up: his hands go to the guard");
+                Check(tb.IndexBend(true) > 150f && tb.IndexBend(false) > 150f && tb.ThumbGap(true) < 0.03f && tb.ThumbGap(false) < 0.03f,
+                      $"the hands close into fists (index bend {tb.IndexBend(true):F0} / {tb.IndexBend(false):F0}, thumb gap {tb.ThumbGap(true):F3} / {tb.ThumbGap(false):F3} m)");
+                Pedestrian.Player = GameObject.Find("Player").transform;
+                Vector3 inFront = new Vector3(0f, 0f, 0.85f);
+                Pedestrian Victim(Pedestrian.Role role) { var p = Person("Male_Adult_12", inFront); p.role = role; Physics.SyncTransforms(); return p; }
+                void Throw(bool heavy) { if (heavy) fists.Hook(); else fists.Jab(); for (int i = 0; i < 45; i++) fists.Step(1f / 60f); }
+                void Melee(NpcMelee m, float seconds) { for (float t = 0f; t < seconds; t += 1f / 60f) m.Step(1f / 60f); }
+                void Reset(Pedestrian p) { p.transform.position = inFront; Physics.SyncTransforms(); }
+
+                var w = Victim(Pedestrian.Role.Walker);
+                float h0 = w.health;
+                Throw(false);
+                var wm = w.GetComponent<NpcMelee>();
+                Check(fists.LastHit == w && wm != null && h0 - w.health is >= 8f and <= 12f, $"a jab lands for 8-12 ({h0 - w.health:F1})");
+                Melee(wm, 0.4f);
+                Check((w.transform.position - inFront).magnitude > 0.15f && !wm.Fighting, $"they stagger back {(w.transform.position - inFront).magnitude:F2} m and stare, not fight, after one");
+                Reset(w);
+                Throw(false);
+                Check(wm.Fighting && NpcMelee.AnyFighterNear(Vector3.zero, 2.5f), "the second punch: they fight back");
+                fists.SetBlock(false);
+                float hb = s.health;
+                Melee(wm, 3f);
+                float per = wm.SwingsLanded > 0 ? (hb - s.health) / wm.SwingsLanded : 0f;
+                Check(wm.SwingsLanded >= 1 && per is >= 6f and <= 10f, $"they close in and land swings for 6-10 ({wm.SwingsLanded} landed, {per:F1} each)");
+                int landed0 = wm.SwingsLanded; hb = s.health;
+                fists.SetBlock(true);
+                Melee(wm, 3f);
+                per = wm.SwingsLanded > landed0 ? (hb - s.health) / (wm.SwingsLanded - landed0) : 99f;
+                Check(per <= 3f, $"blocking takes 70% off ({per:F1} a swing)");
+                fists.SetBlock(false);
+                Object.DestroyImmediate(w.gameObject);
+
+                var k = Victim(Pedestrian.Role.Walker);
+                Throw(true);
+                var km = k.GetComponent<NpcMelee>();
+                var kAnim = k.GetComponentInChildren<Animator>();
+                Check(km != null && km.Down && !kAnim.enabled && k.GetComponentsInChildren<Rigidbody>().Length >= 10, "a held hook knocks them down");
+                Melee(km, NpcMelee.KnockdownSeconds + 0.2f);
+                Check(!km.Down && kAnim.enabled && k.GetComponentsInChildren<Rigidbody>().Length == 0 && !k.Dead, "they get back up after 3 s");
+                Object.DestroyImmediate(k.gameObject);
+
+                var c = Victim(Pedestrian.Role.Corner);
+                Throw(false);
+                var cm = c.GetComponent<NpcMelee>();
+                Check(cm.Fighting, "a corner crew member fights back at the first punch");
+                c.health = 40f; Reset(c);
+                Throw(false);
+                Check(!cm.Fighting && c.path != null && !c.Dead, $"hurt below 35 they give up and run ({c.health:F0})");
+                c.health = 5f; Reset(c);
+                Throw(false);
+                Check(c.Dead, "a beating can finish someone");
+                s.drawn = true; fists.Step(0.2f);
+                Check(!fists.Up && fists.Weight < 0.01f, "drawing the gun drops the fists");
+                Check(Resources.Load<AudioClip>("Audio/punch_swing") != null && Resources.Load<AudioClip>("Audio/punch_jab") != null && Resources.Load<AudioClip>("Audio/punch_hook") != null,
+                      "swing, jab and hook sounds exist");
+
                 Check(Resources.Load<AudioClip>("Audio/hurt_hit") != null && Resources.Load<AudioClip>("Audio/tinnitus") != null && Resources.Load<AudioClip>("Audio/heartbeat") != null,
                       "hit, tinnitus and heartbeat sounds exist");
                 Object.DestroyImmediate(fb);
