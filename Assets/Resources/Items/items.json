@@ -235,7 +235,9 @@
   "startKit": [
     "phone",
     "condo_keys",
-    "lighter"
+    "lighter",
+    "pistol_9mm",
+    "ammo_9mm:30"
   ],
   "startCash": 60
 }

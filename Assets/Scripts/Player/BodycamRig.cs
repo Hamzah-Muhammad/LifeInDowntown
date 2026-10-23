@@ -55,6 +55,9 @@ namespace LifeInDowntown.Player
 
         void OnLanded(float speed) => kickVel += speed * landingKickPerMs * 8f;
 
+        // recoil: the view jumps up by about this many degrees and springs back (WeaponHolder)
+        public void Kick(float degrees) => kickVel -= degrees * 8f;
+
         // jump straight to the player's look (after a teleport / load), no lag swing
         public void Snap()
         {

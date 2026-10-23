@@ -39,7 +39,12 @@ namespace LifeInDowntown.Game
         public static void NewGame()
         {
             Current = new GameState { cash = LifeInDowntown.Items.ItemCatalog.StartCash };
-            foreach (var id in LifeInDowntown.Items.ItemCatalog.StartKit) LifeInDowntown.Items.Inventory.Add(Current, id, 1);
+            foreach (var entry in LifeInDowntown.Items.ItemCatalog.StartKit)   // "id" or "id:count"
+            {
+                var kv = entry.Split(':');
+                LifeInDowntown.Items.Inventory.Add(Current, kv[0], kv.Length > 1 && int.TryParse(kv[1], out int n) ? n : 1);
+            }
+            LifeInDowntown.Items.Inventory.Equip(Current, "pistol_9mm");   // on his hip, holstered, a mag loaded (DESIGN 3O.6)
         }
 
         public bool HasFlag(string f) => flags.Contains(f);

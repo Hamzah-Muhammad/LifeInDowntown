@@ -26,6 +26,8 @@ namespace LifeInDowntown.EditorTools
                 var s = GameState.Current;
                 Check(Inventory.Count(s, "phone") == 1 && Inventory.Count(s, "condo_keys") == 1 && Inventory.Count(s, "lighter") == 1,
                       "new game: phone, keys and lighter in the backpack");
+                Check(s.equipped == "pistol_9mm" && !s.drawn && s.loaded == 15 && Inventory.Count(s, "ammo_9mm") == 15,
+                      $"new game: the 9mm on his hip, {s.loaded} loaded, {Inventory.Count(s, "ammo_9mm")} spare (DESIGN 3O.6)");
                 Check(Mathf.Approximately(s.cash, 60f) && s.inventory.Count == Inventory.Slots, $"new game: $60.00 and {Inventory.Slots} slots (cash {s.cash})");
                 Check(!Inventory.CanDrop("phone") && Inventory.CanDrop("lighter"), "key items can't be dropped");
 
@@ -40,8 +42,9 @@ namespace LifeInDowntown.EditorTools
                 int room = Inventory.Room(s, "water");
                 int expectByWeight = Mathf.FloorToInt((Inventory.MaxCarry - before) / 0.52f + 1e-4f);
                 Check(room == Mathf.Min(expectByWeight, (Inventory.Slots - Used(s)) * 4), $"room for water by slots and weight: {room}");
+                int spare0 = Inventory.Count(s, "ammo_9mm");
                 Inventory.Add(s, "ammo_9mm", 50); Inventory.Add(s, "ammo_9mm", 50);
-                Check(Inventory.Count(s, "ammo_9mm") == 100, "100 rounds in two stacks of 50");
+                Check(Inventory.Count(s, "ammo_9mm") == spare0 + 100, $"100 more rounds stack up ({spare0} + 100)");
                 Inventory.Remove(s, "ammo_9mm", 100);
 
                 // buying
@@ -82,8 +85,9 @@ namespace LifeInDowntown.EditorTools
                       $"collapse at zero: wake on {s.health:0} health, cash $100 -> {ItemCatalog.Money(s.cash)}, hunger {s.hunger:0} (woke on 30, then the clock kept going)");
                 Object.DestroyImmediate(statsGo);
 
-                // weapons: equip loads the magazine from loose rounds
+                // weapons: equip loads the magazine from loose rounds (start from a clean slate: a new game starts armed)
                 s.health = 100f;
+                Inventory.Remove(s, "pistol_9mm", 9); Inventory.Remove(s, "ammo_9mm", 999); s.equipped = ""; s.loaded = 0;
                 Inventory.Add(s, "pistol_9mm", 1); Inventory.Add(s, "ammo_9mm", 20);
                 Check(Inventory.Equip(s, "pistol_9mm") && s.equipped == "pistol_9mm" && s.loaded == 15 && Inventory.Count(s, "ammo_9mm") == 5,
                       $"equip pistol: {s.loaded} loaded, {Inventory.Count(s, "ammo_9mm")} spare");
