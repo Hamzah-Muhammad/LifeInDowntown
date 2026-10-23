@@ -1,9 +1,9 @@
 using System.IO;
-using System.IO;
 using LifeInDowntown.City;
 using LifeInDowntown.Player;
-using UnityEditor;
+using MinniGameFramework.Player;
 using UnityEditor.SceneManagement;
+using UnityEditor;
 using UnityEngine;
 
 namespace LifeInDowntown.EditorTools

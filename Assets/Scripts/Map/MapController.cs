@@ -2,9 +2,10 @@ using System;
 using LifeInDowntown.Game;
 using LifeInDowntown.Phone;
 using LifeInDowntown.Player;
-using UnityEngine;
+using MinniGameFramework.Player;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using UnityEngine;
 
 namespace LifeInDowntown.Map
 {

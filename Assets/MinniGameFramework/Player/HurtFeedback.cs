@@ -1,10 +1,11 @@
-using LifeInDowntown.Game;
-using LifeInDowntown.Items;
-using UnityEngine;
-using UnityEngine.Rendering;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering;
+using UnityEngine;
 
-namespace LifeInDowntown.Player
+namespace MinniGameFramework.Player
 {
     // What getting hurt feels like (docs/DESIGN.md 3P.2), on the eye camera:
     //   a hit     - a red vignette pulse, a bodycam glitch (chromatic aberration + a burst of noise), the view
@@ -24,7 +25,7 @@ namespace LifeInDowntown.Player
         BodycamRig rig;
         float beatT;
 
-        static GameState S => GameState.Current;
+        static IPlayerState S => FrameworkHooks.S;
 
         bool listening;
         void OnEnable() => Listen(true);
@@ -97,7 +98,7 @@ namespace LifeInDowntown.Player
 
         void Update()
         {
-            bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
+            bool playing = FrameworkHooks.Playing();
             Step(playing ? Time.deltaTime : 0f);
         }
 

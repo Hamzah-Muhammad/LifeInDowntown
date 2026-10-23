@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.Player;
 using UnityEngine;
 
-namespace LifeInDowntown.NPC
+namespace MinniGameFramework.NPC
 {
     // Puts armed people on the street for a mission objective (docs/DESIGN.md 3P.4): `count` of them on the
     // sidewalk near a place, a couple of metres apart, loitering until something sets them off. The
@@ -37,15 +40,15 @@ namespace LifeInDowntown.NPC
             return made;
         }
 
-        // sidewalk points near the place (CrowdDirector), at least 2.5 m apart; without a crowd, rings on the ground
+        // sidewalk points near the place (FrameworkHooks.SidewalkPoints, the game's crowd lines), at least 2.5 m apart; without a crowd, rings on the ground
         static List<Vector3> Spots(Vector3 place, int count, float spread)
         {
             var spots = new List<Vector3>();
-            var crowd = CrowdDirector.Instance != null ? CrowdDirector.Instance : FindFirstObjectByType<CrowdDirector>();
-            if (crowd != null && crowd.points != null && crowd.points.Length > 0)
+            var sidewalk = FrameworkHooks.SidewalkPoints();
+            if (sidewalk != null && sidewalk.Count > 0)
             {
                 var near = new List<Vector3>();
-                foreach (var p in crowd.points) if (Flat(p - place).magnitude < spread * 3f) near.Add(p);
+                foreach (var p in sidewalk) if (Flat(p - place).magnitude < spread * 3f) near.Add(p);
                 near.Sort((a, b) => Flat(a - place).sqrMagnitude.CompareTo(Flat(b - place).sqrMagnitude));
                 foreach (var p in near)
                 {

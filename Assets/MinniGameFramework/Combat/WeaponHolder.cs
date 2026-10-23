@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using LifeInDowntown.Game;
-using LifeInDowntown.NPC;
-using LifeInDowntown.Player;
-using UnityEngine;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
+using MinniGameFramework.Player;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
-namespace LifeInDowntown.Items
+namespace MinniGameFramework.Combat
 {
     // The equipped weapon (docs/DESIGN.md 3M, 3O.6). Q draws or holsters, right mouse aims down the sights
     // (the lens narrows a little), left mouse fires, R reloads from loose rounds. Each shot: a raycast down the
@@ -55,7 +55,7 @@ namespace LifeInDowntown.Items
         readonly Queue<GameObject> casings = new Queue<GameObject>();
         static Material holeMat, brassMat, magMat;
 
-        static GameState S => GameState.Current;
+        static IPlayerState S => FrameworkHooks.S;
         public bool Aiming => aim > 0.5f;
 
         void Awake() { Instance = this; }
@@ -63,9 +63,7 @@ namespace LifeInDowntown.Items
         // playing, on foot, no backpack / map / phone up: the hands are his (the gun and the fists both ask)
         public static bool InputFree()
         {
-            bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
-            return playing && !LifeInDowntown.Vehicles.PlayerDriving.PlayerIsDriving && !InventoryUI.IsOpen && !LifeInDowntown.Map.MapController.IsOpen
-                   && !(LifeInDowntown.Phone.PhoneController.Instance != null && LifeInDowntown.Phone.PhoneController.Instance.IsUp);
+            return FrameworkHooks.Playing() && !FrameworkHooks.Driving() && !FrameworkHooks.InputBlocked();
         }
 
         // Tarik's own body under the player (NPC fighters carry a TarikBody for their swings too)
@@ -106,8 +104,8 @@ namespace LifeInDowntown.Items
 
         void Update()
         {
-            bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
-            bool driving = LifeInDowntown.Vehicles.PlayerDriving.PlayerIsDriving;
+            bool playing = FrameworkHooks.Playing();
+            bool driving = FrameworkHooks.Driving();
             var kb = Keyboard.current; var mouse = Mouse.current;
             bool free = InputFree();
             if (free && kb != null)
@@ -123,7 +121,7 @@ namespace LifeInDowntown.Items
                 var dir = Quaternion.Euler(Random.Range(-spread, spread) * 0.5f, Random.Range(-spread, spread) * 0.5f, 0f) * cam.transform.forward;
                 Fire(cam.transform.position, dir);
             }
-            if (!string.IsNullOrEmpty(S.equipped) && Inventory.Count(S, S.equipped) == 0) { S.equipped = ""; S.drawn = false; }
+            if (!string.IsNullOrEmpty(S.equipped) && FrameworkHooks.Armory.Count(S.equipped) == 0) { S.equipped = ""; S.drawn = false; }
 
             raise = Mathf.MoveTowards(raise, S.drawn ? 1f : 0f, Time.deltaTime / drawSeconds);
             aim = Mathf.MoveTowards(aim, wantAim ? 1f : 0f, Time.deltaTime * 5f);
@@ -165,10 +163,10 @@ namespace LifeInDowntown.Items
 
         public bool StartReload()
         {
-            var d = ItemCatalog.Get(S.equipped);
-            if (d == null || reloadT >= 0f || !S.drawn) return false;
-            if (S.loaded >= d.magazine) { Toast("Full."); return false; }
-            if (Inventory.Count(S, d.ammo) == 0) { Toast("No spare rounds."); return false; }
+            int mag = FrameworkHooks.Armory.Magazine(S.equipped);
+            if (mag <= 0 || reloadT >= 0f || !S.drawn) return false;
+            if (S.loaded >= mag) { Toast("Full."); return false; }
+            if (FrameworkHooks.Armory.Count(FrameworkHooks.Armory.AmmoFor(S.equipped)) == 0) { Toast("No spare rounds."); return false; }
             reloadT = 0f; reloadEmpty = S.loaded == 0; magOut = magIn = false;
             return true;
         }
@@ -209,13 +207,13 @@ namespace LifeInDowntown.Items
                 magIn = true;
                 if (handMag != null) { Kill(handMag); handMag = null; }
                 S.loaded = 0;                                     // the old mag fell out with whatever was left in it
-                Inventory.Reload(S);
+                FrameworkHooks.Armory.Reload();
             }
         }
 
         void EndReload()
         {
-            if (!magIn && magOut) { S.loaded = 0; Inventory.Reload(S); }   // cut short after the mag dropped: still loads
+            if (!magIn && magOut) { S.loaded = 0; FrameworkHooks.Armory.Reload(); }   // cut short after the mag dropped: still loads
             if (handMag != null) { Kill(handMag); handMag = null; }
             reloadT = -1f;
             Toast($"{S.loaded} in the mag");
@@ -301,7 +299,7 @@ namespace LifeInDowntown.Items
         {
             if (Time.time < nextShot && Application.isPlaying) return Shot.NotReady;
             nextShot = Time.time + fireInterval;
-            if (LifeInDowntown.World.IndoorZone.IsIndoors(origin)) { Toast("Not here."); return Shot.NotHere; }
+            if (FrameworkHooks.NoFireZone(origin)) { Toast("Not here."); return Shot.NotHere; }
             if (S.loaded <= 0) { Play(dry, 0.8f); Toast("Empty. R to reload."); return Shot.Empty; }
             S.loaded--;
             Play(shot, 1f);
@@ -400,9 +398,8 @@ namespace LifeInDowntown.Items
             float k = Screen.height / 1080f;
             if (hud == null) hud = new GUIStyle { alignment = TextAnchor.LowerRight, fontStyle = FontStyle.Bold, normal = { textColor = new Color(0.93f, 0.93f, 0.9f, 0.85f) } };
             hud.fontSize = Mathf.RoundToInt(30f * k);
-            var d = ItemCatalog.Get(S.equipped);
-            if (S.drawn && d != null)
-                GUI.Label(new Rect(Screen.width - 330f * k, Screen.height - 80f * k, 300f * k, 50f * k), $"{S.loaded} / {Inventory.Count(S, d.ammo)}", hud);
+            if (S.drawn && FrameworkHooks.Armory.Magazine(S.equipped) > 0)
+                GUI.Label(new Rect(Screen.width - 330f * k, Screen.height - 80f * k, 300f * k, 50f * k), $"{S.loaded} / {FrameworkHooks.Armory.Count(FrameworkHooks.Armory.AmmoFor(S.equipped))}", hud);
             if (Time.time < toastUntil && toast != null)
                 GUI.Label(new Rect(Screen.width - 630f * k, Screen.height - 130f * k, 600f * k, 40f * k), toast, hud);
         }

@@ -3,8 +3,11 @@ using LifeInDowntown.Game;
 using LifeInDowntown.Items;
 using LifeInDowntown.NPC;
 using LifeInDowntown.Player;
-using UnityEditor;
+using MinniGameFramework.Combat;
+using MinniGameFramework.NPC;
+using MinniGameFramework.Player;
 using UnityEditor.SceneManagement;
+using UnityEditor;
 using UnityEngine;
 
 namespace LifeInDowntown.EditorTools

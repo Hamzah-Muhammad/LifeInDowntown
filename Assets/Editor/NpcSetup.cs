@@ -3,6 +3,7 @@ using System.IO;
 using LifeInDowntown.City;
 using LifeInDowntown.NPC;
 using LifeInDowntown.Phone;
+using MinniGameFramework.NPC;
 using UnityEditor;
 using UnityEngine;
 

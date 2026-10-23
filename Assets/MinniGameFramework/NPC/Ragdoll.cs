@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.Player;
 using UnityEngine;
 
-namespace LifeInDowntown.NPC
+namespace MinniGameFramework.NPC
 {
     // Turns a Rocketbox humanoid into a ragdoll at the moment it's hit (docs/DESIGN.md 3O.6): rigidbodies and
     // capsules on the main bones from the Animator's humanoid map, character joints to their parents, the

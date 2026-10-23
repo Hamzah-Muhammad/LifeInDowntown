@@ -7,8 +7,18 @@ namespace LifeInDowntown.Game
     // (docs/DESIGN.md 1, 3D, 3M).
     // Carried in every save file.
     [Serializable]
-    public class GameState
+    public class GameState : MinniGameFramework.Core.IPlayerState
     {
+        // MinniGameFramework reads and writes these through IPlayerState (DESIGN 3S); the saved fields stay as they are
+        float MinniGameFramework.Core.IPlayerState.health { get => health; set => health = value; }
+        float MinniGameFramework.Core.IPlayerState.hunger { get => hunger; set => hunger = value; }
+        float MinniGameFramework.Core.IPlayerState.thirst { get => thirst; set => thirst = value; }
+        float MinniGameFramework.Core.IPlayerState.cash { get => cash; set => cash = value; }
+        int MinniGameFramework.Core.IPlayerState.heat { get => heat; set => heat = value; }
+        bool MinniGameFramework.Core.IPlayerState.drawn { get => drawn; set => drawn = value; }
+        int MinniGameFramework.Core.IPlayerState.loaded { get => loaded; set => loaded = value; }
+        string MinniGameFramework.Core.IPlayerState.equipped { get => equipped; set => equipped = value; }
+
         public string playerName = "Tarik";
         public int rep;
         public int heat;

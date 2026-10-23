@@ -1,9 +1,10 @@
 using System.Collections.Generic;
-using LifeInDowntown.Items;
-using LifeInDowntown.Player;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.Player;
 using UnityEngine;
 
-namespace LifeInDowntown.NPC
+namespace MinniGameFramework.NPC
 {
     // A person Tarik has punched (docs/DESIGN.md 3P.3). Added by Pedestrian.Punch on the first hit.
     //   a jab or cross - a short stagger back

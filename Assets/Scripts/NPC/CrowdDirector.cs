@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MinniGameFramework.NPC;
 using UnityEngine;
 
 namespace LifeInDowntown.NPC
@@ -47,7 +48,7 @@ namespace LifeInDowntown.NPC
 
         void Start()
         {
-            var body = FindFirstObjectByType<LifeInDowntown.Player.BodycamPlayer>();
+            var body = FindFirstObjectByType<MinniGameFramework.Player.BodycamPlayer>();
             player = body != null ? body.transform : null;
             Pedestrian.Player = player;
             lineOf = new int[points.Length];

@@ -150,8 +150,8 @@ namespace LifeInDowntown.City
                 var c = (GameObject)PrefabUtility.InstantiatePrefab(who, root);
                 c.name = "Concierge";
                 c.transform.SetPositionAndRotation(s.W(2.5f, 5.85f, F), Quaternion.LookRotation(-inw));
-                var ped = c.GetComponent<LifeInDowntown.NPC.Pedestrian>();
-                ped.mode = LifeInDowntown.NPC.Pedestrian.Mode.Idle; ped.role = LifeInDowntown.NPC.Pedestrian.Role.Clerk; ped.watchPlayer = true; ped.watchRange = 7f; ped.path = null;
+                var ped = c.GetComponent<MinniGameFramework.NPC.Pedestrian>();
+                ped.mode = MinniGameFramework.NPC.Pedestrian.Mode.Idle; ped.role = MinniGameFramework.NPC.Pedestrian.Role.Clerk; ped.watchPlayer = true; ped.watchRange = 7f; ped.path = null;
             }
             var talk = new GameObject("ConciergeDesk").transform;
             talk.SetParent(root, false);

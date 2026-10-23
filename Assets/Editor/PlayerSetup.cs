@@ -3,12 +3,13 @@ using System.IO;
 using LifeInDowntown.City;
 using LifeInDowntown.Game;
 using LifeInDowntown.Player;
-using UnityEngine.UIElements;
+using MinniGameFramework.Player;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
+using UnityEngine;
 
 namespace LifeInDowntown.EditorTools
 {
@@ -92,7 +93,7 @@ namespace LifeInDowntown.EditorTools
                 tb.transform.localPosition = new Vector3(0f, BodyLift, 0f);   // the camera sits at his eyes; the near clip hides the head
                 tb.transform.localRotation = Quaternion.identity;
                 foreach (var c in tb.GetComponents<Collider>()) Object.DestroyImmediate(c, true);
-                var ped = tb.GetComponent<LifeInDowntown.NPC.Pedestrian>(); if (ped != null) Object.DestroyImmediate(ped, true);
+                var ped = tb.GetComponent<MinniGameFramework.NPC.Pedestrian>(); if (ped != null) Object.DestroyImmediate(ped, true);
                 HideHead(tb);
                 var tAnim = tb.GetComponentInChildren<Animator>();
                 tAnim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
@@ -115,7 +116,7 @@ namespace LifeInDowntown.EditorTools
             rig.Tick(1f / 60f);   // place it at the mount now so the scene opens at the right pose
             camGo.AddComponent<Fists>();          // V fists up, jab/cross, hold for a hook, right mouse blocks (DESIGN 3P.3)
             camGo.AddComponent<HurtFeedback>();   // red edge, glitch, tinnitus, heartbeat (DESIGN 3P.2)
-            camGo.AddComponent<LifeInDowntown.Items.WeaponHolder>().gunModel =   // drawn pistol in the eye-camera frame (DESIGN 3M)
+            camGo.AddComponent<MinniGameFramework.Combat.WeaponHolder>().gunModel =   // drawn pistol in the eye-camera frame (DESIGN 3M)
                 AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
             return camGo;
         }
@@ -254,7 +255,7 @@ namespace LifeInDowntown.EditorTools
             invDoc.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/UI/Inventory.uxml");
             invDoc.sortingOrder = 7;   // over the phone and map, under the menus
             invGo.AddComponent<LifeInDowntown.Items.InventoryUI>().player = player;
-            invGo.AddComponent<LifeInDowntown.Items.PlayerStats>().player = player;
+            invGo.AddComponent<MinniGameFramework.Player.PlayerStats>().player = player;
 
             var es = new GameObject("EventSystem");
             es.AddComponent<UnityEngine.EventSystems.EventSystem>();

@@ -1,4 +1,5 @@
 using LifeInDowntown.Game;
+using MinniGameFramework.NPC;
 using UnityEngine;
 
 namespace LifeInDowntown.NPC

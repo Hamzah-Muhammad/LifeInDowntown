@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using LifeInDowntown.Player;
+using MinniGameFramework.Player;
 using UnityEngine;
 
 namespace LifeInDowntown.Game

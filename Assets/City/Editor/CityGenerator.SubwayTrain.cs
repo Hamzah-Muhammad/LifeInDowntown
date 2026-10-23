@@ -124,12 +124,12 @@ namespace LifeInDowntown.City
             return list;
         }
 
-        static GameObject Rider(List<GameObject> prefabs, System.Random rnd, Transform parent, Vector3 localPos, Vector3 localFace, LifeInDowntown.NPC.Pedestrian.Mode mode)
+        static GameObject Rider(List<GameObject> prefabs, System.Random rnd, Transform parent, Vector3 localPos, Vector3 localFace, MinniGameFramework.NPC.Pedestrian.Mode mode)
         {
             var go = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefabs[rnd.Next(prefabs.Count)], parent);
             go.transform.localPosition = localPos;
             go.transform.localRotation = Quaternion.LookRotation(localFace);
-            var p = go.GetComponent<LifeInDowntown.NPC.Pedestrian>();
+            var p = go.GetComponent<MinniGameFramework.NPC.Pedestrian>();
             if (p != null) { p.mode = mode; p.path = null; p.watchPlayer = false; }
             return go;
         }
@@ -149,9 +149,9 @@ namespace LifeInDowntown.City
                     int k = rnd.Next(3);         // the seat run between doors k and k+1
                     float z = (car.doorZ[k] + car.doorZ[k + 1]) * 0.5f + (float)(rnd.NextDouble() - 0.5) * 1.6f;
                     if (rnd.NextDouble() < 0.7)   // seated, facing across the car
-                        riders.Add(Rider(prefabs, rnd, car.transform, new Vector3(s * (Inner - 0.5f), Floor, z), new Vector3(-s, 0, 0), LifeInDowntown.NPC.Pedestrian.Mode.Sit));
+                        riders.Add(Rider(prefabs, rnd, car.transform, new Vector3(s * (Inner - 0.5f), Floor, z), new Vector3(-s, 0, 0), MinniGameFramework.NPC.Pedestrian.Mode.Sit));
                     else                          // standing near a door, on the phone
-                        riders.Add(Rider(prefabs, rnd, car.transform, new Vector3(s * 0.75f, Floor, car.doorZ[rnd.Next(4)] + 1.1f), new Vector3(0, 0, s), LifeInDowntown.NPC.Pedestrian.Mode.Phone));
+                        riders.Add(Rider(prefabs, rnd, car.transform, new Vector3(s * 0.75f, Floor, car.doorZ[rnd.Next(4)] + 1.1f), new Vector3(0, 0, s), MinniGameFramework.NPC.Pedestrian.Mode.Phone));
                 }
             }
         }
@@ -170,8 +170,8 @@ namespace LifeInDowntown.City
                         var pos = st.W(u, side * 6.3f, PlatFloor);
                         var go = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefabs[rnd.Next(prefabs.Count)], st.transform);
                         go.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(st.Right * -side));
-                        var p = go.GetComponent<LifeInDowntown.NPC.Pedestrian>();
-                        if (p != null) { p.mode = rnd.NextDouble() < 0.5 ? LifeInDowntown.NPC.Pedestrian.Mode.Phone : LifeInDowntown.NPC.Pedestrian.Mode.Waiting; p.path = null; p.watchPlayer = false; }
+                        var p = go.GetComponent<MinniGameFramework.NPC.Pedestrian>();
+                        if (p != null) { p.mode = rnd.NextDouble() < 0.5 ? MinniGameFramework.NPC.Pedestrian.Mode.Phone : MinniGameFramework.NPC.Pedestrian.Mode.Waiting; p.path = null; p.watchPlayer = false; }
                         riders.Add(go);
                     }
         }

@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using LifeInDowntown.Game;
-using LifeInDowntown.Items;
-using LifeInDowntown.Player;
-using LifeInDowntown.World;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.Player;
 using UnityEngine;
 
-namespace LifeInDowntown.NPC
+namespace MinniGameFramework.NPC
 {
     // Someone who shoots back (docs/DESIGN.md 3P.4). Idle -> Alert -> Combat -> Fled / Dead.
     //   Alert:  heard a shot within 60 m, saw Tarik with a gun out (or close, within 20 m), or got hit
@@ -51,7 +50,7 @@ namespace LifeInDowntown.NPC
         Vector3 lastKnown, peekPoint;
         static readonly int ModeId = Animator.StringToHash("Mode");
 
-        static GameState S => GameState.Current;
+        static IPlayerState S => FrameworkHooks.S;
         static Transform Tarik() => Pedestrian.Player != null ? Pedestrian.Player : GameObject.Find("Player")?.transform;
         // what shows of Tarik: crouching lowers both, peeking puts the head out past the corner (DESIGN 3R)
         static Vector3 Chest(Transform t) { var bp = t.GetComponent<BodycamPlayer>(); return bp != null ? bp.ChestPoint : t.position + Vector3.up * 1.3f; }
@@ -346,8 +345,7 @@ namespace LifeInDowntown.NPC
             gun.SetPositionAndRotation(transform.position + transform.right * 0.4f + Vector3.up * 0.03f, Quaternion.Euler(90f, Random.Range(0f, 360f), 0f));
             var box = gun.gameObject.AddComponent<BoxCollider>();
             box.size = new Vector3(0.04f, 0.15f, 0.2f);
-            var pick = gun.gameObject.AddComponent<WorldPickup>();
-            pick.itemId = "ammo_9mm"; pick.count = Mathf.Max(0, Loaded) + 6; pick.pickupId = "";
+            FrameworkHooks.MakeLoot(gun.gameObject, "ammo_9mm", Mathf.Max(0, Loaded) + 6);
             gun = null;
         }
 

@@ -91,18 +91,18 @@ namespace LifeInDowntown.Phone
 
         // an "enemies" objective (DESIGN 3P.4): they're put on the street when Tarik gets within 90 m, and it's
         // done once every one of them is down or has run. Not saved: loading mid-fight puts them back.
-        System.Collections.Generic.List<LifeInDowntown.NPC.Hostile> spawned;
+        System.Collections.Generic.List<MinniGameFramework.NPC.Hostile> spawned;
         public const float SpawnRange = 90f;
-        public System.Collections.Generic.IReadOnlyList<LifeInDowntown.NPC.Hostile> Spawned => spawned;
+        public System.Collections.Generic.IReadOnlyList<MinniGameFramework.NPC.Hostile> Spawned => spawned;
 
         void Enemies(Objective obj, Vector3 playerPos)
         {
             if (spawned == null)
             {
                 var at = PlaceTarget;
-                var spawner = LifeInDowntown.NPC.HostileSpawner.Find();
+                var spawner = MinniGameFramework.NPC.HostileSpawner.Find();
                 if (!at.HasValue || spawner == null || Flat(playerPos - at.Value).magnitude > SpawnRange) return;
-                spawned = new System.Collections.Generic.List<LifeInDowntown.NPC.Hostile>();
+                spawned = new System.Collections.Generic.List<MinniGameFramework.NPC.Hostile>();
                 foreach (var g in obj.enemies)
                 {
                     var where = string.IsNullOrEmpty(g.place) ? at.Value : Data.PlacePosition(g.place) ?? at.Value;

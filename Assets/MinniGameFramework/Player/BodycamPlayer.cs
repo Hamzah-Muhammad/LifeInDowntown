@@ -1,8 +1,11 @@
 using System;
-using UnityEngine;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
-namespace LifeInDowntown.Player
+namespace MinniGameFramework.Player
 {
     // First-person body (docs/DESIGN.md 3B.1, 3R). Owns movement and look angles; BodycamRig turns those into
     // the eye-camera pose. Movement for a stealth / crime game (3R):
@@ -154,7 +157,7 @@ namespace LifeInDowntown.Player
 
             // actual velocity from the position change (cc.velocity is always zero outside play mode)
             Vector3 startPos = transform.position;
-            Vector3 carry = Grounded ? LifeInDowntown.Transit.Escalator.CarryAt(transform.position) : Vector3.zero;   // DESIGN 3N.4
+            Vector3 carry = Grounded ? FrameworkHooks.GroundCarry(transform.position) : Vector3.zero;   // DESIGN 3N.4
             var flags = cc.Move((horizontal + Vector3.up * vertical + carry) * dt);
             Vector3 actual = (transform.position - startPos) / dt;
             bool groundedNow = (flags & CollisionFlags.Below) != 0;

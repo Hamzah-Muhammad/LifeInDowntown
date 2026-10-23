@@ -1,10 +1,10 @@
-using LifeInDowntown.Game;
-using LifeInDowntown.Items;
-using LifeInDowntown.NPC;
-using UnityEngine;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
-namespace LifeInDowntown.Player
+namespace MinniGameFramework.Player
 {
     // Fist fights (docs/DESIGN.md 3P.3), on the eye camera beside the WeaponHolder. With the gun holstered:
     //   V           fists up / down (they come up by themselves when someone squares up within 2.5 m)
@@ -52,7 +52,7 @@ namespace LifeInDowntown.Player
         float moveT, holdT = -1f;
         bool hitDone, leftNext = true;
 
-        static GameState S => GameState.Current;
+        static IPlayerState S => FrameworkHooks.S;
 
         void Awake() { Instance = this; }
 
@@ -91,7 +91,7 @@ namespace LifeInDowntown.Player
                 }
             }
             else holdT = -1f;
-            bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
+            bool playing = FrameworkHooks.Playing();
             Step(playing ? Time.deltaTime : 0f);
         }
 

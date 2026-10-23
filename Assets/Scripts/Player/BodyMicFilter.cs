@@ -1,3 +1,4 @@
+using MinniGameFramework.Player;
 using UnityEngine;
 
 namespace LifeInDowntown.Player

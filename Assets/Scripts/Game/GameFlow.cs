@@ -1,7 +1,8 @@
 using System;
 using LifeInDowntown.Player;
-using UnityEngine;
+using MinniGameFramework.Player;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
 namespace LifeInDowntown.Game
 {
@@ -42,15 +43,15 @@ namespace LifeInDowntown.Game
         // verification hook: stand ~5 m from the nearest pedestrian, facing them
         void LookAtNearestNpc()
         {
-            LifeInDowntown.NPC.Pedestrian best = null;
+            MinniGameFramework.NPC.Pedestrian best = null;
             float bd = float.MaxValue;
-            foreach (var p in FindObjectsByType<LifeInDowntown.NPC.Pedestrian>(FindObjectsSortMode.None))
+            foreach (var p in FindObjectsByType<MinniGameFramework.NPC.Pedestrian>(FindObjectsSortMode.None))
             {
                 float d = (p.transform.position - spawnPosition).sqrMagnitude;
                 if (d < bd) { bd = d; best = p; }
             }
             if (best == null) { Debug.Log("NPC_HOOK no pedestrians"); return; }
-            best.mode = LifeInDowntown.NPC.Pedestrian.Mode.Phone;   // hold still for the capture
+            best.mode = MinniGameFramework.NPC.Pedestrian.Mode.Phone;   // hold still for the capture
             best.GetComponentInChildren<Animator>()?.SetInteger("Mode", (int)best.mode);
             Vector3 at = best.transform.position + best.transform.forward * 3.5f;
             Vector3 to = best.transform.position - at;

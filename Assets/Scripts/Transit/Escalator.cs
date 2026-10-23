@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MinniGameFramework.Player;
 using UnityEngine;
 
 namespace LifeInDowntown.Transit

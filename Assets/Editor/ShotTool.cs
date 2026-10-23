@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
 using LifeInDowntown.City;
-using UnityEditor;
+using MinniGameFramework.Combat;
 using UnityEditor.SceneManagement;
-using UnityEngine;
+using UnityEditor;
 using UnityEngine.Rendering;
+using UnityEngine;
 
 namespace LifeInDowntown.EditorTools
 {
@@ -142,13 +143,13 @@ namespace LifeInDowntown.EditorTools
                 var preview = PreviewCrowd(pos);
                 if (name.StartsWith("hands_"))   // Tarik's IK arms on the pistol (DESIGN 3P.1), from the chest cam
                 {
-                    var wh = Object.FindFirstObjectByType<LifeInDowntown.Items.WeaponHolder>();
+                    var wh = Object.FindFirstObjectByType<MinniGameFramework.Combat.WeaponHolder>();
                     var bc = GameObject.Find("BodycamCamera");
                     // judge the hands under bright light: stand Tarik inside the Pantages Rabba, facing into the store
                     var shop = CityGenerator.ShopSites(data).Find(x => x.kind == "rabba");
                     var plr = GameObject.Find("Player");
-                    var bodyPlayer = plr != null ? plr.GetComponent<LifeInDowntown.Player.BodycamPlayer>() : null;
-                    var rigC = bc != null ? bc.GetComponent<LifeInDowntown.Player.BodycamRig>() : null;
+                    var bodyPlayer = plr != null ? plr.GetComponent<MinniGameFramework.Player.BodycamPlayer>() : null;
+                    var rigC = bc != null ? bc.GetComponent<MinniGameFramework.Player.BodycamRig>() : null;
                     if (plr != null && bodyPlayer != null && rigC != null)
                     {
                         var into = shop.W(0f, 1f, 0f) - shop.W(0f, 0f, 0f);
@@ -186,7 +187,7 @@ namespace LifeInDowntown.EditorTools
                 }
                 if (name == "bodycam_pistol_drawn")   // the held pistol where WeaponHolder puts it, in camera space
                 {
-                    var holder = Object.FindFirstObjectByType<LifeInDowntown.Items.WeaponHolder>();
+                    var holder = Object.FindFirstObjectByType<MinniGameFramework.Combat.WeaponHolder>();
                     if (holder != null && holder.gunModel != null)
                     {
                         var held = Object.Instantiate(holder.gunModel, cam.transform, false);
@@ -241,7 +242,7 @@ namespace LifeInDowntown.EditorTools
                     poses.Add(("train_door_queen", st.W(-45f, 5.2f, plat + 1.6f), st.W(-43f, 1.0f, plat + 1.2f)));
                     poses.Add(("train_front_queen", st.W(95f, 2.05f, CityGenerator.TrackBed + 1.8f), st.W(69f, 2.05f, plat + 1.0f)));
                     var nbTrain = GameObject.Find("Train_NB");
-                    var sitter = nbTrain == null ? null : System.Array.Find(nbTrain.GetComponentsInChildren<LifeInDowntown.NPC.Pedestrian>(true), q => q.mode == LifeInDowntown.NPC.Pedestrian.Mode.Sit);
+                    var sitter = nbTrain == null ? null : System.Array.Find(nbTrain.GetComponentsInChildren<MinniGameFramework.NPC.Pedestrian>(true), q => q.mode == MinniGameFramework.NPC.Pedestrian.Mode.Sit);
                     if (sitter != null) poses.Add(("train_rider_queen", sitter.transform.position + sitter.transform.forward * 1.6f + sitter.transform.right * 1.2f + Vector3.up * 1.5f, sitter.transform.position + Vector3.up * 0.7f));
                 }
                 if (n == "tmu") poses.Add(("train_tmu_shut", st.W(-30f, -6.6f, plat + 1.6f), st.W(-10f, -2.0f, plat + 1.4f)));
@@ -259,10 +260,10 @@ namespace LifeInDowntown.EditorTools
             if (frame is CityGenerator.CondoFrame condo)
                 poses.Add(("crowd_condo_street", condo.outwardGround - condo.inward * 3f + condo.along * 4f + Vector3.up * 1.6f,
                            condo.outwardGround - condo.inward * 3f + condo.along * 60f + Vector3.up * 1.2f));
-            LifeInDowntown.NPC.Pedestrian corner = null, homeless = null, sitter = null;
+            MinniGameFramework.NPC.Pedestrian corner = null, homeless = null, sitter = null;
             foreach (var p in crowd.statics)
             {
-                if (sitter == null && (p.mode == LifeInDowntown.NPC.Pedestrian.Mode.Sit || p.mode == LifeInDowntown.NPC.Pedestrian.Mode.SitLook)) sitter = p;
+                if (sitter == null && (p.mode == MinniGameFramework.NPC.Pedestrian.Mode.Sit || p.mode == MinniGameFramework.NPC.Pedestrian.Mode.SitLook)) sitter = p;
                 if (corner == null && p.watchPlayer) corner = p;
                 if (homeless == null && p.transform.parent != null && p.transform.parent.name == "Homeless") homeless = p;
             }
@@ -315,7 +316,7 @@ namespace LifeInDowntown.EditorTools
                     made.Add(w);
                 }
             }
-            foreach (var p in Object.FindObjectsByType<LifeInDowntown.NPC.Pedestrian>(FindObjectsSortMode.None))
+            foreach (var p in Object.FindObjectsByType<MinniGameFramework.NPC.Pedestrian>(FindObjectsSortMode.None))
             {
                 var anim = p.GetComponentInChildren<Animator>();
                 var ctrl = anim != null ? anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController : null;
@@ -337,7 +338,7 @@ namespace LifeInDowntown.EditorTools
         // Tarik's body in edit mode: pose it on its idle clip (in play the animator does this every frame)
         public static void SampleTarik()
         {
-            var tb = Object.FindFirstObjectByType<LifeInDowntown.Player.TarikBody>();
+            var tb = Object.FindFirstObjectByType<MinniGameFramework.Player.TarikBody>();
             var anim = tb != null ? tb.GetComponentInChildren<Animator>() : null;
             var ctrl = anim != null ? anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController : null;
             if (ctrl == null) return;

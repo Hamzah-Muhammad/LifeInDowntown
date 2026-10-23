@@ -1,6 +1,9 @@
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
 using UnityEngine;
 
-namespace LifeInDowntown.Player
+namespace MinniGameFramework.Player
 {
     // Tarik's own body (docs/DESIGN.md 3P.1): a Rocketbox humanoid at the player's feet, head and neck hidden
     // from the chest cam, legs on the walk/idle clips. The arms are posed after everything else each frame by

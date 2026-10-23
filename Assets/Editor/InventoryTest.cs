@@ -2,8 +2,10 @@ using System.IO;
 using LifeInDowntown.Game;
 using LifeInDowntown.Items;
 using LifeInDowntown.World;
-using UnityEditor;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Player;
 using UnityEditor.SceneManagement;
+using UnityEditor;
 using UnityEngine;
 
 namespace LifeInDowntown.EditorTools
@@ -110,8 +112,8 @@ namespace LifeInDowntown.EditorTools
                 var corner = ItemCatalog.Shop("corner");
                 Check(corner != null && corner.heat == 1 && System.Array.IndexOf(corner.stock, "loud") >= 0, "the corner stock exists and costs heat");
                 Check(Inventory.Buy(s, "loud") == Inventory.BuyResult.Ok && Mathf.Approximately(s.cash, 85f), $"a gram of loud is $15 (cash {s.cash})");
-                Check(LifeInDowntown.NPC.NpcBarks.LinesFor(LifeInDowntown.NPC.Pedestrian.Role.Walker).Length >= 10
-                      && LifeInDowntown.NPC.NpcBarks.LinesFor(LifeInDowntown.NPC.Pedestrian.Role.Homeless).Length > 0, "Toronto street lines for walkers and the homeless");
+                Check(LifeInDowntown.NPC.NpcBarks.LinesFor(MinniGameFramework.NPC.Pedestrian.Role.Walker).Length >= 10
+                      && LifeInDowntown.NPC.NpcBarks.LinesFor(MinniGameFramework.NPC.Pedestrian.Role.Homeless).Length > 0, "Toronto street lines for walkers and the homeless");
 
                 // scene wiring
                 EditorSceneManager.OpenScene("Assets/Scenes/Downtown_YongeDundas.unity", OpenSceneMode.Single);
@@ -121,7 +123,7 @@ namespace LifeInDowntown.EditorTools
                 bool upstairs = System.Array.TrueForAll(pickups, p => p.transform.position.y > 119f && p.transform.position.y < 122f);
                 Check(pickups.Length == 4 && upstairs, $"4 condo pickups on the furniture, in the condo ({pickups.Length})");
                 var dealers = Object.FindObjectsByType<LifeInDowntown.World.DealerNPC>(FindObjectsSortMode.None);
-                Check(dealers.Length >= 8 && System.Array.TrueForAll(dealers, dl => dl.GetComponent<LifeInDowntown.NPC.Pedestrian>().role == LifeInDowntown.NPC.Pedestrian.Role.Corner),
+                Check(dealers.Length >= 8 && System.Array.TrueForAll(dealers, dl => dl.GetComponent<MinniGameFramework.NPC.Pedestrian>().role == MinniGameFramework.NPC.Pedestrian.Role.Corner),
                       $"a dealer on each corner crew ({dealers.Length})");
                 Check(Object.FindFirstObjectByType<LifeInDowntown.NPC.NpcBarks>() != null, "street talk is in the scene");
                 Check(Object.FindFirstObjectByType<InventoryUI>() != null && Object.FindFirstObjectByType<PlayerStats>() != null

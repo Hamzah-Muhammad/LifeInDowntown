@@ -1,8 +1,9 @@
 using LifeInDowntown.Game;
 using LifeInDowntown.Player;
-using UnityEngine;
+using MinniGameFramework.Player;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using UnityEngine;
 
 namespace LifeInDowntown.Items
 {
@@ -70,7 +71,7 @@ namespace LifeInDowntown.Items
             detailEffects = Text(detailCol, "detail-effects", "");
             useBtn = Action(detailCol, "Use", UseSelected);
             equipBtn = Action(detailCol, "Equip", EquipSelected);
-            drawBtn = Action(detailCol, "Draw  (Q)", () => { LifeInDowntown.Items.WeaponHolder.Instance?.ToggleDraw(); Refresh(); });
+            drawBtn = Action(detailCol, "Draw  (Q)", () => { MinniGameFramework.Combat.WeaponHolder.Instance?.ToggleDraw(); Refresh(); });
             dropBtn = Action(detailCol, "Drop", DropSelected);
             toast = Text(detailCol, "toast", "");
             Show(false);

@@ -1,10 +1,11 @@
-using LifeInDowntown.Game;
-using LifeInDowntown.Player;
-using UnityEngine;
-using UnityEngine.Rendering;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering;
+using UnityEngine;
 
-namespace LifeInDowntown.Items
+namespace MinniGameFramework.Player
 {
     // Body stats (docs/DESIGN.md 3M), in real time while playing: hunger empties in ~2 h, thirst in ~1.5 h,
     // faster while sprinting. Empty hunger or thirst drains health; both above half heals slowly. Low stats
@@ -34,7 +35,7 @@ namespace LifeInDowntown.Items
         Vignette vignette;
         bool warnedHunger, warnedThirst, warnedHealth;
 
-        static GameState S => GameState.Current;
+        static IPlayerState S => FrameworkHooks.S;
 
         void Awake() { instance = this; }
 
@@ -69,10 +70,10 @@ namespace LifeInDowntown.Items
 
         void Update()
         {
-            bool playing = GameFlow.Instance == null || GameFlow.Instance.State == GameFlow.FlowState.Playing;
+            bool playing = FrameworkHooks.Playing();
             if (player != null)
             {
-                bool heavy = Inventory.Weight(S) > Inventory.Comfortable;
+                bool heavy = FrameworkHooks.Overloaded();
                 player.speedScale = heavy ? 0.65f : 1f;
                 player.canSprint = !heavy;
             }
@@ -100,7 +101,7 @@ namespace LifeInDowntown.Items
 
         static void Warn(ref bool warned, bool low, bool recovered, string title, string body)
         {
-            if (low && !warned) { warned = true; LifeInDowntown.Phone.PhoneController.Instance?.ShowBanner(title, body); }
+            if (low && !warned) { warned = true; FrameworkHooks.Banner(title, body); }
             else if (recovered) warned = false;
         }
 
@@ -113,8 +114,8 @@ namespace LifeInDowntown.Items
             S.drawn = false;
             SinceHit = 999f;
             Collapses++;
-            GameFlow.Instance?.WakeAtHome();
-            LifeInDowntown.Phone.PhoneController.Instance?.ShowBanner(title, $"Woke up at home. {ItemCatalog.Money(lost)} missing from your wallet.");
+            FrameworkHooks.WakeAtHome();
+            FrameworkHooks.Banner(title, $"Woke up at home. {FrameworkHooks.Money(lost)} missing from your wallet.");
             if (volume != null) volume.weight = 0.6f;
         }
     }

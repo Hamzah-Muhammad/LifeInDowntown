@@ -1,10 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using LifeInDowntown.Player;
-using UnityEngine;
-using UnityEngine.Rendering;
+using MinniGameFramework.Player;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering;
+using UnityEngine;
 
 namespace LifeInDowntown.Game
 {

@@ -1,8 +1,10 @@
 using System;
-using LifeInDowntown.Game;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
 using UnityEngine;
 
-namespace LifeInDowntown.Player
+namespace MinniGameFramework.Player
 {
     // Recording timestamp, top right (docs/DESIGN.md 3B.1). The top-left device ID and REC dot were
     // removed at Hamzah's request (2026-10-22). Hidden while a menu is open.
@@ -15,7 +17,7 @@ namespace LifeInDowntown.Player
         void OnGUI()
         {
             if (Event.current.type != EventType.Repaint) return;
-            if (GameFlow.Instance != null && GameFlow.Instance.State != GameFlow.FlowState.Playing) return;
+            if (!FrameworkHooks.Playing()) return;
             if (text == null)
             {
                 var mono = Font.CreateDynamicFontFromOSFont(new[] { "Consolas", "Lucida Console", "Courier New" }, 24);

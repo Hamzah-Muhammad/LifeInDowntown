@@ -1,8 +1,10 @@
 using LifeInDowntown.Game;
 using LifeInDowntown.Items;
 using LifeInDowntown.NPC;
-using UnityEditor;
+using MinniGameFramework.Combat;
+using MinniGameFramework.NPC;
 using UnityEditor.SceneManagement;
+using UnityEditor;
 using UnityEngine;
 
 namespace LifeInDowntown.EditorTools

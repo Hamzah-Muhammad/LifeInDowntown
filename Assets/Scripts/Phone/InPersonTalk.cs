@@ -1,7 +1,8 @@
 using LifeInDowntown.Game;
 using LifeInDowntown.Player;
-using UnityEngine;
+using MinniGameFramework.Player;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
 namespace LifeInDowntown.Phone
 {

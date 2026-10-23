@@ -638,6 +638,21 @@ Hamzah: "include the ability to run, walk, sneak, peak around corners. This will
   - Fists never handed the arms back when lowered.
   - Holstering mid-reload left the left hand on the reload.
 
+## 3S. MinniGameFramework (built 2026-10-23, branch `feature/minni-game-framework`)
+Hamzah: "Lets call this game's framework MinniGameFramework", and "make MinniGameFramework its own folder, assembly and namespace inside LifeInDowntown."
+- **Layout:** `Assets/MinniGameFramework/` holds `MinniGameFramework.asmdef` and the namespaces `MinniGameFramework.Core`, `.Player`, `.Combat` and `.NPC`. The folder's `README.md` has the file list and how a game plugs in.
+- **What moved in:** 13 scripts, moved with `git mv` together with their `.meta` files, so every scene and prefab link survived. The city scene regenerates clean.
+  - `Player`: BodycamPlayer, BodycamRig, TarikBody, Fists, HurtFeedback, BodycamOverlay, PlayerStats.
+  - `Combat`: WeaponHolder.
+  - `NPC`: Pedestrian, Ragdoll, NpcMelee, Hostile, HostileSpawner.
+- **No game references:** every place the framework touched game code is now a `FrameworkHooks` call. That covers the live state (`IPlayerState`, implemented by `GameState` without changing the save format), the backpack as `IArmory`, the game flow, input blocking (backpack, map, phone), driving, the phone banner, wake at home, money text, overloaded, escalator carry, crowd sidewalks, indoor no-fire zones, and dropped loot.
+- **The bridge:** `Game/FrameworkBridge` installs the hooks before the first scene loads in a build. `Editor/FrameworkBridgeEditor` installs them when the editor loads, for tests and renders.
+- **Stays in the game:** the city generator, phone, missions and story, inventory and shops, crowd, transit, cars, world interactables (`Interactor`, `WorldPickup`, `IndoorZone`), `BodyMicFilter`, `RainFollow`, and the development range and tests (they build from game content).
+- **Verified:** the framework builds as its own `MinniGameFramework.dll`, and all 8 suites pass. The range renders look unchanged. A Windows build succeeds with the DLL in it. The exe hasn't been played live.
+- **Structure review:**
+  - The class names `TarikBody` and `Bodycam*`, and the "Tarik needs to eat" strings in PlayerStats, are game-flavoured inside a generic framework. Renaming them needs Hamzah's "rename".
+  - The range and the combat and stealth tests could move into a `MinniGameFramework/Editor` assembly once they take their content (characters, pistol, car) as inputs, not from game paths.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

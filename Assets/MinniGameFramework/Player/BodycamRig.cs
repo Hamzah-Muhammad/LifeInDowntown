@@ -1,6 +1,9 @@
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.NPC;
 using UnityEngine;
 
-namespace LifeInDowntown.Player
+namespace MinniGameFramework.Player
 {
     // The chest-mounted camera (docs/DESIGN.md 3B.1). Lags behind the look angles like a camera strapped
     // to a body, bobs and rolls with each footstep, jitters slightly, and kicks on landing.

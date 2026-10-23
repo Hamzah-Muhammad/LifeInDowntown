@@ -1,11 +1,13 @@
 using System.IO;
 using LifeInDowntown.Items;
 using LifeInDowntown.Player;
-using UnityEditor;
+using MinniGameFramework.Combat;
+using MinniGameFramework.Player;
 using UnityEditor.SceneManagement;
-using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEditor;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.Rendering;
+using UnityEngine;
 
 namespace LifeInDowntown.EditorTools
 {
@@ -88,7 +90,7 @@ namespace LifeInDowntown.EditorTools
                 var go = (GameObject)PrefabUtility.InstantiatePrefab(p);
                 go.name = $"Lineup_{who}";
                 go.transform.SetPositionAndRotation(Lineup + Vector3.left * (n++ * 0.9f), Quaternion.Euler(0f, 180f, 0f));
-                var ped = go.GetComponent<LifeInDowntown.NPC.Pedestrian>(); if (ped != null) Object.DestroyImmediate(ped);
+                var ped = go.GetComponent<MinniGameFramework.NPC.Pedestrian>(); if (ped != null) Object.DestroyImmediate(ped);
             }
 
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
@@ -187,15 +189,15 @@ namespace LifeInDowntown.EditorTools
                 var fp = AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/Male_Adult_04.prefab");
                 if (fp != null)
                 {
-                    var foe = ((GameObject)PrefabUtility.InstantiatePrefab(fp)).GetComponent<LifeInDowntown.NPC.Pedestrian>();
+                    var foe = ((GameObject)PrefabUtility.InstantiatePrefab(fp)).GetComponent<MinniGameFramework.NPC.Pedestrian>();
                     foe.name = "RangeFighter";
                     foe.transform.SetPositionAndRotation(new Vector3(0f, 0f, 1.05f), Quaternion.Euler(0f, 180f, 0f));
-                    foe.role = LifeInDowntown.NPC.Pedestrian.Role.Corner;
+                    foe.role = MinniGameFramework.NPC.Pedestrian.Role.Corner;
                     Idle(foe.GetComponentInChildren<Animator>());
                     foreach (var smr in foe.GetComponentsInChildren<SkinnedMeshRenderer>()) { smr.forceMatrixRecalculationPerRender = true; smr.updateWhenOffscreen = true; }
-                    LifeInDowntown.NPC.Pedestrian.Player = GameObject.Find("Player").transform;
+                    MinniGameFramework.NPC.Pedestrian.Player = GameObject.Find("Player").transform;
                     foe.Punch(1f, foe.transform.position + Vector3.up * 1.3f, Vector3.forward, false);
-                    var melee = foe.GetComponent<LifeInDowntown.NPC.NpcMelee>();
+                    var melee = foe.GetComponent<MinniGameFramework.NPC.NpcMelee>();
                     for (int i = 0; i < 150 && melee.SwingsLanded == 0 && !melee.Down; i++) { melee.Step(1f / 60f); foe.GetComponent<TarikBody>()?.Solve(); }
                     foe.transform.position = new Vector3(0f, 0f, 1.05f);
                     fists.PoseForShot(Fists.Move.None, 0f, true);
@@ -217,7 +219,7 @@ namespace LifeInDowntown.EditorTools
                 foe.transform.position = new Vector3(1.5f, 0f, 6f);
                 Idle(foe.GetComponentInChildren<Animator>());
                 foreach (var smr in foe.GetComponentsInChildren<SkinnedMeshRenderer>()) { smr.forceMatrixRecalculationPerRender = true; smr.updateWhenOffscreen = true; }
-                var hostile = foe.AddComponent<LifeInDowntown.NPC.Hostile>();
+                var hostile = foe.AddComponent<MinniGameFramework.NPC.Hostile>();
                 hostile.pistolModel = AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
                 var tarikT = GameObject.Find("Player").transform;
                 hostile.PoseForShot(tarikT);
@@ -228,7 +230,7 @@ namespace LifeInDowntown.EditorTools
                 hostile.PoseForShot(tarikT, false);
                 Look("range_hostile_low", new Vector3(4.2f, 1.5f, 5.2f), new Vector3(1.5f, 1.1f, 6f), 40f);
                 Object.DestroyImmediate(foe);
-                LifeInDowntown.NPC.Hostile.All.Clear();
+                MinniGameFramework.NPC.Hostile.All.Clear();
             }
 
             // movement (DESIGN 3R): sneaking at the firing line, then behind the corner and peeking out past it

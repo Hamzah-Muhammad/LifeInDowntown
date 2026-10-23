@@ -38,7 +38,7 @@ namespace LifeInDowntown.EditorTools
             {
                 // the officer's pistol (PistolImport) if imported, else the box stand-in with saved materials
                 var real = AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
-                var gun = real != null ? (GameObject)PrefabUtility.InstantiatePrefab(real) : LifeInDowntown.Items.WeaponHolder.StandIn();
+                var gun = real != null ? (GameObject)PrefabUtility.InstantiatePrefab(real) : MinniGameFramework.Combat.WeaponHolder.StandIn();
                 if (real == null)
                     foreach (var r in gun.GetComponentsInChildren<Renderer>()) r.sharedMaterial = r.name.StartsWith("Slide") || r.name.StartsWith("Sight") ? slide : frame;
                 Pickup(root, "pistol_9mm", 1, "condo_pistol", gun, standTop + Vector3.up * 0.015f, stand.rotation * Quaternion.Euler(0f, 0f, 90f));   // lying on its side

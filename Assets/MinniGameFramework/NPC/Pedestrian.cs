@@ -1,6 +1,9 @@
+using MinniGameFramework.Combat;
+using MinniGameFramework.Core;
+using MinniGameFramework.Player;
 using UnityEngine;
 
-namespace LifeInDowntown.NPC
+namespace MinniGameFramework.NPC
 {
     // A street NPC (docs/DESIGN.md 3B.2, 3L): walks back and forth along a sidewalk path, or holds one
     // street pose at a spot (waiting at the lights, loitering on a corner, sitting or crouched against a
@@ -24,7 +27,7 @@ namespace LifeInDowntown.NPC
         public bool watchPlayer;          // corner loiterers turn to clock you when you get close
         public float watchRange = 5f;
 
-        public static Transform Player;   // set by CrowdDirector
+        public static Transform Player;   // set by the game (LifeInDowntown: CrowdDirector)
 
         Animator anim;
         int target, dir = 1;
@@ -75,7 +78,7 @@ namespace LifeInDowntown.NPC
         {
             if (Dead) return;
             Dead = true;
-            LifeInDowntown.NPC.Ragdoll.Go(gameObject, hitPoint, push);
+            Ragdoll.Go(gameObject, hitPoint, push);
             enabled = false;
         }
 

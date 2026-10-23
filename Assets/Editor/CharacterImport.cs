@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
+using MinniGameFramework.NPC;
 using UnityEditor.Animations;
+using UnityEditor;
 using UnityEngine;
 
 namespace LifeInDowntown.EditorTools
@@ -86,7 +87,7 @@ namespace LifeInDowntown.EditorTools
             var ctrl = AnimatorController.CreateAnimatorControllerAtPath(path);
             ctrl.AddParameter("Mode", AnimatorControllerParameterType.Int);
             var sm = ctrl.layers[0].stateMachine;
-            string[] names = System.Enum.GetNames(typeof(LifeInDowntown.NPC.Pedestrian.Mode));
+            string[] names = System.Enum.GetNames(typeof(MinniGameFramework.NPC.Pedestrian.Mode));
             for (int i = 0; i < names.Length; i++)
             {
                 var clip = Clip(clipFiles[i]);
@@ -145,7 +146,7 @@ namespace LifeInDowntown.EditorTools
             inst.transform.SetParent(root.transform, false);
             var cap = root.AddComponent<CapsuleCollider>();
             cap.height = Mathf.Clamp(h, 1.5f, 2f); cap.radius = 0.25f; cap.center = Vector3.up * (cap.height * 0.5f);
-            root.AddComponent<LifeInDowntown.NPC.Pedestrian>();
+            root.AddComponent<MinniGameFramework.NPC.Pedestrian>();
 
             string prefabPath = $"{PrefabDir}/{av}.prefab";
             PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
