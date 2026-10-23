@@ -10,8 +10,8 @@ namespace LifeInDowntown.Player
         public BodycamPlayer player;
 
         [Header("Mount")]
-        public float mountHeight = 1.35f;     // chest, at full standing height
-        public float mountForward = 0.15f;
+        public float mountHeight = 1.62f;     // eye level, at full standing height (first person; was a chest mount)
+        public float mountForward = 0.10f;    // the eyes, ahead of the body's centre
 
         // 2026-10-22: Hamzah found the first values too shaky; bob/sway/jitter roughly halved
         [Header("Overall (Settings > Camera shake)")]

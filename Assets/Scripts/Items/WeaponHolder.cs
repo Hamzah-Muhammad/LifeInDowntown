@@ -20,9 +20,9 @@ namespace LifeInDowntown.Items
         public GameObject gunModel;
         // camera space: out in front of the chest, a little right, canted and yawed in so the slide's side
         // shows (a straight-on pistol reads as a black bar from a chest mount)
-        public Vector3 heldPosition = new Vector3(0.08f, -0.12f, 0.5f);
-        public Vector3 heldEuler = new Vector3(-6f, -16f, 8f);
-        public Vector3 aimPosition = new Vector3(0.0f, -0.085f, 0.45f);   // up on the line of sight
+        public Vector3 heldPosition = new Vector3(0.10f, -0.15f, 0.42f);  // ready, low right of the frame, hands in view
+        public Vector3 heldEuler = new Vector3(6f, -6f, 4f);
+        public Vector3 aimPosition = new Vector3(0.0f, -0.065f, 0.45f);   // sights on the eye line, 45 cm out (the stance studio)
         public Vector3 aimEuler = new Vector3(0f, 0f, 0f);
         public float drawSeconds = 0.35f, aimFov = 52f, fireInterval = 0.16f, range = 140f;
         public float hipSpread = 2.2f, aimSpread = 0.35f, recoilDegrees = 2.4f;
@@ -30,6 +30,21 @@ namespace LifeInDowntown.Items
         public AudioClip shot, dry, casing;
 
         Transform gun, muzzle;
+        // hands (DESIGN 3P.1): grip points on the gun for Tarik's IK arms, elbow hints, the moving reload hand
+        Transform gripR, gripL, hintR, hintL, reloadHand;
+        TarikBody body;
+        float reloadT = -1f; bool reloadEmpty, magOut, magIn;
+        GameObject handMag;
+        public const float ReloadSeconds = 1.6f;
+        // the reload: gun pulled in to the middle of the view, muzzle up, canted so the mag well faces the left hand
+        public static readonly Vector3 ReloadPos = new Vector3(0.03f, -0.12f, 0.36f), ReloadEuler = new Vector3(-20f, 8f, 30f);
+        // grip points on the pistol (wrist positions, hand frame: fingers along forward, palm to -X right / +X left)
+        // and elbow hints in chest-cam space: elbows down and a little out (shared with EditorTools/StanceStudio)
+        // right: wrist just behind the backstrap, the hand carrying on the forearm's line (web high on the grip,
+        // fingers round the front strap); left: wrist low on the left, wrapping over the right hand's fingers
+        public static readonly Vector3 GripRPos = new Vector3(0.022f, -0.03f, -0.15f), GripLPos = new Vector3(-0.06f, -0.045f, -0.105f);
+        public static readonly Quaternion GripRRot = Quaternion.Euler(25f, -6f, 0f), GripLRot = Quaternion.Euler(22f, 40f, 0f);   // support fingers across the front strap, over the right hand's
+        public static readonly Vector3 HintR = new Vector3(0.35f, -0.9f, 0.1f), HintL = new Vector3(-0.35f, -0.9f, 0.1f);   // eye-camera space: elbows down, a little out
         Light flash;
         AudioSource audioSrc;
         Camera cam;
@@ -38,7 +53,7 @@ namespace LifeInDowntown.Items
         string toast; float toastUntil;
         readonly Queue<GameObject> holes = new Queue<GameObject>();
         readonly Queue<GameObject> casings = new Queue<GameObject>();
-        static Material holeMat, brassMat;
+        static Material holeMat, brassMat, magMat;
 
         static GameState S => GameState.Current;
         public bool Aiming => aim > 0.5f;
@@ -50,10 +65,18 @@ namespace LifeInDowntown.Items
             gun = (gunModel != null ? Instantiate(gunModel) : StandIn()).transform;
             gun.SetParent(transform, false);
             gun.gameObject.SetActive(false);
+            // a gun 45 cm from the lens throws a coarse, blotchy shadow over his sleeves: it casts none (as the stand-in)
+            foreach (var r in gun.GetComponentsInChildren<Renderer>(true)) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             var b = Bounds(gun);
             muzzle = new GameObject("Muzzle").transform;
             muzzle.SetParent(gun, false);
             muzzle.localPosition = new Vector3(0f, b.max.y - 0.018f, b.max.z + 0.01f);
+            gripR = Point(gun, "GripR", GripRPos, GripRRot);
+            gripL = Point(gun, "GripL", GripLPos, GripLRot);
+            hintR = Point(transform, "ElbowHintR", HintR, Quaternion.identity);
+            hintL = Point(transform, "ElbowHintL", HintL, Quaternion.identity);
+            reloadHand = Point(transform, "ReloadHand", Vector3.zero, Quaternion.identity);
+            body = FindFirstObjectByType<TarikBody>();
             flash = muzzle.gameObject.AddComponent<Light>();
             flash.type = LightType.Point; flash.range = 8f; flash.color = new Color(1f, 0.78f, 0.45f); flash.intensity = 0f;
             audioSrc = gameObject.AddComponent<AudioSource>();
@@ -76,11 +99,11 @@ namespace LifeInDowntown.Items
             if (free && kb != null)
             {
                 if (kb.qKey.wasPressedThisFrame) ToggleDraw();
-                if (kb.rKey.wasPressedThisFrame && S.drawn) Toast(Inventory.Reload(S) > 0 ? $"Reloaded  {S.loaded}" : "No spare rounds.");
+                if (kb.rKey.wasPressedThisFrame && S.drawn) StartReload();
             }
             if (driving && S.drawn) S.drawn = false;
             bool wantAim = free && S.drawn && mouse != null && mouse.rightButton.isPressed;
-            if (free && S.drawn && mouse != null && mouse.leftButton.wasPressedThisFrame && raise > 0.95f && cam != null)
+            if (free && S.drawn && mouse != null && mouse.leftButton.wasPressedThisFrame && raise > 0.95f && cam != null && reloadT < 0f)
             {
                 float spread = Mathf.Lerp(hipSpread, aimSpread, aim);
                 var dir = Quaternion.Euler(Random.Range(-spread, spread) * 0.5f, Random.Range(-spread, spread) * 0.5f, 0f) * cam.transform.forward;
@@ -98,8 +121,148 @@ namespace LifeInDowntown.Items
             float e = raise * raise * (3f - 2f * raise);    // smoothstep: out of the holster, up, settle
             Vector3 held = Vector3.Lerp(heldPosition, aimPosition, aim) + new Vector3(0f, gunKick * 0.02f, -gunKick * 0.05f);
             Vector3 heldRot = Vector3.Lerp(heldEuler, aimEuler, aim) + new Vector3(-gunKick * 9f, 0f, 0f);
+            // reloading: the gun tips in and down while the left hand works (DESIGN 3P.1)
+            float tilt = 0f;
+            if (reloadT >= 0f)
+            {
+                reloadT += Time.deltaTime;
+                float r = reloadT;
+                tilt = r < 0.3f ? r / 0.3f : r > 1.4f ? Mathf.Clamp01((ReloadSeconds - r) / 0.2f) : 1f;
+                StepReload(r);
+                if (r >= ReloadSeconds || !S.drawn) EndReload();
+            }
+            held = Vector3.Lerp(held, ReloadPos, tilt);
+            heldRot = Vector3.Lerp(heldRot, ReloadEuler, tilt);
             gun.localPosition = Vector3.Lerp(heldPosition + new Vector3(0.12f, -0.3f, -0.15f), held, e);
             gun.localRotation = Quaternion.Euler(Vector3.Lerp(heldEuler + new Vector3(50f, 20f, 0f), heldRot, e));
+            Hands(e);
+        }
+
+        // ---------------------------------------------------------------- hands and reload
+        void Hands(float e)
+        {
+            if (body == null) return;
+            body.rightTarget = gripR; body.rightHint = hintR; body.rightWeight = raise > 0.01f ? Mathf.Clamp01(raise * 1.4f) : 0f;
+            body.leftTarget = reloadT >= 0f ? reloadHand : gripL; body.leftHint = hintL;
+            body.leftWeight = reloadT >= 0f ? 1f : Mathf.Clamp01((e - 0.6f) / 0.4f);   // the support hand joins once the gun is up
+        }
+
+        public bool Reloading => reloadT >= 0f;
+
+        public bool StartReload()
+        {
+            var d = ItemCatalog.Get(S.equipped);
+            if (d == null || reloadT >= 0f || !S.drawn) return false;
+            if (S.loaded >= d.magazine) { Toast("Full."); return false; }
+            if (Inventory.Count(S, d.ammo) == 0) { Toast("No spare rounds."); return false; }
+            reloadT = 0f; reloadEmpty = S.loaded == 0; magOut = magIn = false;
+            return true;
+        }
+
+        // the left hand's path: grip -> belt (the old mag falls) -> new mag to the well -> (rack if it was empty) -> grip
+        public void StepReload(float r)
+        {
+            Vector3 belt = transform.TransformPoint(new Vector3(-0.14f, -0.62f, 0.08f));
+            Quaternion beltRot = transform.rotation * Quaternion.Euler(70f, 10f, 0f);
+            Vector3 well = gun.TransformPoint(new Vector3(0f, -0.11f, -0.085f));
+            Quaternion wellRot = gun.rotation * Quaternion.Euler(80f, 0f, 0f);
+            // overhand on the rear of the slide: wrist on the left, fingers across the top to the right, palm down
+            Vector3 slide = gun.TransformPoint(new Vector3(-0.06f, 0.06f, -0.06f));
+            Quaternion slideRot = gun.rotation * Quaternion.LookRotation(Vector3.right, Vector3.back);
+            Vector3 p; Quaternion q;
+            float k(float a, float b) { float t = Mathf.Clamp01((r - a) / (b - a)); return t * t * (3f - 2f * t); }
+            if (r < 0.3f) { p = gripL.position; q = gripL.rotation; }
+            else if (r < 0.7f) { p = Vector3.Lerp(gripL.position, belt, k(0.3f, 0.7f)); q = Quaternion.Slerp(gripL.rotation, beltRot, k(0.3f, 0.7f)); }
+            else if (r < 1.15f) { p = Vector3.Lerp(belt, well, k(0.7f, 1.1f)); q = Quaternion.Slerp(beltRot, wellRot, k(0.7f, 1.1f)); }
+            else if (reloadEmpty && r < 1.4f)
+            {
+                float pull = k(1.22f, 1.32f) - k(1.32f, 1.4f);
+                p = Vector3.Lerp(well, slide, k(1.15f, 1.22f)) - gun.forward * 0.04f * pull; q = slideRot;
+            }
+            else
+            {
+                var from = reloadEmpty ? slide : well; var fromRot = reloadEmpty ? slideRot : wellRot;
+                float t0 = reloadEmpty ? 1.4f : 1.15f;
+                p = Vector3.Lerp(from, gripL.position, k(t0, ReloadSeconds)); q = Quaternion.Slerp(fromRot, gripL.rotation, k(t0, ReloadSeconds));
+            }
+            reloadHand.SetPositionAndRotation(p, q);
+
+            if (!magOut && r >= 0.3f) { magOut = true; DropMag(); }
+            if (handMag == null && r >= 0.7f && r < 1.15f) handMag = Mag(false);
+            if (handMag != null) handMag.transform.SetPositionAndRotation(p + q * new Vector3(0f, -0.02f, 0.06f), gun.rotation);
+            if (!magIn && r >= 1.15f)
+            {
+                magIn = true;
+                if (handMag != null) { Kill(handMag); handMag = null; }
+                S.loaded = 0;                                     // the old mag fell out with whatever was left in it
+                Inventory.Reload(S);
+            }
+        }
+
+        void EndReload()
+        {
+            if (!magIn && magOut) { S.loaded = 0; Inventory.Reload(S); }   // cut short after the mag dropped: still loads
+            if (handMag != null) { Kill(handMag); handMag = null; }
+            reloadT = -1f;
+            Toast($"{S.loaded} in the mag");
+        }
+
+        public int DroppedMags { get; private set; }
+
+        void DropMag()
+        {
+            DroppedMags++;
+            var m = Mag(true);
+            m.transform.SetPositionAndRotation(gun.TransformPoint(new Vector3(0f, -0.09f, -0.085f)), gun.rotation);
+            if (!Application.isPlaying) { Kill(m); return; }
+            var rb = m.AddComponent<Rigidbody>(); rb.mass = 0.1f; rb.linearVelocity = -gun.up * 1.2f;
+            Destroy(m, 20f);
+        }
+
+        GameObject Mag(bool physical)
+        {
+            if (magMat == null) { magMat = new Material(Shader.Find("HDRP/Lit")); magMat.SetColor("_BaseColor", new Color(0.05f, 0.05f, 0.055f)); magMat.SetFloat("_Smoothness", 0.4f); }
+            var m = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            m.name = physical ? "DroppedMag" : "HandMag";
+            m.transform.localScale = new Vector3(0.022f, 0.11f, 0.032f);
+            m.GetComponent<Renderer>().sharedMaterial = magMat;
+            if (!physical) Kill(m.GetComponent<Collider>());
+            return m;
+        }
+
+        static void Kill(Object o) { if (Application.isPlaying) Destroy(o); else DestroyImmediate(o); }
+
+        static Transform Point(Transform parent, string name, Vector3 lp, Quaternion lr)
+        {
+            var t = new GameObject(name).transform;
+            t.SetParent(parent, false);
+            t.localPosition = lp; t.localRotation = lr;
+            return t;
+        }
+
+        // editor renders and tests: the reload frozen at r seconds, hands and all
+        public void PoseReloadAt(float r)
+        {
+            PoseForShot(false);
+            reloadT = r; reloadEmpty = true; magOut = true;
+            float tilt = r < 0.3f ? r / 0.3f : r > 1.4f ? Mathf.Clamp01((ReloadSeconds - r) / 0.2f) : 1f;
+            gun.localPosition = Vector3.Lerp(heldPosition, ReloadPos, tilt);
+            gun.localRotation = Quaternion.Euler(Vector3.Lerp(heldEuler, ReloadEuler, tilt));
+            StepReload(r);
+            Hands(1f);
+            if (body != null) { body.Solve(); body.Solve(); }
+        }
+
+        // editor renders and tests: build the gun and grips now and pose it held or aimed, with the hands on it
+        public void PoseForShot(bool aimed)
+        {
+            if (gun == null) Start();
+            raise = 1f; aim = aimed ? 1f : 0f;
+            gun.gameObject.SetActive(true);
+            gun.localPosition = aimed ? aimPosition : heldPosition;
+            gun.localRotation = Quaternion.Euler(aimed ? aimEuler : heldEuler);
+            Hands(1f);
+            if (body != null) { body.Solve(); body.Solve(); }
         }
 
         public void ToggleDraw()

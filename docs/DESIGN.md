@@ -453,7 +453,7 @@ He skipped the scope questions except the car, so the recommended defaults apply
 6. Pistol + shooting
 7. Detail pass, `GarageCarTest` + `ShootingTest`, renders, rebuild
 
-## 3P. Combat: hands, gunfights, fist fights (design 2026-10-22, not built)
+## 3P. Combat: hands, gunfights, fist fights (design 2026-10-22; task 1 built, rest not built)
 
 Hamzah: "Create a proper shooting mechanism, with hands. Shooting and fighting is a big part of this game and its upcoming missions." His answers:
 - **Hands:** Tarik's own Rocketbox body with IK.
@@ -466,10 +466,17 @@ Builds on 3M and 3O.6: WeaponHolder, Inventory, PlayerStats, Pedestrian, Ragdoll
 ### 3P.1 Tarik's body and hands
 - **His body:** Rocketbox **Male_Adult_18** (grey jacket, black pants) becomes Tarik. Like Ty, he's taken out of the crowd, the train riders and the clerks.
   - The body is parented to the player at his feet.
-  - Head and neck bones are scaled to zero, so the chest cam never sees inside the head.
-  - The body casts a shadow; the arms and the bottom of the jacket are what the chest cam sees.
-- **Animator:** a humanoid controller with idle and walk on the base layer (the legs mostly stay out of view). Arms are driven in `OnAnimatorIK`:
-  - **Pistol:** the right hand holds the grip and the left supports it. Hand targets and elbow hints are children of the gun, so recoil, aiming and the draw move the arms.
+  - **First person at eye level** (Hamzah: "its supposed to be FIRST PERSON VIEW"). The camera sits at his eyes: `BodycamRig.mountHeight` 1.62 m, 0.10 m forward, near clip 0.03 m. It was a chest mount at 1.35 m before.
+  - **The head is cut from the mesh.** `PlayerSetup.HideHead` saves a headless copy of his mesh (`Tarik_FirstPerson_*.asset`), dropping every triangle skinned mostly to the head bone. Two earlier tries failed:
+    - Scaling the head and neck bones collapsed the arms (Biped clavicles hang off the neck) and stretched the collar.
+    - Hiding the head material slots also hid the hands, because Rocketbox shares those slots.
+  - **No shadows from the first-person view:** his own body and the held gun cast none. Shadows that close to the lens broke into blotches.
+- **Arms:** idle and walk run on the animator's base layer (the legs mostly stay out of view). `TarikBody` poses the arms after that each frame with its own two-bone IK (law of cosines, elbow hints), a hand frame taken from the finger bones, and finger curl. Pure transform maths, so editor renders show exactly what play shows. Measured pose values:
+  - **Aim:** the gun is 0.45 m ahead of the eye with the sights 6.5 cm below it.
+  - **Ready:** `(0.10, -0.15, 0.42)`, so both hands are in frame.
+  - **Reload:** pulled in to `(0.03, -0.12, 0.36)`, muzzle up, canted 30°.
+  - **Rack:** an overhand grip on the rear of the slide.
+  - **Pistol:** the right hand holds the grip and the left supports it. Grip points are children of the gun; elbow hints are children of the camera. Recoil, aiming and the draw all move the arms.
   - **Unarmed:** a fighting stance with fists in front of the chest when raised. Hands hang out of view when walking around calm.
   - Weights blend in over 0.15 s, so draws and holsters don't snap.
 - **Procedural gun actions:**
@@ -530,7 +537,7 @@ Builds on 3M and 3O.6: WeaponHolder, Inventory, PlayerStats, Pedestrian, Ragdoll
 - The mag drop clatter.
 
 ### 3P.6 Tests (`CombatTest`, edit mode)
-- **Body:** Tarik's body exists with hidden head and neck bones. The IK targets sit on the gun's grip, follow the drawn and aimed poses, and stay within arm's reach of the shoulders.
+- **Body:** Tarik's body exists with the headless first-person mesh. The IK targets sit on the gun's grip, follow the drawn and aimed poses, and stay within arm's reach of the shoulders.
 - **Reload:** the reload timeline ends with a full mag and one dropped mag object.
 - **Damage:** headshots drop at once; body shots take two; punches stagger; heavy punches knock down and NPCs get back up; Tarik takes damage, regenerates after 8 s, and wakes at home at 0.
 - **Hostiles, stepped:** they hear a shot, go alert, pick blocked cover, fire, reload after 12, and flee under 25.
@@ -549,6 +556,23 @@ Builds on 3M and 3O.6: WeaponHolder, Inventory, PlayerStats, Pedestrian, Ragdoll
 - **No custom animations:** everything arm-related is IK and procedural; legs use the walk clip. No strafing or crouch-walk clips exist in Rocketbox.
 - **The look:** Male_Adult_18 as Tarik is a placeholder until Tarik's look is decided.
 - **Police combat** is a later milestone.
+- **Support hand:** its fingers cup slightly low under the trigger guard. Tune `WeaponHolder.GripLPos/GripLRot` in the range (3Q).
+
+## 3Q. Development range (built 2026-10-22)
+Hamzah: "you need to create a 'development range' where you have put models and make them correctly before dropping them in the game."
+- **What it is:** `Assets/DevRange/DevRange.unity`, built by `EditorTools.DevRange`. A grey studio with:
+  - one shadowed key light and a shadowless fill, at fixed exposure;
+  - a shooting lane with targets at 5, 10 and 20 m;
+  - the pistol on a plinth, Tarik's E46, and a line-up of five people (Police_Male_01, Male_Adult_04, Female_Adult_04, Ty and Tarik).
+- **The player is the game's player:** `PlayerSetup.BuildPlayer` makes it for both the city and the range. Anything that looks right in the range looks the same in the game. On its first run the range showed the bug the city renders had hidden: the hands weren't drawn at all.
+- **Rule:** every new or changed model, pose or held item is built and judged in the range first, from its renders, and only then goes into the city.
+- **Run:** `-executeMethod LifeInDowntown.EditorTools.DevRange.Render` (without `-nographics`; `-shots a,b` to pick shots). It writes `Screenshots/range_*.png` and logs how far each hand ended up from its grip:
+  - first-person views: ready, aim, reload, rack;
+  - close-ups of both hands, from the side and the front;
+  - the pistol turntable, two views of the car, the line-up and the lane.
+  
+  `DevRange.Build` only rebuilds and saves the scene.
+- **Edit-mode gotcha:** skinned meshes don't re-skin between renders without a player loop. The range and ShotTool set `forceMatrixRecalculationPerRender`, or the arms drawn lag one pose behind the bones.
 
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.

@@ -181,7 +181,7 @@ namespace LifeInDowntown.City
                 src.clip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Resources/Audio/engine_i6.wav");
                 src.loop = true; src.playOnAwake = false; src.spatialBlend = 0.6f; src.volume = 0.4f; src.minDistance = 4f; src.maxDistance = 60f;
                 ctrl.engine = src;
-                Anchor(root, "DriverSeat", new Vector3(-0.37f, 1.08f, halfL - 2.3f));           // the chest cam, seated
+                Anchor(root, "DriverSeat", new Vector3(-0.37f, 1.2f, halfL - 2.35f));           // his eyes, seated
                 Anchor(root, "DriverDoor", new Vector3(-1.35f, 0.1f, halfL - 2.2f));            // step out here
                 foreach (float x in new[] { -0.55f, 0.55f })
                 {

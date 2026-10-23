@@ -82,6 +82,8 @@ namespace LifeInDowntown.EditorTools
             {
                 poses.Add(("bodycam_spawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));
                 poses.Add(("bodycam_pistol_drawn", bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));   // DESIGN 3M
+                foreach (var h in new[] { "hands_held", "hands_aim", "hands_reload", "hands_rack", "hands_side", "hands_closeup" })
+                    poses.Add((h, bodycam.transform.position, bodycam.transform.position + bodycam.transform.forward * 50f));
             }
 
             foreach (var tr in Object.FindObjectsByType<LifeInDowntown.Transit.TrainController>(FindObjectsSortMode.None))
@@ -138,6 +140,50 @@ namespace LifeInDowntown.EditorTools
                     subwayRoot.GetComponent<LifeInDowntown.Transit.SubwayRiders>()?.Apply(pos);
                 }
                 var preview = PreviewCrowd(pos);
+                if (name.StartsWith("hands_"))   // Tarik's IK arms on the pistol (DESIGN 3P.1), from the chest cam
+                {
+                    var wh = Object.FindFirstObjectByType<LifeInDowntown.Items.WeaponHolder>();
+                    var bc = GameObject.Find("BodycamCamera");
+                    // judge the hands under bright light: stand Tarik inside the Pantages Rabba, facing into the store
+                    var shop = CityGenerator.ShopSites(data).Find(x => x.kind == "rabba");
+                    var plr = GameObject.Find("Player");
+                    var bodyPlayer = plr != null ? plr.GetComponent<LifeInDowntown.Player.BodycamPlayer>() : null;
+                    var rigC = bc != null ? bc.GetComponent<LifeInDowntown.Player.BodycamRig>() : null;
+                    if (plr != null && bodyPlayer != null && rigC != null)
+                    {
+                        var into = shop.W(0f, 1f, 0f) - shop.W(0f, 0f, 0f);
+                        plr.transform.SetPositionAndRotation(shop.W(-0.6f, 3.2f, CityGenerator.ShopFloor), Quaternion.LookRotation(into));
+                        bodyPlayer.SetLook(plr.transform.eulerAngles.y, 0f);
+                        rigC.Snap(); rigC.Tick(1f / 60f);
+                    }
+                    SampleTarik();   // the rest pose faces -Z; the idle clip stands him up facing forward, as in play
+                    if (wh != null && bc != null)
+                    {
+                        cam.transform.SetPositionAndRotation(bc.transform.position, bc.transform.rotation);
+                        cam.fieldOfView = name == "hands_aim" ? wh.aimFov : PlayerSetup.VerticalFov;
+                        cam.nearClipPlane = bc.GetComponent<Camera>().nearClipPlane;
+                        if (name == "hands_side")   // the same pose seen from beside Tarik
+                        {
+                            wh.PoseForShot(false);
+                            var pl = GameObject.Find("Player").transform;
+                            cam.transform.position = pl.position + pl.right * 1.6f + pl.forward * 0.9f + Vector3.up * 1.4f;
+                            cam.transform.LookAt(pl.position + Vector3.up * 1.2f + pl.forward * 0.2f);
+                            cam.fieldOfView = 55f;
+                        }
+                        else if (name == "hands_closeup")   // in front of him, looking back at the hands on the grip
+                        {
+                            wh.PoseForShot(false);
+                            var g = wh.transform.Find("Pistol(Clone)") ?? wh.transform.GetChild(wh.transform.childCount - 1);
+                            var gp = g != null ? g.position : bc.transform.position + bc.transform.forward * 0.4f;
+                            cam.transform.position = gp + bc.transform.forward * 0.55f - bc.transform.right * 0.25f + Vector3.up * 0.12f;
+                            cam.transform.LookAt(gp);
+                            cam.fieldOfView = 45f;
+                        }
+                        else if (name == "hands_reload") wh.PoseReloadAt(0.95f);
+                        else if (name == "hands_rack") wh.PoseReloadAt(1.3f);
+                        else wh.PoseForShot(name == "hands_aim");
+                    }
+                }
                 if (name == "bodycam_pistol_drawn")   // the held pistol where WeaponHolder puts it, in camera space
                 {
                     var holder = Object.FindFirstObjectByType<LifeInDowntown.Items.WeaponHolder>();
@@ -287,6 +333,25 @@ namespace LifeInDowntown.EditorTools
         }
 
         static (Vector3, Quaternion)? carHome;
+
+        // Tarik's body in edit mode: pose it on its idle clip (in play the animator does this every frame)
+        public static void SampleTarik()
+        {
+            var tb = Object.FindFirstObjectByType<LifeInDowntown.Player.TarikBody>();
+            var anim = tb != null ? tb.GetComponentInChildren<Animator>() : null;
+            var ctrl = anim != null ? anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController : null;
+            if (ctrl == null) return;
+            foreach (var smr in tb.GetComponentsInChildren<SkinnedMeshRenderer>()) { smr.forceMatrixRecalculationPerRender = true; smr.updateWhenOffscreen = true; }   // re-skin every render (no player loop in edit mode)
+            if (!AnimationMode.InAnimationMode()) AnimationMode.StartAnimationMode();
+            foreach (var st in ctrl.layers[0].stateMachine.states)
+                if (st.state.name == "Idle" && st.state.motion is AnimationClip clip)
+                {
+                    var p = tb.transform.position; var r = tb.transform.rotation;
+                    AnimationMode.SampleAnimationClip(anim.gameObject, clip, 0.5f);
+                    tb.transform.SetPositionAndRotation(p, r);
+                    anim.transform.localPosition = Vector3.zero; anim.transform.localRotation = Quaternion.identity;
+                }
+        }
 
         static void Render(Camera cam, RenderTexture rt)
         {

@@ -24,6 +24,18 @@ namespace LifeInDowntown.EditorTools
             Object.DestroyImmediate(go);
         }
 
+        // -model <prefab>: the right arm's bones with their parents (rig layout checks)
+        public static void ReportArm()
+        {
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(LifeInDowntown.Game.GameFlow.Arg("-model")));
+            foreach (var t in go.GetComponentsInChildren<Transform>(true))
+                if (t.name.Contains(" R ") || t.name.Contains("Neck") || t.name.Contains("Spine"))
+                    Debug.Log($"NPC_ARM {t.name} <- {(t.parent ? t.parent.name : "-")}");
+            var smr = go.GetComponentInChildren<SkinnedMeshRenderer>();
+            Debug.Log($"NPC_ARM skinned bones={smr.bones.Length}: {string.Join(", ", System.Array.ConvertAll(smr.bones, b => b ? b.name : "null"))}");
+            Object.DestroyImmediate(go);
+        }
+
         public static void Run()
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(CharacterImport.Root + "/Prefabs/Female_Adult_09.prefab");

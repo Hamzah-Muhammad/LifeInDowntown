@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using LifeInDowntown.City;
 using LifeInDowntown.Game;
@@ -18,7 +19,8 @@ namespace LifeInDowntown.EditorTools
     {
         const string ProfilePath = "Assets/City/Look/Bodycam.asset";
         const string ActionsPath = "Assets/InputSystem_Actions.inputactions";
-        public const float VerticalFov = 68f;   // ~100 degrees horizontal at 16:9
+        public const float VerticalFov = 68f;
+        public const float BodyLift = 0f;      // Tarik's body stands on his feet (the camera is at his eyes, DESIGN 3P.1)   // ~100 degrees horizontal at 16:9
 
         public static void Setup(CityData data)
         {
@@ -38,28 +40,10 @@ namespace LifeInDowntown.EditorTools
                 spawn = condo.W(-0.4f, 3.3f, 0.3f);   // clear floor between the sofa and the armchair
                 yaw = Quaternion.LookRotation(-condo.inward).eulerAngles.y;   // facing the windows
             }
-            var body = new GameObject("Player");
-            body.transform.SetPositionAndRotation(spawn, Quaternion.Euler(0f, yaw, 0f));
-            var cc = body.AddComponent<CharacterController>();
-            cc.height = 1.75f; cc.radius = 0.3f; cc.center = Vector3.up * 0.875f;
-            cc.stepOffset = 0.35f; cc.slopeLimit = 50f; cc.skinWidth = 0.04f;
-            var player = body.AddComponent<BodycamPlayer>();
-            player.actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(ActionsPath);
-
-            var camGo = new GameObject("BodycamCamera") { tag = "MainCamera" };
-            var cam = camGo.AddComponent<Camera>();
-            cam.fieldOfView = VerticalFov;
-            cam.nearClipPlane = 0.05f;
-            cam.farClipPlane = 3000f;
-            camGo.AddComponent<HDAdditionalCameraData>();
-            camGo.AddComponent<AudioListener>();
-            camGo.AddComponent<BodyMicFilter>().player = player;   // chest-mic sound on the whole mix (DESIGN 3I)
-            var rig = camGo.AddComponent<BodycamRig>();
-            rig.player = player;
-            rig.Tick(1f / 60f);   // place it at the mount now so the scene opens at the right pose
+            var camGo = BuildPlayer(spawn, yaw);
+            var player = GameObject.Find("Player").GetComponent<BodycamPlayer>();
+            var rig = camGo.GetComponent<BodycamRig>();
             camGo.AddComponent<BodycamOverlay>();
-            camGo.AddComponent<LifeInDowntown.Items.WeaponHolder>().gunModel =   // drawn pistol in the chest-cam frame (DESIGN 3M)
-                AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
 
             var rain = GameObject.Find("Rain");
             if (rain != null)
@@ -85,6 +69,102 @@ namespace LifeInDowntown.EditorTools
 
             SetupMenu(player, rig, menuCam);
             Debug.Log($"PLAYER_OK spawn={spawn} yaw={yaw:F0}");
+        }
+
+        // the player as the game and the development range (DevRange) both use it: capsule, Tarik's own body,
+        // the eye camera on its rig and the weapon holder. Returns the camera.
+        public static GameObject BuildPlayer(Vector3 spawn, float yaw)
+        {
+            var body = new GameObject("Player");
+            body.transform.SetPositionAndRotation(spawn, Quaternion.Euler(0f, yaw, 0f));
+            var cc = body.AddComponent<CharacterController>();
+            cc.height = 1.75f; cc.radius = 0.3f; cc.center = Vector3.up * 0.875f;
+            cc.stepOffset = 0.35f; cc.slopeLimit = 50f; cc.skinWidth = 0.04f;
+            var player = body.AddComponent<BodycamPlayer>();
+            player.actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(ActionsPath);
+
+            // Tarik's own body at his feet (DESIGN 3P.1): the arms the chest cam sees, posed by IK
+            var bodyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/{NpcSetup.TarikAvatar}.prefab");
+            if (bodyPrefab != null)
+            {
+                var tb = (GameObject)PrefabUtility.InstantiatePrefab(bodyPrefab, body.transform);
+                tb.name = "TarikBody";
+                tb.transform.localPosition = new Vector3(0f, BodyLift, 0f);   // the camera sits at his eyes; the near clip hides the head
+                tb.transform.localRotation = Quaternion.identity;
+                foreach (var c in tb.GetComponents<Collider>()) Object.DestroyImmediate(c, true);
+                var ped = tb.GetComponent<LifeInDowntown.NPC.Pedestrian>(); if (ped != null) Object.DestroyImmediate(ped, true);
+                HideHead(tb);
+                var tAnim = tb.GetComponentInChildren<Animator>();
+                tAnim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                var tbody = tb.AddComponent<TarikBody>();
+                tbody.player = player; tbody.anim = tAnim;
+            }
+
+            var camGo = new GameObject("BodycamCamera") { tag = "MainCamera" };
+            var cam = camGo.AddComponent<Camera>();
+            cam.fieldOfView = VerticalFov;
+            cam.nearClipPlane = 0.03f;   // eye level: his head is single-sided from inside, so his arms and hands can come right up to the lens
+            cam.farClipPlane = 3000f;
+            camGo.AddComponent<HDAdditionalCameraData>();
+            camGo.AddComponent<AudioListener>();
+            camGo.AddComponent<BodyMicFilter>().player = player;   // chest-mic sound on the whole mix (DESIGN 3I)
+            var rig = camGo.AddComponent<BodycamRig>();
+            rig.player = player;
+            player.Init();        // reads its yaw from the transform: without this the rig faces world north
+            rig.Snap();
+            rig.Tick(1f / 60f);   // place it at the mount now so the scene opens at the right pose
+            camGo.AddComponent<LifeInDowntown.Items.WeaponHolder>().gunModel =   // drawn pistol in the eye-camera frame (DESIGN 3M)
+                AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
+            return camGo;
+        }
+
+        // first person: the eye camera sits inside his head, so his own body gets a headless copy of its mesh: every
+        // triangle skinned mostly to the head bone (face, eyes, hair) is cut. Rocketbox shares material slots between
+        // the head and the hands, so hiding slots took the hands with it; shrinking the head bone stretched the collar.
+        public static void HideHead(GameObject body)
+        {
+            var anim = body.GetComponentInChildren<Animator>();
+            var head = anim != null ? anim.GetBoneTransform(HumanBodyBones.Head) : null;
+            if (head == null) return;
+            foreach (var smr in body.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                var src = smr.sharedMesh;
+                if (src == null) continue;
+                string path = $"Assets/Characters/Rocketbox/Tarik_FirstPerson_{smr.name}.asset";
+                var bones = smr.bones;
+                var onHead = new bool[bones.Length];
+                for (int i = 0; i < bones.Length; i++) onHead[i] = bones[i] != null && (bones[i] == head || bones[i].IsChildOf(head));
+                var w = src.boneWeights;
+                float HeadWeight(int v)
+                {
+                    var b = w[v]; float h = 0f;
+                    if (onHead[b.boneIndex0]) h += b.weight0; if (onHead[b.boneIndex1]) h += b.weight1;
+                    if (onHead[b.boneIndex2]) h += b.weight2; if (onHead[b.boneIndex3]) h += b.weight3;
+                    return h;
+                }
+                var mesh = Object.Instantiate(src);
+                mesh.name = $"Tarik_FirstPerson_{smr.name}";
+                int cut = 0;
+                for (int s = 0; s < src.subMeshCount; s++)
+                {
+                    var tris = src.GetTriangles(s);
+                    var keep = new List<int>(tris.Length);
+                    for (int t = 0; t < tris.Length; t += 3)
+                    {
+                        if (HeadWeight(tris[t]) + HeadWeight(tris[t + 1]) + HeadWeight(tris[t + 2]) > 1.5f) { cut++; continue; }
+                        keep.Add(tris[t]); keep.Add(tris[t + 1]); keep.Add(tris[t + 2]);
+                    }
+                    mesh.SetTriangles(keep, s);
+                }
+                var old = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+                if (old != null) AssetDatabase.DeleteAsset(path);
+                AssetDatabase.CreateAsset(mesh, path);
+                smr.sharedMesh = mesh;
+                // the sun's shadow map is far too coarse for arms 30 cm from the lens: self-shadowing broke into black
+                // blotches on the sleeves. His own body casts none (it still receives the world's)
+                smr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                Debug.Log($"HEADLESS {smr.name}: cut {cut} head triangles -> {path}");
+            }
         }
 
         const string UxmlPath = "Assets/UI/Menu.uxml";

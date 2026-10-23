@@ -118,7 +118,8 @@ namespace LifeInDowntown.City
             string dir = LifeInDowntown.EditorTools.CharacterImport.Root + "/Prefabs";
             if (!System.IO.Directory.Exists(dir)) return list;
             foreach (var f in System.IO.Directory.GetFiles(dir, "*.prefab"))
-                if (!System.IO.Path.GetFileName(f).StartsWith("Police_") && !System.IO.Path.GetFileName(f).StartsWith(LifeInDowntown.EditorTools.NpcSetup.TyAvatar))   // Ty is one person (3O.1)
+                if (!System.IO.Path.GetFileName(f).StartsWith("Police_") && !System.IO.Path.GetFileName(f).StartsWith(LifeInDowntown.EditorTools.NpcSetup.TyAvatar)
+                    && !System.IO.Path.GetFileName(f).StartsWith(LifeInDowntown.EditorTools.NpcSetup.TarikAvatar))   // Ty is one person (3O.1)
                     list.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(f.Replace('\\', '/')));
             return list;
         }
