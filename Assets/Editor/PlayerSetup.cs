@@ -113,6 +113,7 @@ namespace LifeInDowntown.EditorTools
             player.Init();        // reads its yaw from the transform: without this the rig faces world north
             rig.Snap();
             rig.Tick(1f / 60f);   // place it at the mount now so the scene opens at the right pose
+            camGo.AddComponent<HurtFeedback>();   // red edge, glitch, tinnitus, heartbeat (DESIGN 3P.2)
             camGo.AddComponent<LifeInDowntown.Items.WeaponHolder>().gunModel =   // drawn pistol in the eye-camera frame (DESIGN 3M)
                 AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
             return camGo;

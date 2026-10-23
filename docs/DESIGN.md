@@ -485,7 +485,13 @@ Builds on 3M and 3O.6: WeaponHolder, Inventory, PlayerStats, Pedestrian, Ragdoll
   - **Reload:** 1.6 s, cancelled by sprinting. The gun tilts in and the mag drops out (a real object falls); the left hand goes to the belt, brings a new mag, slaps it in and racks the slide on an empty reload.
   - **Inspect:** hold R when full.
 
-### 3P.2 Damage model
+### 3P.2 Damage model (built 2026-10-22)
+Built as follows. Punch damage exists as `PlayerStats.PunchDamage()` but nothing throws punches until task 3. Near misses are `PlayerStats.NearMiss()`, called by the hostiles in task 4.
+- **Tarik:** `PlayerStats.TakeDamage(amount, from)` takes damage, `BulletDamage(distance)` scales it with range (30 at 5 m, 18 at 40 m), and `HurtFeedback` on the eye camera draws the effects. The tuning is in the range (`range_eye_hurt`).
+- **NPCs:** `Pedestrian.Damage()`. Body shots do **50-55**, not 45-55: with the wider range, two shots could leave someone standing on 6 health.
+- **HEAT per hit:** +2 for a wound, +3 for a kill, +10 for killing police (plus the +1 for firing near people).
+
+The design as written:
 - **Tarik:** 100 health (PlayerStats).
   - Bullets do 18-30 by range, punches 6-10.
   - **Feedback:** a red vignette pulse, a bodycam glitch (chromatic aberration plus a noise burst), a short tinnitus ring after a near miss, and a heartbeat under 30 health.
@@ -536,7 +542,7 @@ Builds on 3M and 3O.6: WeaponHolder, Inventory, PlayerStats, Pedestrian, Ragdoll
 - A tinnitus ring.
 - The mag drop clatter.
 
-### 3P.6 Tests (`CombatTest`, edit mode)
+### 3P.6 Tests (`CombatTest`, edit mode; the damage checks are built, 18 of them)
 - **Body:** Tarik's body exists with the headless first-person mesh. The IK targets sit on the gun's grip, follow the drawn and aimed poses, and stay within arm's reach of the shoulders.
 - **Reload:** the reload timeline ends with a full mag and one dropped mag object.
 - **Damage:** headshots drop at once; body shots take two; punches stagger; heavy punches knock down and NPCs get back up; Tarik takes damage, regenerates after 8 s, and wakes at home at 0.
@@ -545,8 +551,8 @@ Builds on 3M and 3O.6: WeaponHolder, Inventory, PlayerStats, Pedestrian, Ragdoll
 - **Plus:** renders of the pistol held, aimed and mid-reload, and of fists up; all 7 existing suites stay green; the exe is rebuilt.
 
 ### 3P.7 Build order (one branch `feature/combat`, one commit per task)
-1. Tarik's body and IK hands with the pistol: draw, holster, aim, recoil, reload.
-2. The damage model and feedback.
+1. Tarik's body and IK hands with the pistol: draw, holster, aim, recoil, reload. **Done.**
+2. The damage model and feedback. **Done.**
 3. Fist fights.
 4. Hostile AI, the spawner and "Wrong Corner".
 5. Corner crews turning hostile.

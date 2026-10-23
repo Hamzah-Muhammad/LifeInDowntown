@@ -34,7 +34,23 @@ namespace LifeInDowntown.NPC
 
         public bool Walking => mode == Mode.Walk || mode == Mode.WalkSlow;
         public bool Dead { get; private set; }
+        public float health = 100f;
+        public const float HeadHeight = 1.5f;   // a hit this far above their feet is the head
         float hurry = 1f;            // fleeing: the walk clip and pace sped up
+
+        // a hit (DESIGN 3P.2): the head drops them at once, anything else takes `amount`. A wounded person runs
+        // from where it came. True if this one killed them.
+        public bool Damage(float amount, Vector3 hitPoint, Vector3 push, Vector3 from)
+        {
+            if (Dead) return false;
+            if (hitPoint.y - transform.position.y > HeadHeight) amount = health;
+            health -= amount;
+            if (health <= 0f) { Kill(hitPoint, push); return true; }
+            Flee(from);
+            return false;
+        }
+
+        public static float BodyShot() => Random.Range(50f, 55f);   // two of these always drop anyone (45-55 could leave them on 6)
 
         // shot (DESIGN 3O.6): ragdoll, stop thinking
         public void Kill(Vector3 hitPoint, Vector3 push)

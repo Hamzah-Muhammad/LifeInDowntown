@@ -271,7 +271,7 @@ namespace LifeInDowntown.Items
             S.drawn = !S.drawn;
         }
 
-        public enum Shot { Fired, Hit, Killed, Empty, NotHere, NotReady }
+        public enum Shot { Fired, Hit, Wounded, Killed, Empty, NotHere, NotReady }
 
         // one shot from origin along dir (the game and ShootingTest both call this)
         public Shot Fire(Vector3 origin, Vector3 dir)
@@ -293,11 +293,11 @@ namespace LifeInDowntown.Items
             if (Physics.Raycast(origin + dir * 0.35f, dir, out var hit, range, ~0, QueryTriggerInteraction.Ignore))
             {
                 var ped = hit.collider.GetComponentInParent<Pedestrian>();
-                if (ped != null && !ped.Dead)
+                if (ped != null && !ped.Dead)   // DESIGN 3P.2: head = down at once, two body shots
                 {
-                    ped.Kill(hit.point, dir * 40f);
-                    S.heat += 3;
-                    result = Shot.Killed;
+                    bool killed = ped.Damage(Pedestrian.BodyShot(), hit.point, dir * 40f, origin);
+                    S.heat += !killed ? 2 : ped.role == Pedestrian.Role.Police ? 10 : 3;
+                    result = killed ? Shot.Killed : Shot.Wounded;
                 }
                 else { Hole(hit); result = Shot.Hit; }
             }

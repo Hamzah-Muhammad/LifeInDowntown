@@ -328,11 +328,31 @@ def gunshot():
     write("casing_tink.wav", tink)
 
 
+def hurt():
+    """Tarik getting hurt (docs/DESIGN.md 3P.2): a dull body hit, the tinnitus ring after a near miss
+    (two thin tones that swell in and fade over 3 s), and a heartbeat loop for low health (lub-dub, 84 bpm)."""
+    r = np.random.default_rng(30)
+    L = int(0.4 * SR); t = np.arange(L) / SR
+    hit = np.sin(2 * np.pi * 70 * t) * np.exp(-t / 0.06) * 1.3 + fft_band(r.standard_normal(L), 120, 1800) * np.exp(-t / 0.025)
+    write("hurt_hit.wav", hit)
+    L = int(3.0 * SR); t = np.arange(L) / SR
+    env = np.minimum(t / 0.15, 1.0) * np.exp(-t / 1.1)
+    ring = (np.sin(2 * np.pi * 6900 * t) + 0.35 * np.sin(2 * np.pi * 4300 * t + 0.7)) * env
+    write("tinnitus.wav", ring * 0.4)
+    beat = 60.0 / 84.0
+    L = int(beat * SR); t = np.arange(L) / SR
+    def thud(at, gain):
+        x = np.zeros(L); s = t[t >= at] - at
+        x[t >= at] = np.sin(2 * np.pi * 48 * s) * np.exp(-s / 0.07) * gain
+        return x
+    write("heartbeat.wav", onepole_lp(thud(0.0, 1.0) + thud(0.24, 0.7), 300))
+
+
 if __name__ == "__main__":
     import sys
     ALL = [rain_outdoor, rain_indoor, city_hum, room_tone, phone_ring, phone_ping, elevator_ding,
            streetcar_bell, siren_wail, footsteps, subway_hum, subway_rumble, subway_motor, subway_wheels,
-           subway_wind, subway_interior, subway_chime, subway_brake, subway_doors, engine_i6, gunshot]
+           subway_wind, subway_interior, subway_chime, subway_brake, subway_doors, engine_i6, gunshot, hurt]
     pick = sys.argv[1:]                     # e.g. `python make_sounds.py rain_indoor`; none = everything
     for fn in ALL:
         if not pick or fn.__name__ in pick:

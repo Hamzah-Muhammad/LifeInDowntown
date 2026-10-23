@@ -133,6 +133,18 @@ namespace LifeInDowntown.EditorTools
             wh.PoseForShot(true);
             Report("aim", wh, body);
             Eye("range_eye_aim", wh.aimFov);
+            // the same view a moment after a 25-point hit: the red edge and the glitch (DESIGN 3P.2)
+            var fb = eye.GetComponent<HurtFeedback>();
+            if (fb != null)
+            {
+                var stats = new GameObject("RangeStats").AddComponent<PlayerStats>();
+                fb.Init();   // starts listening (no OnEnable in edit mode)
+                stats.TakeDamage(25f, Vector3.forward * 10f);
+                fb.Step(0.05f);
+                Eye("range_eye_hurt", wh.aimFov);
+                fb.Step(3f);
+                LifeInDowntown.Game.GameState.Current.health = 100f;
+            }
             Vector3 hands = (body.HandPosition(true) + body.HandPosition(false)) / 2f;
             Look("range_side", new Vector3(2.2f, 1.5f, 0.5f), new Vector3(0f, 1.3f, 0.35f), 40f);
             Look("range_front34", new Vector3(-1.4f, 1.65f, 2.2f), new Vector3(0f, 1.35f, 0.3f), 40f);

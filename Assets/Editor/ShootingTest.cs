@@ -8,7 +8,7 @@ using UnityEngine;
 namespace LifeInDowntown.EditorTools
 {
     // The pistol and shooting (docs/DESIGN.md 3O.6) in edit mode: firing at a wall leaves a hole and costs a
-    // round; firing at a person ragdolls them and raises HEAT; bystanders run, police walk over; indoors is
+    // round; a body shot wounds a person, the second ragdolls them, both raise HEAT; bystanders run, police walk over; indoors is
     // refused; an empty mag clicks; reload refills. Prints SHOOT_PASS / SHOOT_FAIL; exits 1 on failure.
     public static class ShootingTest
     {
@@ -62,18 +62,22 @@ namespace LifeInDowntown.EditorTools
                 foreach (var p in new[] { target, bystander, officer }) { Pedestrian.All.Remove(p); Pedestrian.All.Add(p); }
                 Physics.SyncTransforms();
                 heat0 = s.heat;
+                r = gun.Fire(street + Vector3.up * 1.3f, along);   // a body shot: two drop anyone (DESIGN 3P.2)
+                Check(r == WeaponHolder.Shot.Wounded && !target.Dead && target.health is >= 45f and <= 50f, $"one body shot wounds ({r}, health {target.health:F0})");
+                target.transform.position = street + along * 6f;   // wounded people run: put him back on the line
+                Physics.SyncTransforms();
                 r = gun.Fire(street + Vector3.up * 1.3f, along);
                 int bodies = target.GetComponentsInChildren<Rigidbody>().Length;
                 Check(r == WeaponHolder.Shot.Killed && target.Dead && bodies >= 10 && !target.GetComponentInChildren<Animator>().enabled,
-                      $"a shot at a person ragdolls them ({r}, {bodies} bodies)");
-                Check(s.heat == heat0 + 4, $"HEAT +1 for firing near people, +3 for the hit ({heat0} -> {s.heat})");
+                      $"the second ragdolls them ({r}, {bodies} bodies)");
+                Check(s.heat == heat0 + 7, $"HEAT +1 per shot near people, +2 the wound, +3 the kill ({heat0} -> {s.heat})");
                 Check(bystander.path != null && bystander.path.Length == 2 && (bystander.path[1] - street).magnitude > 30f, "the bystander runs away from the shot");
                 Check(officer.watchPlayer && officer.path != null, "the officer walks over and watches");
 
                 // indoors, empty, reload
                 var condoFloor = new Vector3(137.5f, 121.4f, -218.2f);
                 r = gun.Fire(condoFloor, Vector3.forward);
-                Check(r == WeaponHolder.Shot.NotHere && s.loaded == 13, $"no firing in the condo ({r})");
+                Check(r == WeaponHolder.Shot.NotHere && s.loaded == 12, $"no firing in the condo ({r})");
                 s.loaded = 0;
                 r = gun.Fire(origin, toWall);
                 Check(r == WeaponHolder.Shot.Empty, "an empty mag just clicks");
