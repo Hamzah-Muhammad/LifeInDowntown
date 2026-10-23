@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LifeInDowntown.City;
 using UnityEditor;
 using UnityEngine;
@@ -36,7 +37,107 @@ namespace LifeInDowntown.EditorTools
             }
             Gate("GarageGate_Street", "GarageGate_P1_Exit", "Drive into P1 Parking");
             Gate("GarageGate_P1", "GarageGate_Street_Exit", "Drive out onto Shuter St");
-            Debug.Log($"CARS_OK tarik at {car.transform.position}");
+            int parked = ParkedCars(root, spot.transform);
+            Debug.Log($"CARS_OK tarik at {car.transform.position} parked={parked}");
         }
+
+        // ---------------------------------------------------------------- parked cars (DESIGN 3O.5)
+        static readonly (string name, Color c, float w)[] Paints =
+        {
+            ("Grey", new Color(0.22f, 0.23f, 0.24f), 25), ("Black", new Color(0.02f, 0.02f, 0.025f), 20), ("White", new Color(0.82f, 0.82f, 0.8f), 20),
+            ("Silver", new Color(0.55f, 0.56f, 0.58f), 15), ("Blue", new Color(0.05f, 0.12f, 0.32f), 8), ("Red", new Color(0.42f, 0.03f, 0.03f), 7),
+            ("Green", new Color(0.05f, 0.14f, 0.1f), 5),
+        };
+
+        const int MaxStreet = 240;
+
+        static int ParkedCars(Transform root, Transform tarikSpot)
+        {
+            var data = JsonUtility.FromJson<CityData>(System.IO.File.ReadAllText("Assets/City/Data/downtown_yonge_dundas.json"));
+            var types = new (CarBuilder.Spec spec, float w)[] { (CarBuilder.Sedan(), 40), (CarBuilder.Hatch(), 20), (CarBuilder.Suv(), 28), (CarBuilder.Minivan(), 7), (CarBuilder.Van(), 5) };
+            var prefabs = new GameObject[types.Length];
+            for (int i = 0; i < types.Length; i++) prefabs[i] = CarBuilder.BuildPrefab(types[i].spec, Paints[0].c, "Car_" + types[i].spec.name, drivable: false);
+            var paint = new Material[Paints.Length];
+            for (int i = 0; i < Paints.Length; i++) paint[i] = CityGenerator.Materials.Plain("Car_Paint_" + Paints[i].name, Paints[i].c, 0.82f, 0.5f, Color.black, 0f);
+            var rnd = new System.Random(905);
+            int Pick(float[] w) { float x = (float)rnd.NextDouble() * System.Linq.Enumerable.Sum(w); for (int i = 0; i < w.Length; i++) { x -= w[i]; if (x <= 0) return i; } return w.Length - 1; }
+            float[] tw = System.Array.ConvertAll(types, t => t.w), pw = System.Array.ConvertAll(Paints, x => x.w);
+
+            // keep clear of: junctions, the garage street door, subway entrances, the lobby and Rabba fronts
+            var avoid = new List<(Vector2 p, float r)>();
+            foreach (var j in CityGenerator.FindJunctions(data)) avoid.Add((j.p, j.clear + 7f));
+            var gate = GameObject.Find("PantagesGarage/GarageGate_Street");
+            if (gate != null) avoid.Add((new Vector2(gate.transform.position.x, gate.transform.position.z), 12f));
+            foreach (var site in CityGenerator.ShopSites(data)) { var w = site.W(0f, -2f, 0f); avoid.Add((new Vector2(w.x, w.z), 7f)); }
+            var ttc = System.IO.File.Exists("Assets/City/Data/ttc_line1.json") ? JsonUtility.FromJson<TtcEntrances>(System.IO.File.ReadAllText("Assets/City/Data/ttc_line1.json")) : null;
+            if (ttc != null) foreach (var e in ttc.entrances) avoid.Add((new Vector2(e.x, e.z), 8f));
+            var footprints = new List<List<Vector2>>();
+            foreach (var b in data.buildings) footprints.Add(CityDataUtil.Points(b.pts));
+
+            var streets = new HashSet<string> { "residential", "tertiary", "unclassified", "secondary" };
+            int placed = 0;
+            var spots = new List<(Vector2 c, Vector2 face)>();
+            var pr = new GameObject("ParkedCars").transform; pr.SetParent(root, false);
+            foreach (var r in data.roads)
+            {
+                if (!streets.Contains(r.type) || (r.name != null && (r.name.Contains("Yonge") || r.name.Contains("Dundas")))) continue;
+                var pts = CityDataUtil.Points(r.pts);
+                foreach (int side in new[] { 1, -1 })
+                {
+                    float carry = (float)rnd.NextDouble() * 6f;
+                    for (int i = 0; i + 1 < pts.Count; i++)
+                    {
+                        Vector2 a = pts[i], b = pts[i + 1];
+                        float len = (b - a).magnitude;
+                        if (len < 1f) continue;
+                        Vector2 dir = (b - a) / len, right = new Vector2(dir.y, -dir.x);
+                        for (float t = carry; t < len; t += 6.5f + (float)rnd.NextDouble() * 1.5f)
+                        {
+                            carry = 0f;
+                            if (rnd.NextDouble() < 0.28) continue;                                  // gaps
+                            Vector2 c = a + dir * t + right * side * (r.width / 2 - 1.15f);
+                            if (avoid.Exists(x => (x.p - c).sqrMagnitude < x.r * x.r)) continue;
+                            if (footprints.Exists(f => CityGenerator.PointInPolygon(c, f))) continue;
+                            Vector2 face = side > 0 ? dir : -dir;                                    // drive on the right: kerb side faces traffic's way
+                            spots.Add((c, face));
+                        }
+                    }
+                }
+            }
+            // every valid kerb spot, then a seeded random MaxStreet of them (the bigger map has ~1,600)
+            for (int i = spots.Count - 1; i > 0; i--) { int k = rnd.Next(i + 1); (spots[i], spots[k]) = (spots[k], spots[i]); }
+            for (int i = 0; i < Mathf.Min(MaxStreet, spots.Count); i++)
+            {
+                var (c, face) = spots[i];
+                var car = (GameObject)PrefabUtility.InstantiatePrefab(prefabs[Pick(tw)], pr);
+                car.transform.SetPositionAndRotation(new Vector3(c.x, 0.02f, c.y), Quaternion.LookRotation(new Vector3(face.x, 0f, face.y)));
+                Paint(car, paint[Pick(pw)]);
+                placed++;
+            }
+            Debug.Log($"CARS_SPOTS {spots.Count} kerb spots, {placed} used");
+            // residents' cars in some P1 bays (not Tarik's)
+            var garage = GameObject.Find("PantagesGarage");
+            if (garage != null)
+                for (int i = 0; i < 24; i++)
+                {
+                    var bay = garage.transform.Find($"GarageSpot_P1-{i + 1:00}");
+                    if (bay == null || bay == tarikSpot || rnd.NextDouble() > 0.4) continue;
+                    var car = (GameObject)PrefabUtility.InstantiatePrefab(prefabs[Pick(tw)], pr);
+                    var pose = LifeInDowntown.Vehicles.CarPersistence.HomePose(bay, out var rot);
+                    car.transform.SetPositionAndRotation(pose, rot);
+                    Paint(car, paint[Pick(pw)]);
+                    placed++;
+                }
+            return placed;
+        }
+
+        static void Paint(GameObject car, Material m)
+        {
+            var mr = car.transform.Find("Body").GetComponent<MeshRenderer>();
+            var mats = mr.sharedMaterials; mats[0] = m; mr.sharedMaterials = mats;
+        }
+
+        [System.Serializable] class TtcEntrance { public string name; public float x, z; }
+        [System.Serializable] class TtcEntrances { public TtcEntrance[] entrances = new TtcEntrance[0]; }
     }
 }

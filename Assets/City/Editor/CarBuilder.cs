@@ -32,6 +32,36 @@ namespace LifeInDowntown.City
 
         public static Spec E46() => new Spec { name = "E46" };
 
+        // street cars (DESIGN 3O.5): body types from typical real dimensions, no brand cues, no interior
+        public static Spec Sedan() => new Spec { name = "Sedan", bmw = false, interior = false };
+        public static Spec Hatch() => new Spec
+        {
+            name = "Hatch", bmw = false, interior = false, length = 4.15f, wheelbase = 2.6f, frontAxle = 0.85f, height = 1.46f, bPillar = 2.35f,
+            bodyTop = new Vector2[] { new(0f, 0.6f), new(0.12f, 0.7f), new(0.5f, 0.76f), new(1.15f, 0.86f), new(3.9f, 0.96f), new(4.1f, 0.9f), new(4.15f, 0.6f) },
+            roof = new Vector2[] { new(1.15f, 0.92f), new(1.85f, 1.46f), new(3.75f, 1.43f), new(4.05f, 0.97f) },
+        };
+        public static Spec Suv() => new Spec
+        {
+            name = "SUV", bmw = false, interior = false, length = 4.65f, width = 1.86f, height = 1.72f, wheelbase = 2.8f, frontAxle = 0.9f,
+            wheelR = 0.36f, tyreW = 0.235f, clearance = 0.21f, track = 1.6f, beltline = 1.08f, cabinTopHalf = 0.74f, bPillar = 2.5f,
+            bodyTop = new Vector2[] { new(0f, 0.75f), new(0.12f, 0.88f), new(0.6f, 0.95f), new(1.25f, 1.02f), new(4.3f, 1.1f), new(4.6f, 1.0f), new(4.65f, 0.75f) },
+            roof = new Vector2[] { new(1.25f, 1.08f), new(1.95f, 1.72f), new(4.35f, 1.7f), new(4.6f, 1.12f) },
+        };
+        public static Spec Minivan() => new Spec
+        {
+            name = "Minivan", bmw = false, interior = false, length = 5.1f, width = 1.95f, height = 1.75f, wheelbase = 3.0f, frontAxle = 0.95f,
+            wheelR = 0.35f, tyreW = 0.235f, track = 1.68f, beltline = 1.0f, cabinTopHalf = 0.8f, bPillar = 2.3f,
+            bodyTop = new Vector2[] { new(0f, 0.7f), new(0.12f, 0.8f), new(0.6f, 0.9f), new(1.1f, 1.0f), new(4.85f, 1.05f), new(5.05f, 0.95f), new(5.1f, 0.7f) },
+            roof = new Vector2[] { new(1.1f, 1.0f), new(1.9f, 1.75f), new(4.8f, 1.73f), new(5.05f, 1.1f) },
+        };
+        public static Spec Van() => new Spec
+        {
+            name = "Van", bmw = false, interior = false, length = 5.4f, width = 2.0f, height = 2.4f, wheelbase = 3.4f, frontAxle = 0.95f,
+            wheelR = 0.37f, tyreW = 0.235f, clearance = 0.2f, track = 1.72f, beltline = 1.15f, cabinTopHalf = 0.85f, bPillar = 1.95f,
+            bodyTop = new Vector2[] { new(0f, 0.8f), new(0.12f, 0.95f), new(0.5f, 1.05f), new(1.0f, 1.15f), new(2.1f, 1.15f), new(2.25f, 2.38f), new(5.3f, 2.38f), new(5.4f, 2.2f) },
+            roof = new Vector2[] { new(1.0f, 1.15f), new(1.7f, 2.3f), new(2.15f, 2.36f), new(2.25f, 1.16f) },
+        };
+
         // shared-vertex mesh: the lofts weld along their grids so RecalculateNormals smooths the body; parts
         // (boxes, discs) get their own vertices and come out flat. Winding is fixed from a facing hint.
         class CarMesh
@@ -40,11 +70,14 @@ namespace LifeInDowntown.City
             readonly List<List<int>> sub = new List<List<int>>();
             int cur;
             public void UseSubmesh(int i) { while (sub.Count <= i) sub.Add(new List<int>()); cur = i; }
-            public int V(Vector3 p) { v.Add(p); return v.Count - 1; }
+            public System.Func<Vector3, Vector3> Xform;   // places a part (the baked-in wheels of parked cars)
+            public int V(Vector3 p) { v.Add(Xform != null ? Xform(p) : p); return v.Count - 1; }
             public Vector3 this[int i] => v[i];
+            public System.Func<Vector3, Vector3> XformDir;
             public void T(int a, int b, int c, Vector3 facing)
             {
                 UseSubmesh(cur);
+                if (XformDir != null) facing = XformDir(facing);
                 if (Vector3.Dot(Vector3.Cross(v[b] - v[a], v[c] - v[a]), facing) < 0f) (b, c) = (c, b);
                 sub[cur].Add(a); sub[cur].Add(b); sub[cur].Add(c);
             }
@@ -76,6 +109,16 @@ namespace LifeInDowntown.City
             Cabin(body, spec);
             Details(body, spec);
             if (spec.interior) Interior(body, spec);
+            if (!drivable)   // parked: wheels baked into the one body mesh (one renderer per car)
+                for (int i = 0; i < 4; i++)
+                {
+                    bool front = i < 2, left = i % 2 == 0;
+                    var c = new Vector3((left ? -1 : 1) * spec.track / 2, spec.wheelR, spec.length / 2 - spec.frontAxle - (front ? 0f : spec.wheelbase));
+                    body.Xform = q => c + (left ? q : new Vector3(-q.x, q.y, -q.z));
+                    body.XformDir = d => left ? d : new Vector3(-d.x, d.y, -d.z);
+                    Wheel(body, spec);
+                    body.Xform = null; body.XformDir = null;
+                }
             int tris = body.Tris;
             var mesh = body.ToMesh($"{prefabName}_Body");
             Save(mesh, $"{Dir}/{prefabName}_Body.asset");
@@ -95,7 +138,7 @@ namespace LifeInDowntown.City
             col.center = new Vector3(0f, (spec.clearance + spec.height) / 2 + 0.05f, 0f);
             col.size = new Vector3(spec.width, spec.height - spec.clearance - 0.1f, spec.length);
             string[] names = { "Wheel_FL", "Wheel_FR", "Wheel_RL", "Wheel_RR" };
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 4 && drivable; i++)
             {
                 bool front = i < 2, left = i % 2 == 0;
                 float z = front ? halfL - spec.frontAxle : halfL - spec.frontAxle - spec.wheelbase;
