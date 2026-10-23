@@ -350,7 +350,7 @@ Game coordinates (same projection as the city):
    - a hop takes ≤ 35 s;
    - plus renders and a rebuild.
 
-## 3O. Ty, the lobby, the garage, cars, shooting (design 2026-10-22)
+## 3O. Ty, the lobby, the garage, cars, shooting (built 2026-10-22, `feature/ty-lobby-garage-cars`)
 
 Hamzah: "make Ty the 2nd character in the game, a person who always calls me to give me missions. Lets also add cars ... Give [Tarik] his car. Also make a garage system for the condo. Build the condo lobby properly with a concierge. Add more details ... the condo lobby, the subway, the streets, the cars." Then: "give tarik an old bmw" and "add a Pistol to Tariks inventory, and add a proper shooting system."
 He skipped the scope questions except the car, so the recommended defaults apply: Tarik drives, parked cars line the streets but there is **no moving traffic yet**; the garage is underground P1 with his own spot; Ty is an old friend.
@@ -418,6 +418,31 @@ He skipped the scope questions except the car, so the recommended defaults apply
 - **Lobby, garage, cars:** as above.
 - **Subway:** the wall colour placeholders stay until reference photos arrive. Add a train headlight glow in the tunnel, platform-edge gap fillers and more wayfinding.
 - **Streets:** hydrants, newspaper and Bike Share docks, parking machines on the parked-car streets, more litter.
+
+### 3O.7b Added mid-build (Hamzah's asks)
+- **Volume:** the whole mix plays at **5%** of its old level (`GameSettings.MixScale`); the slider keeps its range.
+- **Toronto street talk** (`NPC/NpcBarks`): walk right past someone and now and then they say a line, shown above their head (no voices). The lines depend on their street role: walkers ("TTC's delayed again, I swear.", "Tim's or nah?"), corner crews ("Wagwan."), the homeless ("Spare some change, bro?"), police, people at crosswalks ("Is this where the 505 stops?"), clerks.
+- **Dealers** (`World/DealerNPC`): each corner crew's lookout (10 of them, named: Dre, Junior, Smokes ...). E opens his stock in the shop screen ("Loud (1g)" $15, "Pills" $20, cigarettes; cash only); each purchase is +1 HEAT. He won't deal with police within 25 m or with a gun out.
+
+### 3O.9 Built: what was measured
+- **Ty:** meetups snap him to the nearest sidewalk, and the meeting radius follows where he stands. College Run is a Line 1 job; he texts every 5 min between jobs. He's kept out of the crowd and the train riders.
+- **Lobby:** walk-in on Shuter beside the Rabba (the wall cutter now handles several openings on one edge). Two elevators: condo ↔ lobby ↔ P1.
+- **Garage:** 24 bays, a 7 m aisle and a roll-up door; drive-in and out through fade gates; the concierge knows where the car is.
+- **E46:** about 4.3k triangles. In DriveTest it did 0-46 km/h in 3 s (a real 330i is about 6.5 s to 100), stopped from 46 km/h in 1.3 s, reversed after a beat at a standstill, and steered 46°.
+- **Parked cars:** 240 on side-street kerbs (from 1,541 valid spots) plus 7 in P1. One renderer each (wheels baked in), about 5k triangles; lamps off.
+- **Shooting** (ShootingTest): a wall shot leaves a hole; a person shot ragdolls (12 bodies); HEAT +1 for firing near people, +3 for a hit; bystanders run and police walk over; no firing in indoor zones; an empty mag clicks; R reloads.
+- **Street extras:** 27 Green P pay-and-display machines, 3 Bike Share Toronto docks in the curb lane, 224 bits of litter.
+- **Tests:** 7 suites green (player, phone, saves, inventory, drive, shooting, subway).
+- **Not checked in the running game:**
+  - the driving feel;
+  - the engine and gunshot sounds;
+  - the subtitles, the street talk and the inventory screen (UI isn't in batch renders);
+  - frame rate with ~250 cars on the bigger map.
+- **Limits:**
+  - The E46's side windows show stair-step edges where glass meets trim.
+  - Parked cars are generic shapes.
+  - There are no hands on the pistol, no running animation (fleeing people speed up the walk clip), and no police combat yet.
+  - The sleeping bags and bikes are primitives.
 
 ### 3O.8 Build order (one branch `feature/ty-lobby-garage-cars`, one commit per task)
 1. Ty

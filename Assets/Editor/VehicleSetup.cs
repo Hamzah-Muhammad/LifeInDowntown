@@ -115,6 +115,7 @@ namespace LifeInDowntown.EditorTools
                 placed++;
             }
             Debug.Log($"CARS_SPOTS {spots.Count} kerb spots, {placed} used");
+            StreetExtras(root, spots, rnd);
             // residents' cars in some P1 bays (not Tarik's)
             var garage = GameObject.Find("PantagesGarage");
             if (garage != null)
@@ -129,6 +130,80 @@ namespace LifeInDowntown.EditorTools
                     placed++;
                 }
             return placed;
+        }
+
+        // detail on the parked-car streets (DESIGN 3O.7): Green P pay-and-display machines on the sidewalk beside
+        // parked cars, Bike Share Toronto docks in the curb lane (where Toronto puts them), litter on the sidewalks
+        static void StreetExtras(Transform root, List<(Vector2 c, Vector2 face)> spots, System.Random rnd)
+        {
+            var greenP = CityGenerator.Materials.Plain("Street_GreenP", new Color(0.04f, 0.28f, 0.14f), 0.5f, 0.3f, Color.black, 0f);
+            var screen = CityGenerator.Materials.Plain("Street_GreenPScreen", Color.black, 0.6f, 0f, new Color(0.6f, 0.9f, 0.7f), 6f);
+            var dock = CityGenerator.Materials.Plain("Street_BikeDock", new Color(0.18f, 0.19f, 0.2f), 0.5f, 0.7f, Color.black, 0f);
+            var bikeGreen = CityGenerator.Materials.Plain("Street_BikeGreen", new Color(0.1f, 0.42f, 0.2f), 0.55f, 0.2f, Color.black, 0f);
+            var tyre = CityGenerator.Materials.Plain("Car_Tyre", new Color(0.04f, 0.04f, 0.045f), 0.35f, 0f, Color.black, 0f);
+            var paper = CityGenerator.Materials.Plain("Street_Litter", new Color(0.75f, 0.73f, 0.68f), 0.2f, 0f, Color.black, 0f);
+            var cupRed = CityGenerator.Materials.Plain("Street_CupRed", new Color(0.6f, 0.08f, 0.06f), 0.4f, 0f, Color.black, 0f);   // the double-double cup
+            var ex = new GameObject("StreetExtras").transform; ex.SetParent(root, false);
+            GameObject Part(PrimitiveType t, Material m, Transform parent, Vector3 lp, Vector3 scale, Quaternion? r = null, bool col = false)
+            {
+                var g = GameObject.CreatePrimitive(t);
+                if (!col) Object.DestroyImmediate(g.GetComponent<Collider>());
+                g.transform.SetParent(parent, false);
+                g.transform.localPosition = lp; g.transform.localScale = scale; g.transform.localRotation = r ?? Quaternion.identity;
+                g.GetComponent<MeshRenderer>().sharedMaterial = m;
+                return g;
+            }
+            Vector3 W(Vector2 c, float y) => new Vector3(c.x, y, c.y);
+            int machines = 0, docks = 0, litter = 0;
+            // pay machines: every so many parked cars, 1.6 m in from the curb line onto the sidewalk
+            for (int i = 0; i < Mathf.Min(MaxStreet, spots.Count); i += 9)
+            {
+                var (c, face) = spots[i];
+                Vector2 kerbOut = new Vector2(face.y, -face.x);   // the parked car's right = towards the kerb
+                var m = new GameObject("GreenP_Machine").transform; m.SetParent(ex, false);
+                m.SetPositionAndRotation(W(c + kerbOut * 2.4f, 0.15f), Quaternion.LookRotation(W(-kerbOut, 0f)));
+                Part(PrimitiveType.Cube, greenP, m, new Vector3(0f, 0.75f, 0f), new Vector3(0.34f, 1.5f, 0.28f), null, true);
+                Part(PrimitiveType.Cube, screen, m, new Vector3(0f, 1.2f, 0.145f), new Vector3(0.2f, 0.12f, 0.01f));
+                Part(PrimitiveType.Cylinder, greenP, m, new Vector3(0f, 1.75f, 0f), new Vector3(0.32f, 0.02f, 0.32f), Quaternion.Euler(90f, 0f, 0f));
+                machines++;
+            }
+            // Bike Share docks: three stations in the curb lane, a rack of 10 docks with some bikes in
+            for (int i = MaxStreet; i < spots.Count && docks < 3; i += 37)
+            {
+                var (c, face) = spots[i];
+                var st = new GameObject("BikeShare_Station").transform; st.SetParent(ex, false);
+                st.SetPositionAndRotation(W(c, 0.02f), Quaternion.LookRotation(W(face, 0f)));
+                Part(PrimitiveType.Cube, dock, st, new Vector3(0.45f, 0.08f, 0f), new Vector3(0.25f, 0.16f, 8.5f), null, true);
+                Part(PrimitiveType.Cube, bikeGreen, st, new Vector3(0.45f, 1.0f, 4.45f), new Vector3(0.3f, 1.9f, 0.3f), null, true);   // the kiosk
+                for (int k = 0; k < 10; k++)
+                {
+                    float z = -4f + k * 0.85f;
+                    Part(PrimitiveType.Cube, dock, st, new Vector3(0.45f, 0.45f, z), new Vector3(0.12f, 0.75f, 0.14f));
+                    if (rnd.NextDouble() < 0.6)   // a docked bike: two wheels, frame, basket
+                    {
+                        var b = new GameObject("Bike").transform; b.SetParent(st, false); b.localPosition = new Vector3(-0.4f, 0f, z); b.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                        foreach (float wz in new[] { -0.55f, 0.55f }) Part(PrimitiveType.Cylinder, tyre, b, new Vector3(0f, 0.33f, wz), new Vector3(0.66f, 0.02f, 0.66f), Quaternion.Euler(0f, 0f, 90f));
+                        Part(PrimitiveType.Cube, bikeGreen, b, new Vector3(0f, 0.6f, 0f), new Vector3(0.05f, 0.05f, 1.0f), Quaternion.Euler(-15f, 0f, 0f));
+                        Part(PrimitiveType.Cube, bikeGreen, b, new Vector3(0f, 0.75f, -0.3f), new Vector3(0.05f, 0.5f, 0.05f));
+                        Part(PrimitiveType.Cube, dock, b, new Vector3(0f, 0.95f, 0.6f), new Vector3(0.32f, 0.2f, 0.28f));
+                    }
+                }
+                docks++;
+            }
+            // litter: crumpled paper and the odd coffee cup on the sidewalks
+            var crowd = Object.FindFirstObjectByType<LifeInDowntown.NPC.CrowdDirector>();
+            if (crowd != null)
+                for (int i = 0; i < crowd.points.Length; i += 23)
+                {
+                    var pt = crowd.points[i] + new Vector3((float)rnd.NextDouble() - 0.5f, 0.005f, (float)rnd.NextDouble() - 0.5f) * 1.6f;
+                    bool cup = rnd.NextDouble() < 0.3;
+                    var g = Part(cup ? PrimitiveType.Cylinder : PrimitiveType.Cube, cup ? cupRed : paper, ex, pt + Vector3.up * (cup ? 0.04f : 0.01f),
+                                 cup ? new Vector3(0.08f, 0.055f, 0.08f) : new Vector3(0.14f, 0.015f, 0.1f),
+                                 cup ? Quaternion.Euler(90f, (float)rnd.NextDouble() * 360f, 0f) : Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f));
+                    g.transform.SetParent(ex, true);
+                    litter++;
+                }
+            Debug.Log($"STREET_EXTRAS greenP={machines} bikeShare={docks} litter={litter}");
         }
 
         static void Paint(GameObject car, Material m)

@@ -87,6 +87,11 @@ namespace LifeInDowntown.EditorTools
             foreach (var tr in Object.FindObjectsByType<LifeInDowntown.Transit.TrainController>(FindObjectsSortMode.None))
                 tr.PlaceAt(tr.dir > 0 ? 0 : 1, tr.dir > 0 ? 1f : 0f);   // northbound at Queen, doors open; southbound at TMU, doors shut
             AddSubwayPoses(poses);
+            foreach (var (shot, obj) in new[] { ("street_bikeshare", "Vehicles/StreetExtras/BikeShare_Station"), ("street_greenp", "Vehicles/StreetExtras/GreenP_Machine") })   // DESIGN 3O.7
+            {
+                var o = GameObject.Find(obj);
+                if (o != null) poses.Add((shot, o.transform.position + o.transform.right * -6f + o.transform.forward * 4f + Vector3.up * 1.7f, o.transform.position + Vector3.up * 0.8f));
+            }
             AddCrowdPoses(poses, CityGenerator.TryCondoFrame(data, out var cf) ? cf : (CityGenerator.CondoFrame?)null);
             foreach (var (shot, id) in new[] { ("items_nightstand", "condo_pistol"), ("items_coffee_table", "condo_chips") })   // DESIGN 3M
             {

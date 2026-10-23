@@ -104,6 +104,11 @@ namespace LifeInDowntown.City
         {
             Directory.CreateDirectory(Dir);
             var mats = Materials(paint, prefabName);
+            if (!drivable)   // parked and switched off: lamps unlit
+            {
+                mats[4] = CityGenerator.Materials.Plain("Car_HeadlampOff", new Color(0.7f, 0.72f, 0.72f), 0.9f, 0f, Color.black, 0f);
+                mats[5] = CityGenerator.Materials.Plain("Car_TaillampOff", new Color(0.32f, 0.03f, 0.03f), 0.85f, 0f, Color.black, 0f);
+            }
             var body = new CarMesh();
             Body(body, spec);
             Cabin(body, spec);
