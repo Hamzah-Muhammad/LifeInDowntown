@@ -607,6 +607,37 @@ Hamzah: "you need to create a 'development range' where you have put models and 
   `DevRange.Build` only rebuilds and saves the scene.
 - **Edit-mode gotcha:** skinned meshes don't re-skin between renders without a player loop. The range and ShotTool set `forceMatrixRecalculationPerRender`, or the arms drawn lag one pose behind the bones.
 
+## 3R. Movement for stealth and crime (built 2026-10-23)
+Hamzah: "include the ability to run, walk, sneak, peak around corners. This will be needed for this game, based on stealth, crime." He approved the plan: walk by default, Shift run, C sneak toggle, hold Alt + A/D to peek, with noise and visibility hooked into the hostiles.
+
+- **Paces (`BodycamPlayer`):**
+
+  | Pace | How | Speed |
+  |---|---|---|
+  | Walk | the default | 1.6 m/s |
+  | Run | Shift | 4.0 m/s |
+  | Sprint | Shift held for 1.2 s going forward | 5.5 m/s |
+  | Sneak | C toggles it | 1.0 m/s, capsule 1.15 m, eyes about 1.06 m up |
+
+  Shift or jump stands him out of a sneak, and he won't stand up into a low ceiling. Alt-walk is gone: walking is the default now.
+- **Peek:** hold Alt + A or D.
+  - The feet stay put and the head eases out up to 0.4 m. A sphere cast stops it 12 cm short of a wall.
+  - The view tilts up to 12° and dips 5 cm.
+  - The spine bends into the lean (`TarikBody.Stance`).
+- **Body while sneaking:** the crowd's crouch clip is a deep forward kneel, which put his hunched shoulder in the lowered view. Instead the body sinks with the capsule. TODO: a Mixamo crouch-walk clip on Hamzah's OK.
+- **What the hostiles get:**
+  - **Hearing:** `NoiseRadius` is 0 standing still, 1.5 m sneaking, 6 m walking, 15 m running, 18 m sprinting. Idle or alert hostiles inside it come to look.
+  - **Sight:** sneaking cuts how far off he's spotted to 20 m (from 40), and spotting him at close range drops from 20 m to 6 m.
+  - **Visible points:** `HeadPoint` and `ChestPoint` replace fixed heights. Crouching lowers both; peeking moves the head out past the corner while the chest stays behind it. A peeking Tarik is seen by his head (and his drawn gun), and is hit at 40% of the normal chance.
+- **HUD:** "SNEAKING" and "< PEEK" / "PEEK >" at the bottom left.
+- **Range:** `range_sneak_eye`, `range_sneak_side`, `range_peek_behind`, `range_peek_right`, `range_peek_third` at a corner block, `PeekCorner`.
+- **Tests:**
+  - `PlayerSimTest` checks walk, run, sprint and sneak speeds, height and noise. Its wall test now checks that no frame-to-frame step crosses a building; the old infinite-plane test failed on irregular buildings.
+  - `CombatTest` checks footsteps by pace, sneak sight, peek visibility, and the lean wall clamp.
+- **Fixes the range found:**
+  - Fists never handed the arms back when lowered.
+  - Holstering mid-reload left the left hand on the reload.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.

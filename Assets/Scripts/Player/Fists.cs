@@ -198,9 +198,18 @@ namespace LifeInDowntown.Player
             hintR.localPosition = hr; hintL.localPosition = HintL;
         }
 
+        bool holding;   // the fists are driving his arms
+
         void Hands()
         {
-            if (body == null || Weight <= 0.001f) return;   // WeaponHolder has the hands (or they hang)
+            if (body == null) return;
+            if (Weight <= 0.001f)   // WeaponHolder has the hands (or they hang): let go of them once
+            {
+                if (holding && body.rightTarget == fistR) { body.rightWeight = body.leftWeight = 0f; }
+                holding = false;
+                return;
+            }
+            holding = true;
             body.rightTarget = fistR; body.leftTarget = fistL;
             body.rightHint = hintR; body.leftHint = hintL;
             body.rightWeight = body.leftWeight = Weight;

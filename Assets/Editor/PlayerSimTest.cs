@@ -64,7 +64,7 @@ namespace LifeInDowntown.EditorTools
                 ccS.enabled = false; player.transform.position = outside; ccS.enabled = true;
                 player.SetLook(Mathf.Atan2(into.x, into.z) * Mathf.Rad2Deg, 0f);
                 Physics.SyncTransforms();
-                for (int i = 0; i < 150; i++) Tick(player, rig, new Vector2(0, 1), false, false);   // jog in for 2.5 s
+                for (int i = 0; i < 300; i++) Tick(player, rig, new Vector2(0, 1), false, false);   // walk in for 5 s (walking is the default pace, DESIGN 3R)
                 float depth = Vector3.Dot(player.transform.position - shop.W(0f, 0f, 0f), into.normalized);
                 bool walkedIn = depth > 2f && depth < CityGenerator.ShopDepth && player.transform.position.y > -0.1f;
                 string blocker = "";
@@ -87,14 +87,35 @@ namespace LifeInDowntown.EditorTools
             Check(player.Grounded, $"grounded after settling (y={player.transform.position.y:F2})");
             Check(player.transform.position.y > -0.1f && player.transform.position.y < 0.6f, "standing at street level, not fallen through");
 
-            // jog 3 s, then measure speed over the last second
-            float jog = MeasureSpeed(player, rig, new Vector2(0, 1), false, 180, out float bobMin, out float bobMax);
-            Check(Mathf.Abs(jog - player.jogSpeed) < 0.4f, $"jog speed {jog:F2} m/s (target {player.jogSpeed})");
-            float bobRange = bobMax - bobMin;
-            Check(bobRange > 0.01f && bobRange < 0.04f, $"jog vertical bob {bobRange * 100f:F1} cm (design 1.5-3 cm after the 2026-10-22 shake cut)");
+            // walk by default (DESIGN 3R): 3 s, then measure speed over the last second
+            float walk = MeasureSpeed(player, rig, new Vector2(0, 1), false, 180, out _, out _);
+            Check(Mathf.Abs(walk - player.walkSpeed) < 0.3f && Mathf.Approximately(player.NoiseRadius, player.noiseWalk), $"walks by default: {walk:F2} m/s (target {player.walkSpeed}), heard at {player.NoiseRadius} m");
 
+            // Shift: a run for the first 1.2 s held (measured 0.4-1.1 s in), then a sprint
+            float runFrom = 0f, bobMin = float.MaxValue, bobMax = float.MinValue; Vector3 runStart = Vector3.zero;
+            for (int i = 0; i < 66; i++)
+            {
+                Tick(player, rig, new Vector2(0, 1), true, false);
+                if (i == 24) { runStart = player.transform.position; runFrom = i * Dt; }
+                if (i > 24) { float by = rig.LastBobOffset.y; bobMin = Mathf.Min(bobMin, by); bobMax = Mathf.Max(bobMax, by); }
+            }
+            float run = Flat(player.transform.position - runStart).magnitude / (65 * Dt - runFrom);
+            Check(Mathf.Abs(run - player.jogSpeed) < 0.5f && !player.Sprinting && Mathf.Approximately(player.NoiseRadius, player.noiseRun), $"Shift runs: {run:F2} m/s (target {player.jogSpeed}), heard at {player.NoiseRadius} m");
+            float bobRange = bobMax - bobMin;
+            Check(bobRange > 0.01f && bobRange < 0.04f, $"run vertical bob {bobRange * 100f:F1} cm (design 1.5-3 cm)");
             float sprint = MeasureSpeed(player, rig, new Vector2(0, 1), true, 120, out _, out _);
-            Check(Mathf.Abs(sprint - player.sprintSpeed) < 0.6f, $"sprint speed {sprint:F2} m/s (target {player.sprintSpeed})");
+            Check(Mathf.Abs(sprint - player.sprintSpeed) < 0.6f && player.Sprinting, $"held on, it becomes a sprint: {sprint:F2} m/s (target {player.sprintSpeed})");
+
+            // C: sneak (crouched, slow, quiet); Shift stands him back up
+            player.SetSneak(true);
+            float sneak = MeasureSpeed(player, rig, new Vector2(0, 1), false, 120, out _, out _);
+            var ccCrouch = player.GetComponent<CharacterController>();
+            Check(Mathf.Abs(sneak - player.crouchSpeed) < 0.25f && ccCrouch.height < player.crouchHeight + 0.05f && Mathf.Approximately(player.NoiseRadius, player.noiseSneak)
+                  && rig.transform.position.y - player.transform.position.y < 1.15f,
+                  $"sneaking: {sneak:F2} m/s, {ccCrouch.height:F2} m tall, eyes {rig.transform.position.y - player.transform.position.y:F2} m up, heard at {player.NoiseRadius} m");
+            Tick(player, rig, new Vector2(0, 1), true, false);
+            Check(!player.Sneaking, "Shift stands him up out of a sneak");
+            for (int i = 0; i < 60; i++) Tick(player, rig, Vector2.zero, false, false);
 
             // face the nearest building wall head-on and sprint into it for 7 s (long enough to reach it): the body
             // may slide along the wall (correct CharacterController behaviour) but must never cross its plane or
@@ -111,21 +132,25 @@ namespace LifeInDowntown.EditorTools
                 Vector3 into = -hit.normal; into.y = 0f;
                 float targetYaw = Mathf.Atan2(into.x, into.z) * Mathf.Rad2Deg;
                 Tick(player, rig, Vector2.zero, false, false, new Vector2(Mathf.DeltaAngle(player.Yaw, targetYaw) / player.lookSensitivity, 0f));
-                float minPlaneDist = float.MaxValue;
-                bool overlapped = false;
+                // passing through = a step that crosses a building (a chest-high line from one frame's position to the
+                // next hits a wall), or the capsule inside one. Sliding along a wall or round its end is neither; the
+                // old "never past the wall's infinite plane" test failed on irregular buildings for exactly that.
+                float closest = float.MaxValue;
+                bool overlapped = false, crossed = false;
+                Vector3 prev = player.transform.position;
                 for (int i = 0; i < 420; i++)
                 {
                     Tick(player, rig, new Vector2(0, 1), true, false);
                     var p = player.transform.position;
-                    minPlaneDist = Mathf.Min(minPlaneDist, Vector3.Dot(Flat(p) - Flat(hit.point), Flat(hit.normal).normalized));
+                    closest = Mathf.Min(closest, Flat(p - hit.point).magnitude);
+                    if (Physics.Linecast(prev + Vector3.up * 1.2f, p + Vector3.up * 1.2f, out var step, ~0, QueryTriggerInteraction.Ignore) && step.collider.name.StartsWith("Bldg_")) crossed = true;
+                    prev = p;
                     foreach (var c in Physics.OverlapCapsule(p + Vector3.up * (ccW.radius + 0.1f), p + Vector3.up * (ccW.height - ccW.radius), ccW.radius * 0.8f, ~0, QueryTriggerInteraction.Ignore))
                         if (c.name.StartsWith("Bldg_")) overlapped = true;
                 }
-                // the plane test only means something for a near wall: a far, short wall can be slid past at its end
-                // (its infinite plane is then crossed beside the building); never overlapping a building always must hold
-                bool near = hit.distance < 8f;
-                Check(!overlapped && (!near || (minPlaneDist > ccW.radius * 0.8f && minPlaneDist < 1.0f)),
-                      $"{label}: reaches the wall and never passes through (closest {minPlaneDist:F2} m from its plane, wall={hit.collider.name} {hit.distance:F1} m away, overlap={overlapped})");
+                bool near = hit.distance < 8f;   // a near wall must actually be reached; a far one may be slid past on the way
+                Check(!overlapped && !crossed && (!near || closest < 1.0f),
+                      $"{label}: reaches the wall and never passes through (got within {closest:F2} m of it, wall={hit.collider.name} {hit.distance:F1} m away, crossed={crossed}, overlap={overlapped})");
             }
             WallTest(player.transform.position, "after the speed runs");
             WallTest(street, "from the street spawn");

@@ -32,6 +32,7 @@ namespace LifeInDowntown.NPC
         public int Hits { get; private set; }
         public int NearMisses { get; private set; }
         public int Reloads { get; private set; }
+        public int Heard { get; private set; }   // frames his footsteps reached them
         public Vector3? Cover { get; private set; }
         public bool Peeking { get; private set; }
         public bool Reloading => reloadT >= 0f;
@@ -52,8 +53,10 @@ namespace LifeInDowntown.NPC
 
         static GameState S => GameState.Current;
         static Transform Tarik() => Pedestrian.Player != null ? Pedestrian.Player : GameObject.Find("Player")?.transform;
-        static Vector3 Chest(Transform t) => t.position + Vector3.up * 1.3f;
-        static Vector3 Head(Transform t) => t.position + Vector3.up * 1.62f;
+        // what shows of Tarik: crouching lowers both, peeking puts the head out past the corner (DESIGN 3R)
+        static Vector3 Chest(Transform t) { var bp = t.GetComponent<BodycamPlayer>(); return bp != null ? bp.ChestPoint : t.position + Vector3.up * 1.3f; }
+        static Vector3 Head(Transform t) { var bp = t.GetComponent<BodycamPlayer>(); return bp != null ? bp.HeadPoint : t.position + Vector3.up * 1.62f; }
+        public const float SneakSight = 20f, SpotClose = 20f, SpotCloseSneaking = 6f;
         Vector3 Eye => transform.position + Vector3.up * 1.55f;
         public bool Down => state == State.Dead || state == State.Fled;
 
@@ -137,7 +140,9 @@ namespace LifeInDowntown.NPC
         {
             chest = head = false;
             Vector3 to = t.position - transform.position; to.y = 0f;
-            if (to.magnitude > sight) return false;
+            var bp = t.GetComponent<BodycamPlayer>();
+            float range = bp != null && bp.Sneaking && state != State.Combat ? Mathf.Min(sight, SneakSight) : sight;   // sneaking halves how far off he's spotted
+            if (to.magnitude > range) return false;
             if (state != State.Combat && Vector3.Angle(transform.forward, to) > fov * 0.5f) return false;
             Vector3 from = Eye + (to.sqrMagnitude > 1e-4f ? to.normalized : transform.forward) * 0.45f;   // out past their own capsule
             chest = Clear(from, Chest(t), t);
@@ -160,11 +165,15 @@ namespace LifeInDowntown.NPC
             bool sees = Sees(t, out bool chest, out bool head);
             if (sees) lastKnown = t.position;
             Vector3 flat = t.position - transform.position; flat.y = 0f;
+            var bp = t.GetComponent<BodycamPlayer>();
+            bool sneaking = bp != null && bp.Sneaking;
+            // footsteps (DESIGN 3R): walking carries 6 m, running 15, sneaking 1.5; they come to look
+            if ((state == State.Idle || state == State.Alert) && bp != null && flat.magnitude < bp.NoiseRadius) { Alarm(t.position); Heard++; }
 
             switch (state)
             {
                 case State.Idle:
-                    if (sees && (S.drawn || flat.magnitude < 20f)) Alarm(t.position);
+                    if (sees && (S.drawn || flat.magnitude < (sneaking ? SpotCloseSneaking : SpotClose))) Alarm(t.position);
                     SetMode(Pedestrian.Mode.TalkCool, 1f);
                     break;
                 case State.Alert:

@@ -158,7 +158,7 @@ namespace LifeInDowntown.Items
             if (body == null) return;
             body.rightTarget = gripR; body.rightHint = hintR; body.rightWeight = raise > 0.01f ? Mathf.Clamp01(raise * 1.4f) : 0f;
             body.leftTarget = reloadT >= 0f ? reloadHand : gripL; body.leftHint = hintL;
-            body.leftWeight = reloadT >= 0f ? 1f : Mathf.Clamp01((e - 0.6f) / 0.4f);   // the support hand joins once the gun is up
+            body.leftWeight = raise <= 0.01f ? 0f : reloadT >= 0f ? 1f : Mathf.Clamp01((e - 0.6f) / 0.4f);   // the support hand joins once the gun is up; holstered, both hands are free
         }
 
         public bool Reloading => reloadT >= 0f;
@@ -283,7 +283,7 @@ namespace LifeInDowntown.Items
         public void PoseHolstered()
         {
             if (gun == null) Start();
-            raise = 0f; aim = 0f; S.drawn = false;
+            raise = 0f; aim = 0f; S.drawn = false; reloadT = -1f;
             gun.gameObject.SetActive(false);
             Hands(0f);
         }

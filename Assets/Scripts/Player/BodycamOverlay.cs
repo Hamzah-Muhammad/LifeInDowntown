@@ -33,6 +33,20 @@ namespace LifeInDowntown.Player
             var sr = r; sr.x += 2; sr.y += 2;
             GUI.Label(sr, stamp, shadow);
             GUI.Label(r, stamp, text);
+
+            // stealth state, bottom left (DESIGN 3R): sneaking, peeking
+            if (player == null) player = FindFirstObjectByType<BodycamPlayer>();
+            if (player == null) return;
+            string state = player.Sneaking ? "SNEAKING" : "";
+            if (Mathf.Abs(player.Lean) > 0.3f) state += (state.Length > 0 ? "  ·  " : "") + (player.Lean < 0f ? "< PEEK" : "PEEK >");
+            if (state.Length == 0) return;
+            var sr2 = new Rect(pad + 2, Screen.height - pad - size * 1.4f + 2, size * 16f, size * 1.4f);
+            var r2 = new Rect(pad, Screen.height - pad - size * 1.4f, size * 16f, size * 1.4f);
+            var left = new GUIStyle(text) { alignment = TextAnchor.LowerLeft }; var leftShadow = new GUIStyle(shadow) { alignment = TextAnchor.LowerLeft };
+            GUI.Label(sr2, state, leftShadow);
+            GUI.Label(r2, state, left);
         }
+
+        BodycamPlayer player;
     }
 }

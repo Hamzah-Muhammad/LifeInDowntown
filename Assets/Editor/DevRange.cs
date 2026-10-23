@@ -22,6 +22,7 @@ namespace LifeInDowntown.EditorTools
         public const string Dir = "Assets/DevRange", ScenePath = Dir + "/DevRange.unity";
         const int W = 1600, H = 900;
         static readonly Vector3 GunPad = new Vector3(-2.2f, 0f, 1.6f), CarPad = new Vector3(6.5f, 0f, 3.5f), Lineup = new Vector3(-6f, 0f, 3.5f);
+        static readonly Vector3 PeekCorner = new Vector3(-12f, 1.5f, 3f);
         static readonly string[] People = { NpcSetup.TarikAvatar, NpcSetup.TyAvatar, "Female_Adult_04", "Male_Adult_04", "Police_Male_01" };
 
         public static void Build()
@@ -67,6 +68,8 @@ namespace LifeInDowntown.EditorTools
 
             // the pistol alone on a plinth, the E46, the line-up
             Box("GunPlinth", GunPad + Vector3.up * 0.5f, new Vector3(0.5f, 1f, 0.5f), dark);
+            // a building corner to peek round (DESIGN 3R): x -13..-11, z 2..4
+            Box("PeekCorner", PeekCorner, new Vector3(2f, 3f, 2f), grey);
             var gun = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath));
             gun.name = "PistolOnPlinth";
             gun.transform.SetPositionAndRotation(GunPad + Vector3.up * 1.1f, Quaternion.Euler(0f, 90f, 0f));
@@ -228,6 +231,32 @@ namespace LifeInDowntown.EditorTools
                 LifeInDowntown.NPC.Hostile.All.Clear();
             }
 
+            // movement (DESIGN 3R): sneaking at the firing line, then behind the corner and peeking out past it
+            {
+                var plr = GameObject.Find("Player").transform;
+                var bp = plr.GetComponent<BodycamPlayer>();
+                var rig = eye.GetComponent<BodycamRig>();
+                var cc = plr.GetComponent<CharacterController>();
+                void Put(Vector3 at) { cc.enabled = false; plr.position = at; cc.enabled = true; bp.SetLook(0f, 0f); rig.Snap(); Physics.SyncTransforms(); }
+                void Hold(bool sneak, float lean) { for (int i = 0; i < 90; i++) { bp.Step(Vector2.zero, Vector2.zero, false, sneak, false, lean, 1f / 60f); Physics.SyncTransforms(); rig.Tick(1f / 60f); } Idle(body.anim); body.Stance(); body.Solve(); }
+                wh.PoseHolstered();
+                Put(Vector3.zero);
+                Hold(true, 0f);
+                Eye("range_sneak_eye", PlayerSetup.VerticalFov);
+                Look("range_sneak_side", new Vector3(2.2f, 1.2f, 0.6f), new Vector3(0f, 0.8f, 0.2f), 40f);
+                Put(new Vector3(PeekCorner.x + 0.75f, 0f, PeekCorner.z - 2f));   // behind the corner, the open lane past its east edge
+                Hold(false, 0f);
+                Idle(body.anim);
+                Eye("range_peek_behind", PlayerSetup.VerticalFov);
+                Hold(false, 1f);
+                Eye("range_peek_right", PlayerSetup.VerticalFov);
+                Look("range_peek_third", plr.position + new Vector3(-1.2f, 1.9f, -2.2f), plr.position + new Vector3(0.3f, 1.4f, 1f), 50f);
+                Debug.Log($"RANGE peek: lean {bp.LeanOffset:F2} m, head {bp.HeadPoint:F2}, chest {bp.ChestPoint:F2}");
+                Hold(false, 0f);
+                Put(Vector3.zero); Hold(false, 0f);
+                Idle(body.anim);
+            }
+
             var g = GameObject.Find("PistolOnPlinth").transform.position;
             for (int a = 0; a < 360; a += 90)
                 Look($"range_pistol_{a}", g + Quaternion.Euler(15f, a, 0f) * (Vector3.back * 0.55f), g, 30f);
@@ -259,13 +288,13 @@ namespace LifeInDowntown.EditorTools
         }
 
         // edit mode: stand a humanoid on its idle clip (in play the animator does this every frame)
-        static void Idle(Animator anim)
+        static void Idle(Animator anim, string state = "Idle")
         {
             if (anim.runtimeAnimatorController is not UnityEditor.Animations.AnimatorController ctrl) return;
             var root = anim.transform.parent != null ? anim.transform.parent : anim.transform;
             var p = root.position; var r = root.rotation;
             foreach (var st in ctrl.layers[0].stateMachine.states)
-                if (st.state.name == "Idle" && st.state.motion is AnimationClip clip)
+                if (st.state.name == state && st.state.motion is AnimationClip clip)
                     AnimationMode.SampleAnimationClip(anim.gameObject, clip, 0.5f);
             root.SetPositionAndRotation(p, r);
             if (root != anim.transform) { anim.transform.localPosition = Vector3.zero; anim.transform.localRotation = Quaternion.identity; }

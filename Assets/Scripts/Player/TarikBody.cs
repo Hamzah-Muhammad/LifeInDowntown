@@ -84,7 +84,26 @@ namespace LifeInDowntown.Player
         {
             if (player != null && anim != null && anim.isActiveAndEnabled)
                 anim.SetInteger(ModeId, player.HorizontalSpeed > 0.3f ? 0 : 2);   // walk / idle under the arms
+            Stance();
             Solve();
+        }
+
+        // sneaking and peeking (DESIGN 3R). The street crowd's crouch clip is a deep forward kneel, which put his
+        // hunched shoulder in front of the lowered camera, so instead the body sinks with the crouched capsule
+        // (chest stays under the eyes; the legs are out of view) and the spine bends into a lean.
+        // TODO: a real crouch-walk clip (Mixamo, on Hamzah's OK) replaces the sink.
+        public void Stance()
+        {
+            if (player == null) return;
+            float sink = (1f - player.HeightRatio) * player.standHeight;
+            transform.localPosition = new Vector3(0f, -sink, 0f);
+            if (anim == null || Mathf.Abs(player.LeanOffset) < 0.005f) return;
+            var spine = anim.GetBoneTransform(HumanBodyBones.Spine);
+            var chest = anim.GetBoneTransform(HumanBodyBones.Chest);
+            float roll = -(player.LeanOffset / Mathf.Max(0.01f, player.leanDistance)) * player.leanRoll;
+            Vector3 axis = player.transform.forward;
+            if (spine != null) spine.rotation = Quaternion.AngleAxis(roll * 0.6f, axis) * spine.rotation;
+            if (chest != null) chest.rotation = Quaternion.AngleAxis(roll * 0.6f, axis) * chest.rotation;
         }
 
         public void Solve()

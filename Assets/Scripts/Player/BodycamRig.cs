@@ -96,10 +96,12 @@ namespace LifeInDowntown.Player
 
             var bodyRot = Quaternion.Euler(0f, CamYaw, 0f);
             LastBobOffset = bob;
+            // peeking (DESIGN 3R): the eyes slide out to the side and dip a touch, the view tilts with the lean
+            float leanOut = player.leanDistance > 0f ? player.LeanOffset / player.leanDistance : 0f;
             transform.position = player.transform.position
-                                 + Vector3.up * (mountHeight * player.HeightRatio)
-                                 + bodyRot * (Vector3.forward * mountForward + bob);
-            transform.rotation = Quaternion.Euler(CamPitch + kick * shakeScale + jp, CamYaw + jy, roll);
+                                 + Vector3.up * (mountHeight * player.HeightRatio - Mathf.Abs(leanOut) * 0.05f)
+                                 + bodyRot * (Vector3.forward * mountForward + Vector3.right * player.LeanOffset + bob);
+            transform.rotation = Quaternion.Euler(CamPitch + kick * shakeScale + jp, CamYaw + jy, roll - leanOut * player.leanRoll);
         }
     }
 }

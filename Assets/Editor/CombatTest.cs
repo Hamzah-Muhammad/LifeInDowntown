@@ -159,11 +159,83 @@ namespace LifeInDowntown.EditorTools
                       "hit, tinnitus and heartbeat sounds exist");
                 Object.DestroyImmediate(fb);
                 Hostiles(Check);
+                Stealth(Check);
             }
             catch (System.Exception e) { Check(false, "exception: " + e); }
             Hostile.Rand = () => Random.value;
             Debug.Log(fails == 0 ? "COMBAT_RESULT all checks passed" : $"COMBAT_RESULT {fails} check(s) FAILED");
             if (Application.isBatchMode) EditorApplication.Exit(fails == 0 ? 0 : 1);
+        }
+
+        // movement against the hostiles (DESIGN 3R): footsteps by pace, sneaking cuts how far off he's spotted,
+        // peeking round a tall corner shows his head (not his chest) and never pushes the camera into the wall
+        static void Stealth(System.Action<bool, string> Check)
+        {
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            Pedestrian.All.Clear(); Hostile.All.Clear();
+            GameState.NewGame();
+            var s = GameState.Current;
+            GameObject Box(Vector3 at, Vector3 size) { var b = GameObject.CreatePrimitive(PrimitiveType.Cube); b.transform.position = at; b.transform.localScale = size; return b; }
+            Box(new Vector3(0f, -0.05f, 0f), new Vector3(300f, 0.1f, 300f));
+            Box(new Vector3(40f, 1.5f, 10f), new Vector3(2f, 3f, 2f));        // a building corner: x 39-41, z 9-11
+            var cam = PlayerSetup.BuildPlayer(Vector3.zero, 0f);
+            var tarik = GameObject.Find("Player").transform;
+            var bp = tarik.GetComponent<BodycamPlayer>();
+            var rig = cam.GetComponent<BodycamRig>();
+            var cc = tarik.GetComponent<CharacterController>();
+            Pedestrian.Player = tarik;
+            var spawner = new GameObject("Spawner").AddComponent<HostileSpawner>();
+            spawner.prefabs = new[] { AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/Male_Adult_12.prefab") };
+            spawner.pistol = AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
+            void Place(Vector3 at, float yaw) { cc.enabled = false; tarik.position = at; cc.enabled = true; bp.SetLook(yaw, 0f); Physics.SyncTransforms(); }
+            void Move(Vector2 m, bool run, bool sneak, float lean, float seconds) { for (float t = 0f; t < seconds; t += 1f / 60f) { bp.Step(m, Vector2.zero, run, sneak, false, lean, 1f / 60f); Physics.SyncTransforms(); rig.Tick(1f / 60f); } }
+            Hostile Guard(Vector3 at, float yaw) { var h = spawner.Spawn(at, 1, 1f)[0]; h.transform.SetPositionAndRotation(at, Quaternion.Euler(0f, yaw, 0f)); Physics.SyncTransforms(); return h; }
+            void Look(Hostile h) { Physics.SyncTransforms(); h.Step(1f / 30f); }
+
+            // footsteps: a guard with his back turned, 10 m off
+            var g = Guard(new Vector3(0f, 0f, 30f), 0f);
+            Place(new Vector3(0f, 0f, 20f), 90f);                       // walking across behind him
+            Move(new Vector2(0f, 1f), false, false, 0f, 0.6f); Look(g);
+            Check(g.state == Hostile.State.Idle, $"walking 10 m behind him: not heard (feet carry {bp.NoiseRadius} m)");
+            Place(new Vector3(0f, 0f, 20f), 90f);
+            Move(new Vector2(0f, 1f), true, false, 0f, 0.6f); Look(g);
+            Check(g.state == Hostile.State.Alert && g.Heard > 0, $"running 10 m behind him: heard (feet carry {bp.NoiseRadius} m), he comes to look");
+            Object.DestroyImmediate(g.gameObject); Hostile.All.Clear();
+
+            g = Guard(new Vector3(0f, 0f, 30f), 0f);
+            Place(new Vector3(-1f, 0f, 27.5f), 90f);                    // sneaking past 2.5 m behind him
+            Move(new Vector2(0f, 1f), false, true, 0f, 1f); Look(g);
+            Check(g.state == Hostile.State.Idle && bp.Sneaking, $"sneaking 2.5 m behind him: not heard (feet carry {bp.NoiseRadius} m)");
+            Object.DestroyImmediate(g.gameObject); Hostile.All.Clear();
+
+            // being seen: a guard facing him down an open street, gun out
+            s.drawn = true;
+            g = Guard(new Vector3(0f, 0f, 60f), 180f);
+            Place(new Vector3(0f, 0f, 35f), 0f); bp.SetSneak(true); Move(Vector2.zero, false, true, 0f, 0.6f); Look(g);
+            Check(g.state == Hostile.State.Idle, "sneaking 25 m off, gun out: not spotted (sneaking: 20 m)");
+            bp.SetSneak(false); Move(Vector2.zero, false, false, 0f, 0.6f); Look(g);
+            Check(g.state == Hostile.State.Alert, "standing up at 25 m: spotted (40 m)");
+            Object.DestroyImmediate(g.gameObject); Hostile.All.Clear();
+
+            // peeking: chest behind the corner, head out past it
+            g = Guard(new Vector3(40f, 0f, 20f), 180f);
+            Place(new Vector3(41.1f, 0f, 8f), 0f);
+            Move(Vector2.zero, false, false, 0f, 0.5f); Look(g);
+            Check(g.state == Hostile.State.Idle, "behind the corner, gun out: not seen");
+            Move(Vector2.zero, false, false, 1f, 0.5f);
+            Check(bp.LeanOffset > 0.35f && Vector3.Distance(cam.transform.position, tarik.position + Vector3.up * 1.62f) > 0.3f && cam.transform.eulerAngles.z is > 300f and < 355f,
+                  $"Alt + D: the head leans {bp.LeanOffset:F2} m out and the view tilts ({cam.transform.eulerAngles.z:F0} deg)");
+            Look(g);
+            Check(g.state == Hostile.State.Alert, "peeking out: he sees the head (and the gun)");
+            Move(Vector2.zero, false, false, 0f, 0.5f);
+            Object.DestroyImmediate(g.gameObject); Hostile.All.Clear();
+
+            // leaning into the wall stops short of it
+            Place(new Vector3(38.65f, 0f, 10f), 0f);                    // 35 cm from the corner's west face (his 30 cm capsule clear of it), leaning right into it
+            Move(Vector2.zero, false, false, 1f, 0.5f);
+            float gap = 39f - cam.transform.position.x;
+            Check(bp.LeanOffset < bp.leanDistance - 0.1f && gap >= 0.1f, $"leaning into a wall stops short: {bp.LeanOffset:F2} of {bp.leanDistance} m, camera {gap:F2} m off it");
+            s.drawn = false;
         }
 
         // enemies that shoot back (DESIGN 3P.4), stepped, on a flat lot with one low wall to hide behind
