@@ -453,6 +453,103 @@ He skipped the scope questions except the car, so the recommended defaults apply
 6. Pistol + shooting
 7. Detail pass, `GarageCarTest` + `ShootingTest`, renders, rebuild
 
+## 3P. Combat: hands, gunfights, fist fights (design 2026-10-22, not built)
+
+Hamzah: "Create a proper shooting mechanism, with hands. Shooting and fighting is a big part of this game and its upcoming missions." His answers:
+- **Hands:** Tarik's own Rocketbox body with IK.
+- **Combat:** enemies that shoot back, plus fist fights.
+- **Guns:** pistol only for now; the system takes more guns later.
+- **Death:** wake at home (the collapse rule in 3M: cash lost).
+
+Builds on 3M and 3O.6: WeaponHolder, Inventory, PlayerStats, Pedestrian, Ragdoll, CrowdDirector.
+
+### 3P.1 Tarik's body and hands
+- **His body:** Rocketbox **Male_Adult_18** (grey jacket, black pants) becomes Tarik. Like Ty, he's taken out of the crowd, the train riders and the clerks.
+  - The body is parented to the player at his feet.
+  - Head and neck bones are scaled to zero, so the chest cam never sees inside the head.
+  - The body casts a shadow; the arms and the bottom of the jacket are what the chest cam sees.
+- **Animator:** a humanoid controller with idle and walk on the base layer (the legs mostly stay out of view). Arms are driven in `OnAnimatorIK`:
+  - **Pistol:** the right hand holds the grip and the left supports it. Hand targets and elbow hints are children of the gun, so recoil, aiming and the draw move the arms.
+  - **Unarmed:** a fighting stance with fists in front of the chest when raised. Hands hang out of view when walking around calm.
+  - Weights blend in over 0.15 s, so draws and holsters don't snap.
+- **Procedural gun actions:**
+  - **Draw:** the right hand goes down to the hip holster and comes up with the gun.
+  - **Holster:** the reverse.
+  - **Reload:** 1.6 s, cancelled by sprinting. The gun tilts in and the mag drops out (a real object falls); the left hand goes to the belt, brings a new mag, slaps it in and racks the slide on an empty reload.
+  - **Inspect:** hold R when full.
+
+### 3P.2 Damage model
+- **Tarik:** 100 health (PlayerStats).
+  - Bullets do 18-30 by range, punches 6-10.
+  - **Feedback:** a red vignette pulse, a bodycam glitch (chromatic aberration plus a noise burst), a short tinnitus ring after a near miss, and a heartbeat under 30 health.
+  - **Regeneration:** slow regen (existing) only after 8 s without damage.
+  - **At 0:** collapse, wake at home, cash lost (3M), weapons kept.
+- **NPCs:** 100 health.
+  - **Bullets:** a hit above 1.5 m (head) drops them at once; body shots do 45-55, so two drop them.
+  - **Fists:** a punch knocks them back (a short stagger). A knockdown is a temporary ragdoll that gets back up after 3 s, unless their health is gone.
+  - **Death:** ragdoll (existing).
+- **HEAT:** as in 3O.6. Killing police is +10, though police combat stays a later milestone.
+
+### 3P.3 Fist fights
+- **Controls:**
+  - **Fists up:** holstered and in a fight stance (V toggles, or it comes up automatically when an enemy is in melee range).
+  - **Left mouse:** jab, then cross alternating. **Right mouse:** block (fists to the face, 70% less damage).
+  - **Hold left mouse:** a heavy hook (slower; knocks people down).
+- **Hit check:** a sphere cast 0.9 m ahead on the fist's peak. Hits get code-made punch sounds and a small view kick.
+- **NPC fighters:** corner crews and anyone shoved twice fight back with fists. They step in, swing (IK-driven arm swings like Tarik's), get staggered, and back off when hurt.
+
+### 3P.4 Enemies that shoot back (`NPC/Hostile`)
+- **States:** Idle → Alert (heard a shot, saw a gun, was shoved) → Combat → Dead. Each one can be stepped with `Tick(dt)` for tests.
+- **Perception:**
+  - **Sight:** 40 m, a 120° view, a line-of-sight raycast to Tarik's chest.
+  - **Hearing:** gunshots within 60 m (the Panic hook in WeaponHolder).
+- **In combat:**
+  - **Cover:** they pick cover. Candidates are points beside parked cars, building corners and columns within 15 m, where a ray from Tarik to the point is blocked.
+  - **Movement:** they run there (sped-up walk), peek, and fire 2-3 shot bursts with their arms IK-aimed at Tarik.
+  - **Accuracy:** it falls off with distance, with Tarik moving and with Tarik being in cover. Shots have a muzzle flash, a 3D gunshot and a faint tracer.
+  - **Reload:** after 12 rounds.
+  - **Fleeing:** under 25 health, 50% chance.
+  - **Bodies:** dead ones drop their pistol, which can be picked up as ammo.
+- **Who:**
+  - **Mission enemies:** spawned by an objective field `"enemies": [{"place": ..., "count": 3}]`; the objective completes when all are down.
+  - **Corner crews and dealers:** they turn hostile if Tarik shoots at them or hits them. One crew member in each group is armed.
+  - **Police:** react as now. Police combat comes later.
+- **First mission:** "Wrong Corner" (Ty).
+
+  > "Mans jumped my guy behind the Victoria St garage."
+  
+  Three hostiles; the reward is $120, REP +2, HEAT +3.
+
+### 3P.5 Sound (code-made, like 3I)
+- Punch impacts: jab and hook.
+- A body hit.
+- Enemy gunshots: the same shot, 3D with distance filtering.
+- Bullet cracks passing near.
+- A heartbeat.
+- A tinnitus ring.
+- The mag drop clatter.
+
+### 3P.6 Tests (`CombatTest`, edit mode)
+- **Body:** Tarik's body exists with hidden head and neck bones. The IK targets sit on the gun's grip, follow the drawn and aimed poses, and stay within arm's reach of the shoulders.
+- **Reload:** the reload timeline ends with a full mag and one dropped mag object.
+- **Damage:** headshots drop at once; body shots take two; punches stagger; heavy punches knock down and NPCs get back up; Tarik takes damage, regenerates after 8 s, and wakes at home at 0.
+- **Hostiles, stepped:** they hear a shot, go alert, pick blocked cover, fire, reload after 12, and flee under 25.
+- **Missions:** the mission spawns 3 and completes when they're down.
+- **Plus:** renders of the pistol held, aimed and mid-reload, and of fists up; all 7 existing suites stay green; the exe is rebuilt.
+
+### 3P.7 Build order (one branch `feature/combat`, one commit per task)
+1. Tarik's body and IK hands with the pistol: draw, holster, aim, recoil, reload.
+2. The damage model and feedback.
+3. Fist fights.
+4. Hostile AI, the spawner and "Wrong Corner".
+5. Corner crews turning hostile.
+6. Sounds, tests, renders, rebuild.
+
+### 3P.8 Open items and limits
+- **No custom animations:** everything arm-related is IK and procedural; legs use the walk clip. No strafing or crouch-walk clips exist in Rocketbox.
+- **The look:** Male_Adult_18 as Tarik is a placeholder until Tarik's look is decided.
+- **Police combat** is a later milestone.
+
 ## 4. Later milestones (not scheduled)
 1. Port the Godot game's core systems to C#: main menu with character creation, dialogue engine with `{name}`/pronoun templating, save/load, pause and options, the GameState stats.
 2. Realistic Tarik (hands/reflection) and NPCs, plus pedestrians and traffic.
