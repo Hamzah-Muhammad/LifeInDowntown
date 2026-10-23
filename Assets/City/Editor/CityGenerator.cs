@@ -46,6 +46,7 @@ namespace LifeInDowntown.City
             BuildStreetDetail(data, root.transform, mats, meshes);
             BuildCondo(data, root.transform, mats, meshes);
             BuildLobby(data, root.transform, mats, meshes);
+            BuildGarage(data, root.transform, mats, meshes);
             BuildSubway(root.transform, mats, meshes);       // DESIGN 3N: stations, then the holes in the pavement
             BuildSkyline(root.transform, mats, meshes);
             int puddles = RainLook.BuildPuddles(data, root.transform);

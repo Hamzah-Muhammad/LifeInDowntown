@@ -41,6 +41,11 @@ namespace LifeInDowntown.EditorTools
                 poses.Add(("lobby_inside", lobby.W(-0.3f, 1.2f, 1.65f), lobby.W(0f, 10f, 1.3f)));
                 poses.Add(("lobby_desk", lobby.W(-1.6f, 3.0f, 1.65f), lobby.W(2.5f, 5.6f, 1.2f)));
                 poses.Add(("lobby_lounge", lobby.W(1.8f, 3.4f, 1.65f), lobby.W(-3.2f, 8.6f, 0.8f)));
+                float gy = CityGenerator.GarageFloorY;   // DESIGN 3O.3
+                poses.Add(("garage_aisle", lobby.W(-18.5f, 9.2f, gy + 1.6f), lobby.W(10f, 9.2f, gy + 1.0f)));
+                poses.Add(("garage_bay17", lobby.W(-3.9f, 7.5f, gy + 1.6f), lobby.W(-3.9f, 16f, gy + 0.6f)));
+                poses.Add(("garage_exit", lobby.W(8f, 9.2f, gy + 1.6f), lobby.W(20f, 9.2f, gy + 1.2f)));
+                poses.Add(("garage_street_door", lobby.W(-14f, -9f, 1.7f), lobby.W(-10.5f, 0f, 1.6f)));
             }
             var shopSites = CityGenerator.ShopSites(data).FindAll(x => x.kind == "rabba");
             if (shopSites.Count > 0)
