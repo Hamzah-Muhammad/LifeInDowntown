@@ -524,7 +524,20 @@ The design as written:
 - **Hit check:** a sphere cast 0.9 m ahead on the fist's peak. Hits get code-made punch sounds and a small view kick.
 - **NPC fighters:** corner crews and anyone shoved twice fight back with fists. They step in, swing (IK-driven arm swings like Tarik's), get staggered, and back off when hurt.
 
-### 3P.4 Enemies that shoot back (`NPC/Hostile`)
+### 3P.4 Enemies that shoot back (`NPC/Hostile`; built 2026-10-22, no mission yet)
+Built as follows. "Wrong Corner" is **not** written: Hamzah said "Dont build the first mission yet".
+- **The spawner and the objective field are built:**
+  - `HostileSpawner` sits in the city scene on the crowd root, with the crowd's men and Tarik's pistol model.
+  - An objective's `"enemies": [{"place": "", "count": 3, "spread": 8}]` spawns them on the sidewalk when Tarik is within 90 m. The objective is done when all are down or have run.
+  - Spawned enemies aren't saved; loading mid-fight puts them back.
+- **Cover is found, not placed:** points on 1 m rings within 15 m where something solid within 2.5 m blocks the line from Tarik's chest. So parked cars, corners and columns all work without tagging.
+- **Shooting:** they shoot from cover when they have a line, otherwise they peek out 0.8-1.4 m to the side and duck back after each burst.
+- **Accuracy per shot:** 0.6 × (1 at 5 m, falling to 0.2 at 40 m) × 0.6 if Tarik is moving × 0.4 if only his head shows. Misses within 1.2 m of him count as near misses (the tinnitus ring).
+- **When they shoot:** their shots panic the street and alert other enemies.
+- **Bullets and punches on an enemy:** both do damage. Neither makes them flee or brawl.
+- **Range:** `range_hostile_*` (aimed, from Tarik's eyes, low ready).
+
+The design as written:
 - **States:** Idle → Alert (heard a shot, saw a gun, was shoved) → Combat → Dead. Each one can be stepped with `Tick(dt)` for tests.
 - **Perception:**
   - **Sight:** 40 m, a 120° view, a line-of-sight raycast to Tarik's chest.
@@ -567,7 +580,7 @@ The design as written:
 1. Tarik's body and IK hands with the pistol: draw, holster, aim, recoil, reload. **Done.**
 2. The damage model and feedback. **Done.**
 3. Fist fights. **Done.**
-4. Hostile AI, the spawner and "Wrong Corner".
+4. Hostile AI and the spawner. **Done.** "Wrong Corner" waits for Hamzah's go.
 5. Corner crews turning hostile.
 6. Sounds, tests, renders, rebuild.
 

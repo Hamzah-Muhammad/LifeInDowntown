@@ -30,6 +30,13 @@ namespace LifeInDowntown.Phone
         public string text; public string place; public float radius = 10f; public string arriveText;
         public string npc;    // someone waiting there in person, e.g. "ty" (DESIGN 3O.1)
         public string talk;   // dialogue played face to face on arrival; the objective completes when it ends
+        public EnemyGroup[] enemies = new EnemyGroup[0];   // armed people here (DESIGN 3P.4); done when all are down or gone
+    }
+    [Serializable] public class EnemyGroup
+    {
+        public string place;  // "" = the objective's place
+        public int count = 3;
+        public float spread = 8f;
     }
     [Serializable] public class Mission
     {
@@ -93,6 +100,11 @@ namespace LifeInDowntown.Phone
                     if (!Places.ContainsKey(o.place)) problems.Add($"mission {m.id}: unknown place '{o.place}'");
                     if (!string.IsNullOrEmpty(o.talk) && !Dialogues.ContainsKey(o.talk)) problems.Add($"mission {m.id}: missing talk dialogue {o.talk}");
                     if (!string.IsNullOrEmpty(o.talk) && string.IsNullOrEmpty(o.npc)) problems.Add($"mission {m.id}: talk '{o.talk}' with nobody there (npc)");
+                    foreach (var g in o.enemies ?? new EnemyGroup[0])
+                    {
+                        if (!string.IsNullOrEmpty(g.place) && !Places.ContainsKey(g.place)) problems.Add($"mission {m.id}: enemies at unknown place '{g.place}'");
+                        if (g.count < 1) problems.Add($"mission {m.id}: an enemy group of {g.count}");
+                    }
                 }
             }
             foreach (var dlg in Dialogues.Values)

@@ -96,6 +96,10 @@ namespace LifeInDowntown.EditorTools
             int waiting = PlaceCrosswalks(c, junctions); Roles(n0, Pedestrian.Role.Waiting); n0 = c.statics.Count;
             int homeless = PlaceHomeless(c, lines); Roles(n0, Pedestrian.Role.Homeless);
             crowd.statics = c.statics.ToArray();
+            // armed men for mission objectives (DESIGN 3P.4): the crowd's men, with Tarik's duty pistol
+            var spawner = c.root.gameObject.AddComponent<HostileSpawner>();
+            spawner.prefabs = c.male.ToArray();
+            spawner.pistol = AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
             Debug.Log($"NPC_OK pool={crowd.walkers} cornerGroups={groups} crosswalkPeople={waiting} homelessSpots={homeless} " +
                       $"police={police} dealers={dealers} statics={c.statics.Count} sidewalkLines={lines.Count} points={pts.Count} characters={all.Count}");
         }

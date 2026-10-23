@@ -205,6 +205,29 @@ namespace LifeInDowntown.EditorTools
                 fists.SetUp(false); fists.Step(1f);
             }
 
+            // an enemy (DESIGN 3P.4): the pistol up in both hands, aimed at Tarik, and at the low ready
+            var hp = AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/Male_Adult_17.prefab");
+            if (hp != null)
+            {
+                var foe = (GameObject)PrefabUtility.InstantiatePrefab(hp);
+                foe.name = "RangeHostile";
+                foe.transform.position = new Vector3(1.5f, 0f, 6f);
+                Idle(foe.GetComponentInChildren<Animator>());
+                foreach (var smr in foe.GetComponentsInChildren<SkinnedMeshRenderer>()) { smr.forceMatrixRecalculationPerRender = true; smr.updateWhenOffscreen = true; }
+                var hostile = foe.AddComponent<LifeInDowntown.NPC.Hostile>();
+                hostile.pistolModel = AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
+                var tarikT = GameObject.Find("Player").transform;
+                hostile.PoseForShot(tarikT);
+                Look("range_hostile_side", new Vector3(4.2f, 1.5f, 5.2f), new Vector3(1.5f, 1.3f, 6f), 40f);
+                wh.PoseHolstered();
+                Idle(body.anim);   // edit mode keeps the last IK'd pose (the block) until the clip is sampled again
+                Eye("range_hostile_eye", PlayerSetup.VerticalFov);
+                hostile.PoseForShot(tarikT, false);
+                Look("range_hostile_low", new Vector3(4.2f, 1.5f, 5.2f), new Vector3(1.5f, 1.1f, 6f), 40f);
+                Object.DestroyImmediate(foe);
+                LifeInDowntown.NPC.Hostile.All.Clear();
+            }
+
             var g = GameObject.Find("PistolOnPlinth").transform.position;
             for (int a = 0; a < 360; a += 90)
                 Look($"range_pistol_{a}", g + Quaternion.Euler(15f, a, 0f) * (Vector3.back * 0.55f), g, 30f);

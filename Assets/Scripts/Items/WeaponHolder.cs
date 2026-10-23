@@ -312,6 +312,7 @@ namespace LifeInDowntown.Items
 
             int near = Panic(origin);
             if (near > 0) S.heat += 1;
+            Hostile.HearShot(origin);   // anyone armed within 60 m comes looking (DESIGN 3P.4)
             var result = Shot.Fired;
             if (Physics.Raycast(origin + dir * 0.35f, dir, out var hit, range, ~0, QueryTriggerInteraction.Ignore))
             {
@@ -327,6 +328,9 @@ namespace LifeInDowntown.Items
             return result;
         }
 
+        // a shot that isn't Tarik's (a hostile firing): the street reacts the same way
+        public static void PanicAt(Vector3 at) { if (Instance != null) Instance.Panic(at); }
+
         // everyone within earshot runs from the shot; police walk over and watch
         int Panic(Vector3 at)
         {
@@ -334,7 +338,7 @@ namespace LifeInDowntown.Items
             var all = new List<Pedestrian>(Pedestrian.All);
             foreach (var p in all)
             {
-                if (p.Dead || p.role == Pedestrian.Role.Story) continue;
+                if (p.Dead || p.role == Pedestrian.Role.Story || p.role == Pedestrian.Role.Hostile) continue;
                 if ((p.transform.position - at).sqrMagnitude > panicRadius * panicRadius) continue;
                 n++;
                 if (p.role == Pedestrian.Role.Police) p.Approach(at); else p.Flee(at);
@@ -403,7 +407,7 @@ namespace LifeInDowntown.Items
                 GUI.Label(new Rect(Screen.width - 630f * k, Screen.height - 130f * k, 600f * k, 40f * k), toast, hud);
         }
 
-        static Bounds Bounds(Transform t)
+        public static Bounds Bounds(Transform t)   // the gun model's local bounds (Hostile finds its muzzle with it too)
         {
             var rs = t.GetComponentsInChildren<Renderer>();
             if (rs.Length == 0) return new Bounds(Vector3.zero, Vector3.one * 0.1f);

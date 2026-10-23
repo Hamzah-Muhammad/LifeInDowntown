@@ -76,6 +76,7 @@ namespace LifeInDowntown.Player
 
         void OnHurt(float amount, Vector3 from)
         {
+            if (this == null) { Listen(false); return; }   // destroyed with its scene in edit mode (no OnDestroy there)
             Init();
             float k = Mathf.Clamp01(amount / 25f);
             Pulse = Mathf.Max(Pulse, 0.55f + 0.45f * k);
@@ -87,6 +88,7 @@ namespace LifeInDowntown.Player
 
         void OnNearMiss(Vector3 at)
         {
+            if (this == null) { Listen(false); return; }
             Init();
             Ring = 1f;
             Glitch = Mathf.Max(Glitch, 0.25f);

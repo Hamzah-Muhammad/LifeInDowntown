@@ -11,7 +11,7 @@ namespace LifeInDowntown.NPC
         public enum Mode { Walk, WalkSlow, Idle, Phone, Crouch, Sit, SitLook, Drunk, Cough, Cold, Nervous, LookAround, TalkCool, Listen, Waiting }
 
         // who they are on the street: picks their lines (NpcBarks) and who dealers worry about (DESIGN 3O)
-        public enum Role { Walker, Corner, Homeless, Police, Waiting, Clerk, Story }
+        public enum Role { Walker, Corner, Homeless, Police, Waiting, Clerk, Story, Hostile }   // Hostile: armed, shoots back (DESIGN 3P.4)
 
         public Mode mode = Mode.Walk;
         public Role role = Role.Walker;
@@ -46,7 +46,9 @@ namespace LifeInDowntown.NPC
             if (hitPoint.y - transform.position.y > HeadHeight) amount = health;
             health -= amount;
             if (health <= 0f) { Kill(hitPoint, push); return true; }
-            Flee(from);
+            var hostile = GetComponent<Hostile>();
+            if (hostile != null) hostile.TookHit(from);   // they fight on (or decide to run) themselves
+            else Flee(from);
             return false;
         }
 
@@ -54,6 +56,13 @@ namespace LifeInDowntown.NPC
         public void Punch(float amount, Vector3 point, Vector3 dir, bool heavy)
         {
             if (Dead) return;
+            var hostile = GetComponent<Hostile>();
+            if (hostile != null)   // armed: no brawl, they take it and keep shooting
+            {
+                health -= amount;
+                if (health <= 0f) Kill(point, dir * 12f); else hostile.TookHit(point - dir * 1.5f);
+                return;
+            }
             var m = GetComponent<NpcMelee>();
             if (m == null) m = gameObject.AddComponent<NpcMelee>();
             m.TakePunch(amount, point, dir, heavy);

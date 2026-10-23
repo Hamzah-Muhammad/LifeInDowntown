@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LifeInDowntown.Game;
 using LifeInDowntown.Items;
 using LifeInDowntown.NPC;
@@ -157,10 +158,96 @@ namespace LifeInDowntown.EditorTools
                 Check(Resources.Load<AudioClip>("Audio/hurt_hit") != null && Resources.Load<AudioClip>("Audio/tinnitus") != null && Resources.Load<AudioClip>("Audio/heartbeat") != null,
                       "hit, tinnitus and heartbeat sounds exist");
                 Object.DestroyImmediate(fb);
+                Hostiles(Check);
             }
             catch (System.Exception e) { Check(false, "exception: " + e); }
+            Hostile.Rand = () => Random.value;
             Debug.Log(fails == 0 ? "COMBAT_RESULT all checks passed" : $"COMBAT_RESULT {fails} check(s) FAILED");
             if (Application.isBatchMode) EditorApplication.Exit(fails == 0 ? 0 : 1);
+        }
+
+        // enemies that shoot back (DESIGN 3P.4), stepped, on a flat lot with one low wall to hide behind
+        static void Hostiles(System.Action<bool, string> Check)
+        {
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            Pedestrian.All.Clear(); Hostile.All.Clear();
+            GameState.NewGame();
+            var s = GameState.Current;
+            GameObject Box(Vector3 at, Vector3 size) { var b = GameObject.CreatePrimitive(PrimitiveType.Cube); b.transform.position = at; b.transform.localScale = size; return b; }
+            Box(new Vector3(0f, -0.05f, 0f), new Vector3(300f, 0.1f, 300f));
+            Box(new Vector3(0f, 0.6f, 14f), new Vector3(4f, 1.2f, 0.5f));      // a car-high wall between them and Tarik
+            var cam = PlayerSetup.BuildPlayer(Vector3.zero, 0f);
+            var tarik = GameObject.Find("Player").transform;
+            Pedestrian.Player = tarik;
+            var stats = new GameObject("Stats").AddComponent<PlayerStats>();
+            var spawner = new GameObject("Spawner").AddComponent<HostileSpawner>();
+            spawner.prefabs = new[] { AssetDatabase.LoadAssetAtPath<GameObject>($"{CharacterImport.Root}/Prefabs/Male_Adult_12.prefab") };
+            spawner.pistol = AssetDatabase.LoadAssetAtPath<GameObject>(PistolImport.PrefabPath);
+            void Run(Hostile h, float seconds) { for (float t = 0f; t < seconds; t += 1f / 30f) { Physics.SyncTransforms(); h.Step(1f / 30f); } }
+
+            var h1 = spawner.Spawn(new Vector3(0f, 0f, 20f), 1, 2f)[0];
+            h1.transform.SetPositionAndRotation(new Vector3(1f, 0f, 20f), Quaternion.identity);   // back to Tarik
+            var far = spawner.Spawn(new Vector3(90f, 0f, 0f), 1, 2f)[0];
+            Run(h1, 1f);
+            Check(h1.state == Hostile.State.Idle, "facing away 20 m off, they haven't clocked him");
+            Hostile.HearShot(Vector3.zero);
+            Check(h1.state == Hostile.State.Alert && far.state == Hostile.State.Idle, "a shot: the one 20 m away goes alert, the one 90 m away doesn't hear it");
+            Hostile.Rand = () => 0.99f;   // every shot misses for now
+            Run(h1, 1.2f);
+            Check(h1.state == Hostile.State.Combat, "they turn, see him, and fight");
+            Run(h1, 4f);
+            var cover = h1.Cover;
+            Check(cover.HasValue && !Hostile.Exposed(cover.Value, tarik) && (h1.transform.position - cover.Value).magnitude < 2f,
+                  $"they find cover the wall hides from him and get to it ({(cover.HasValue ? (h1.transform.position - cover.Value).magnitude : -1f):F2} m off it)");
+            Run(h1, 10f);
+            Check(h1.ShotsFired >= 4 && h1.NearMisses >= 1, $"they peek and fire bursts ({h1.ShotsFired} shots, {h1.NearMisses} near misses, peeking {h1.Peeking})");
+            Check(s.health == 100f, "missed shots don't hurt");
+            Run(h1, 8f);
+            Check(h1.Reloads >= 1, $"they reload after 12 ({h1.ShotsFired} shots, {h1.Reloads} reloads)");
+            Hostile.Rand = () => 0f;      // every shot hits
+            float before = s.health; int hits0 = h1.Hits;
+            Run(h1, 4f);
+            Check(h1.Hits > hits0 && s.health < before, $"hits hurt Tarik ({h1.Hits - hits0} hits, {before:F0} -> {s.health:F0})");
+            s.health = 100f;
+
+            var ped = h1.GetComponent<Pedestrian>();
+            ped.health = 30f;
+            Hostile.Rand = () => 0.1f;    // the coin says run
+            ped.Damage(10f, ped.transform.position + Vector3.up, Vector3.forward, Vector3.zero);
+            Run(h1, 0.2f);
+            Check(h1.state == Hostile.State.Fled && h1.Down && ped.path != null, "under 25 health, a coin flip says run");
+
+            var h3 = spawner.Spawn(new Vector3(-6f, 0f, 22f), 1, 2f)[0];
+            var p3 = h3.GetComponent<Pedestrian>();
+            p3.Damage(200f, p3.transform.position + Vector3.up * 1.7f, Vector3.forward, Vector3.zero);
+            Run(h3, 0.1f);
+            var drop = Object.FindObjectsByType<LifeInDowntown.World.WorldPickup>(FindObjectsSortMode.None);
+            Check(h3.state == Hostile.State.Dead && System.Array.Exists(drop, d => d.itemId == "ammo_9mm" && d.count >= 6), "the dead drop their pistol as 9mm rounds");
+
+            // a mission objective with "enemies": three on the street near the place, done when they're down
+            var mm = new GameObject("Missions").AddComponent<LifeInDowntown.Phone.MissionManager>();
+            mm.Init();
+            var placeName = new List<string>(mm.Data.Places.Keys)[0];
+            var place = mm.Data.PlacePosition(placeName).Value;
+            Box(place + Vector3.down * 0.05f, new Vector3(60f, 0.1f, 60f));
+            mm.Data.Missions.Add(new LifeInDowntown.Phone.Mission
+            {
+                id = "test_enemies", title = "Test", giver = "ty",
+                objectives = new[] { new LifeInDowntown.Phone.Objective { text = "Deal with them", place = placeName, enemies = new[] { new LifeInDowntown.Phone.EnemyGroup { count = 3 } } } },
+                rewards = new[] { "cash:+1" },
+            });
+            mm.StartMission("test_enemies");
+            mm.Tick(0.1f, place + Vector3.forward * 200f);
+            Check(mm.Spawned == null, "nobody spawns while Tarik is 200 m away");
+            mm.Tick(0.1f, place + Vector3.forward * 40f);
+            Check(mm.Spawned != null && mm.Spawned.Count == 3, $"within 90 m, three of them appear ({mm.Spawned?.Count ?? 0})");
+            mm.Tick(0.1f, place + Vector3.forward * 40f);
+            Check(s.activeMission == "test_enemies", "the objective waits while they're standing");
+            foreach (var h in new List<Hostile>(mm.Spawned)) { var hp = h.GetComponent<Pedestrian>(); hp.Damage(200f, hp.transform.position + Vector3.up * 1.7f, Vector3.forward, Vector3.zero); h.Step(0.1f); }
+            mm.Tick(0.1f, place + Vector3.forward * 40f);
+            Check(s.HasFlag("done:test_enemies") && s.activeMission == "", "all down: the objective (and here the mission) completes");
+            mm.Data.Missions.RemoveAll(m => m.id == "test_enemies");
+            Check(mm.Data.Validate().Count == 0, "the real mission data still validates with the new enemies field");
         }
     }
 }
